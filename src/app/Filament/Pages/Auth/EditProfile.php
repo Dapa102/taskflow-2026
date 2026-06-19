@@ -114,6 +114,23 @@ class EditProfile extends BaseEditProfile
                         $this->getEmailFormComponent()
                             ->inlineLabel(false)
                             ->columnSpan(2),
+                        Forms\Components\TextInput::make('phone')
+                            ->label('No. Telepon')
+                            ->tel()
+                            ->inlineLabel(false)
+                            ->columnSpan(2),
+                        Forms\Components\Textarea::make('bio')
+                            ->label('Bio')
+                            ->rows(3)
+                            ->inlineLabel(false)
+                            ->columnSpan(2),
+                        Forms\Components\KeyValue::make('social_links')
+                            ->label('Sosial Media')
+                            ->keyLabel('Platform')
+                            ->valueLabel('URL')
+                            ->addActionLabel('Tambah link')
+                            ->inlineLabel(false)
+                            ->columnSpan(2),
                         Forms\Components\TextInput::make('Current password')
                             ->label('Current Password')
                             ->password()

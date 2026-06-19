@@ -28,7 +28,11 @@ class TaskResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('user_id', auth()->id())->count();
+        $user = auth()->user();
+        if ($user->hasRole('super_admin')) {
+            return static::getModel()::count();
+        }
+        return static::getModel()::where('user_id', $user->id)->count();
     }
 
     public static function form(Form $form): Form
@@ -50,18 +54,20 @@ class TaskResource extends Resource
 
                         Forms\Components\Select::make('category_id')
                             ->label('Kategori')
-                            ->options(fn (): array => Category::where('user_id', auth()->id())->pluck('name', 'id')->toArray())
+                            ->options(fn (): array => auth()->user()->hasRole('super_admin')
+                                ? Category::pluck('name', 'id')->toArray()
+                                : Category::where('user_id', auth()->id())->pluck('name', 'id')->toArray())
                             ->searchable()
                             ->preload()
                             ->nullable(),
 
                         Forms\Components\Select::make('team_id')
                             ->label('Tim')
-                            ->options(fn (): array => Team::where('owner_id', auth()->id())->pluck('name', 'id')->toArray())
+                            ->options(Team::pluck('name', 'id')->toArray())
                             ->searchable()
                             ->preload()
                             ->nullable()
-                            ->live(),
+                            ->native(false),
 
                         Forms\Components\Select::make('status')
                             ->options([
@@ -86,7 +92,9 @@ class TaskResource extends Resource
                             ->label('Tenggat Waktu')
                             ->native(false)
                             ->displayFormat('d M Y')
-                            ->format('Y-m-d'),
+                            ->format('Y-m-d')
+                            ->closeOnDateSelection()
+                            ->minDate(now()->subYear()->startOfDay()),
                     ])
                     ->columns(2),
             ]);
@@ -95,7 +103,9 @@ class TaskResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', auth()->id())->with('category', 'team'))
+            ->modifyQueryUsing(fn (Builder $query) => auth()->user()->hasRole('super_admin')
+                ? $query->with(['category', 'team', 'assignees', 'comments.user', 'subtasks', 'attachments'])
+                : $query->where('user_id', auth()->id())->with(['category', 'team', 'assignees', 'comments.user', 'subtasks', 'attachments']))
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label('Judul')
@@ -185,25 +195,20 @@ class TaskResource extends Resource
                     ]),
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Kategori')
-                    ->options(fn (): array => Category::where('user_id', auth()->id())->pluck('name', 'id')->toArray()),
+                    ->options(fn (): array => auth()->user()->hasRole('super_admin')
+                        ? Category::pluck('name', 'id')->toArray()
+                        : Category::where('user_id', auth()->id())->pluck('name', 'id')->toArray()),
             ])
             ->actions([
-                Tables\Actions\Action::make('change_status')
-                    ->label('Status')
-                    ->icon('heroicon-o-arrow-path')
-                    ->form([
-                        Forms\Components\Select::make('status')
-                            ->options([
-                                'todo' => 'To-Do',
-                                'on_progress' => 'On Progress',
-                                'done' => 'Done',
-                            ])
-                            ->required(),
-                    ])
-                    ->action(function (Task $record, array $data): void {
-                        $record->update(['status' => $data['status']]);
-                    })
-                    ->color('info'),
+                Tables\Actions\Action::make('task_detail')
+                    ->label('Detail')
+                    ->icon('heroicon-o-eye')
+                    ->color('info')
+                    ->modalHeading(fn (Task $record) => $record->title)
+                    ->modalWidth('2xl')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
+                    ->modalContent(fn (Task $record) => view('filament.admin.resources.task-resource.detail', ['task' => $record])),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

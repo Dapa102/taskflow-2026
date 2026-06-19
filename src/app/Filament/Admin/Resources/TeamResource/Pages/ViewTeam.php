@@ -87,28 +87,19 @@ class ViewTeam extends ViewRecord
             ->collapsed($status !== 'on_progress')
             ->schema(
                 $tasks->isEmpty()
-                    ? [Infolists\Components\TextEntry::make('_empty')
+                    ? [Infolists\Components\TextEntry::make('empty_' . $status)
                           ->label('')
                           ->default('Tidak ada tugas dengan status ini.')]
                     : $tasks->map(fn (Task $task) =>
-                        Infolists\Components\TextEntry::make('_task_' . $task->id)
+                        Infolists\Components\TextEntry::make('t' . $task->id . '_' . $status)
                             ->label($task->title)
-                            ->html()
-                            ->formatStateUsing(function () use ($task) {
-                                $assignees = $task->assignees->map(fn ($u) => $u->name)->implode(', ');
-                                $category = $task->category?->name;
-                                $deadline = $task->deadline?->format('d M Y');
-                                $priority = ucfirst($task->priority);
-
-                                $parts = [];
-                                if ($priority) $parts[] = "<span class=\"font-medium\">{$priority}</span>";
-                                if ($category) $parts[] = $category;
-                                if ($deadline) $parts[] = "Tenggat: {$deadline}";
-                                if ($assignees) $parts[] = "Ditugaskan ke: {$assignees}";
-
-                                return implode(' &middot; ', $parts);
-                            })
-                    )->toArray()
+                            ->default(implode(' · ', array_filter([
+                                ucfirst($task->priority),
+                                $task->category?->name,
+                                $task->deadline?->format('d M Y'),
+                                $task->assignees->pluck('name')->implode(', ') ? 'Ditugaskan ke: ' . $task->assignees->pluck('name')->implode(', ') : null,
+                            ])))
+                    )->all()
             );
     }
 }

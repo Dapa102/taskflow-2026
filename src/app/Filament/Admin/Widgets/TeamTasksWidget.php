@@ -19,9 +19,13 @@ class TeamTasksWidget extends BaseWidget
 
     public function table(Table $table): Table
     {
+        $user = auth()->user();
+
         return $table
             ->query(
-                Team::query()->withCount('members')
+                $user->hasRole('super_admin')
+                    ? Team::query()->withCount('members')
+                    : Team::whereHas('members', fn ($q) => $q->where('user_id', $user->id))->withCount('members')
             )
             ->heading('Tim & Tugas Sedang Dikerjakan')
             ->columns([
@@ -34,6 +38,18 @@ class TeamTasksWidget extends BaseWidget
                     ->label('Anggota')
                     ->counts('members')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('members')
+                    ->label('Nama Anggota')
+                    ->html()
+                    ->state(fn (Team $team) => $team->members->map(fn ($m) =>
+                        '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700">
+                            <span class="w-4 h-4 rounded-full bg-gray-400 flex items-center justify-center text-[10px] text-white font-bold">'
+                            . strtoupper(substr($m->user?->name ?? '?', 0, 1)) .
+                            '</span>'
+                            . e($m->user?->name ?? 'Unknown') .
+                            ' <span class="text-gray-400">(' . $m->role . ')</span>
+                        </span>'
+                    )->implode(' ')),
                 Tables\Columns\TextColumn::make('tasks')
                     ->label('Tugas On Progress')
                     ->html()
