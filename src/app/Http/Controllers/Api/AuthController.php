@@ -34,6 +34,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'roles' => $user->getRoleNames(),
             ],
             'token' => $token,
         ], 201);
@@ -62,6 +63,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'roles' => $user->getRoleNames(),
             ],
             'token' => $token,
         ]);

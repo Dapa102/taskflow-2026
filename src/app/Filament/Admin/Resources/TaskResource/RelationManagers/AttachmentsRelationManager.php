@@ -7,6 +7,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
 
 class AttachmentsRelationManager extends RelationManager
 {
@@ -34,19 +35,15 @@ class AttachmentsRelationManager extends RelationManager
                         'application/vnd.ms-excel',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     ])
-                    ->storeFileNameUsing(fn ($file) => $file->getClientOriginalName()),
+                    ->preserveFilenames()
+                    ->storeFileNamesIn('filename'),
 
                 Forms\Components\Hidden::make('user_id')
                     ->default(fn () => auth()->id()),
 
-                Forms\Components\Hidden::make('filename')
-                    ->default(fn (Forms\Get $get) => ''),
+                Forms\Components\Hidden::make('file_size'),
 
-                Forms\Components\Hidden::make('file_size')
-                    ->default(0),
-
-                Forms\Components\Hidden::make('mime_type')
-                    ->default(''),
+                Forms\Components\Hidden::make('mime_type'),
             ]);
     }
 
@@ -82,12 +79,14 @@ class AttachmentsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()
                     ->label('Upload File')
                     ->mutateFormDataUsing(function (array $data): array {
-                        $file = request()->file('data.file_path');
-                        if ($file) {
-                            $data['filename'] = $file->getClientOriginalName();
-                            $data['file_size'] = $file->getSize();
-                            $data['mime_type'] = $file->getMimeType();
-                            $data['user_id'] = auth()->id();
+                        $data['user_id'] = auth()->id();
+
+                        if (!empty($data['file_path'])) {
+                            $fullPath = Storage::disk('public')->path($data['file_path']);
+                            if (file_exists($fullPath)) {
+                                $data['file_size'] = filesize($fullPath);
+                                $data['mime_type'] = mime_content_type($fullPath) ?: '';
+                            }
                         }
 
                         return $data;

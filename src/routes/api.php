@@ -6,7 +6,10 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SubtaskController;
+use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\TaskAssignmentController;
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\TeamController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     });
 
+    Route::get('tasks/assigned', [TaskAssignmentController::class, 'myTasks']);
     Route::apiResource('tasks', TaskController::class);
     Route::apiResource('categories', CategoryController::class)->except(['show']);
 
@@ -45,4 +49,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::delete('notifications/{id}', [NotificationController::class, 'destroy']);
+
+    Route::apiResource('teams', TeamController::class);
+    Route::post('teams/join', [TeamController::class, 'joinByInvite']);
+    Route::get('teams/{team}/members', [TeamController::class, 'members']);
+    Route::post('teams/{team}/members', [TeamController::class, 'addMember']);
+    Route::delete('teams/{team}/members/{member}', [TeamController::class, 'removeMember']);
+
+    Route::get('reports/summary', [ReportController::class, 'summary']);
+    Route::get('reports/team/{team}', [ReportController::class, 'teamStats']);
+    Route::get('reports/export', [ReportController::class, 'export']);
+
+    Route::get('tasks/{task}/assignees', [TaskAssignmentController::class, 'index']);
+    Route::post('tasks/{task}/assign', [TaskAssignmentController::class, 'assign']);
+    Route::delete('tasks/{task}/assign/{user}', [TaskAssignmentController::class, 'unassign']);
 });

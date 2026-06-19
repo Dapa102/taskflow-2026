@@ -1,4 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @tailwind variants;
+
+@layer base {
+    body {
+        @apply bg-[#0A0A0F] text-zinc-100 font-sans antialiased;
+    }
+}
+
+@layer components {
+    .glass {
+        @apply bg-white/5 backdrop-blur-xl border border-white/10;
+    }
+    .glass-strong {
+        @apply bg-white/10 backdrop-blur-2xl border border-white/10;
+    }
+    .gradient-text {
+        @apply bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent;
+    }
+    .gradient-btn {
+        @apply bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-400 hover:to-pink-400 text-white font-semibold rounded-full transition-all duration-300;
+    }
+}

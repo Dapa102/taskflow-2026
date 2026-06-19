@@ -6,6 +6,7 @@
         "dev": "vite"
     },
     "devDependencies": {
+        "@vitejs/plugin-vue": "^6.0.7",
         "axios": "^1.8.4",
         "concurrently": "^9.1.2",
         "laravel-vite-plugin": "^1.2.0",
@@ -13,10 +14,15 @@
         "vite": "^6.2.6"
     },
     "dependencies": {
+        "@headlessui/vue": "^1.7.23",
+        "@heroicons/vue": "^2.2.0",
         "@tailwindcss/forms": "^0.5.10",
         "@tailwindcss/typography": "^0.5.16",
         "autoprefixer": "^10.4.21",
+        "pinia": "^3.0.4",
         "postcss": "^8.5.3",
-        "postcss-nesting": "^13.0.1"
+        "postcss-nesting": "^13.0.1",
+        "vue": "^3.5.38",
+        "vue-router": "^4.6.4"
     }
 }

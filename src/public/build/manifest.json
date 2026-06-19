@@ -1,18 +1,62 @@
 {
+  "_EyeIcon-JC09l3HP.js": {
+    "file": "assets/EyeIcon-JC09l3HP.js",
+    "name": "EyeIcon",
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
   "resources/css/app.css": {
-    "file": "assets/app-DN1ZmMYs.css",
+    "file": "assets/app-CZFKE689.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/css/filament/admin/theme.css": {
-    "file": "assets/theme-CLHBxoRM.css",
+    "file": "assets/theme-CfAWTehX.css",
     "src": "resources/css/filament/admin/theme.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-eMHK6VFw.js",
+    "file": "assets/app-CP6Z0Qft.js",
     "name": "app",
     "src": "resources/js/app.js",
-    "isEntry": true
+    "isEntry": true,
+    "dynamicImports": [
+      "resources/js/views/Login.vue",
+      "resources/js/views/Register.vue",
+      "resources/js/views/Dashboard.vue"
+    ]
+  },
+  "resources/js/views/Dashboard.vue": {
+    "file": "assets/Dashboard-DpDjVm4g.js",
+    "name": "Dashboard",
+    "src": "resources/js/views/Dashboard.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "css": [
+      "assets/Dashboard-CMCk0J3x.css"
+    ]
+  },
+  "resources/js/views/Login.vue": {
+    "file": "assets/Login-D0ZVErR-.js",
+    "name": "Login",
+    "src": "resources/js/views/Login.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_EyeIcon-JC09l3HP.js"
+    ]
+  },
+  "resources/js/views/Register.vue": {
+    "file": "assets/Register-zP6_6Xn6.js",
+    "name": "Register",
+    "src": "resources/js/views/Register.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_EyeIcon-JC09l3HP.js"
+    ]
   }
 }

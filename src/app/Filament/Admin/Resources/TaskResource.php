@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\TaskResource\Pages;
 use App\Filament\Admin\Resources\TaskResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Task;
+use App\Models\Team;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -54,6 +55,14 @@ class TaskResource extends Resource
                             ->preload()
                             ->nullable(),
 
+                        Forms\Components\Select::make('team_id')
+                            ->label('Tim')
+                            ->options(fn (): array => Team::where('owner_id', auth()->id())->pluck('name', 'id')->toArray())
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->live(),
+
                         Forms\Components\Select::make('status')
                             ->options([
                                 'todo' => 'To-Do',
@@ -86,7 +95,7 @@ class TaskResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', auth()->id())->with('category'))
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', auth()->id())->with('category', 'team'))
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label('Judul')
@@ -99,6 +108,13 @@ class TaskResource extends Resource
                     ->label('Kategori')
                     ->badge()
                     ->color('gray')
+                    ->placeholder('—')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('team.name')
+                    ->label('Tim')
+                    ->badge()
+                    ->color('primary')
                     ->placeholder('—')
                     ->sortable(),
 
