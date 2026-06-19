@@ -1,4 +1,5 @@
 <script setup>
+import { useRouter } from "vue-router";
 import { useTaskStore } from "@/stores/taskStore";
 import BadgePriority from "./BadgePriority.vue";
 
@@ -6,7 +7,7 @@ const props = defineProps({
     task: { type: Object, required: true },
 });
 
-const emit = defineEmits(["edit"]);
+const router = useRouter();
 const taskStore = useTaskStore();
 
 function formatDeadline(date) {
@@ -33,7 +34,7 @@ function statusLabel(s) {
             'priority-medium': task.priority === 'medium',
             'priority-low': task.priority === 'low',
         }"
-        @click="emit('edit', task)"
+        @click="router.push(`/tasks/${task.id}`)"
     >
         <div class="flex items-start justify-between gap-3">
             <div class="flex-1 min-w-0">

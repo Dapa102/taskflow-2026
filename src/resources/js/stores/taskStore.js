@@ -1,56 +1,53 @@
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import axios from "axios";
+import { create } from "zustand";
+import api from "../api/client";
 
-const API = "/api";
+const useTaskStore = create((set, get) => ({
+    tasks: [],
+    loading: false,
+    filter: { status: "all", search: "", priority: "all", category_id: null },
 
-export const useTaskStore = defineStore("task", () => {
-    const tasks = ref([]);
-    const loading = ref(false);
-    const filter = ref({ status: "all", search: "", priority: "all", category_id: null });
-
-    const filteredTasks = computed(() => {
-        return tasks.value.filter((t) => {
-            if (filter.value.status !== "all" && t.status !== filter.value.status) return false;
-            if (filter.value.priority !== "all" && t.priority !== filter.value.priority) return false;
-            if (filter.value.category_id && t.category_id !== filter.value.category_id) return false;
-            if (filter.value.search) {
-                const q = filter.value.search.toLowerCase();
+    filteredTasks: () => {
+        const { tasks, filter } = get();
+        return tasks.filter((t) => {
+            if (filter.status !== "all" && t.status !== filter.status) return false;
+            if (filter.priority !== "all" && t.priority !== filter.priority) return false;
+            if (filter.category_id && t.category_id !== filter.category_id) return false;
+            if (filter.search) {
+                const q = filter.search.toLowerCase();
                 if (!t.title.toLowerCase().includes(q)) return false;
             }
             return true;
         });
-    });
+    },
 
-    const statistics = computed(() => {
-        const total = tasks.value.length;
-        const todo = tasks.value.filter((t) => t.status === "todo").length;
-        const progress = tasks.value.filter((t) => t.status === "on_progress" || t.status === "progress").length;
-        const done = tasks.value.filter((t) => t.status === "done").length;
-        const overdue = tasks.value.filter((t) => {
+    statistics: () => {
+        const tasks = get().tasks;
+        const total = tasks.length;
+        const todo = tasks.filter((t) => t.status === "todo").length;
+        const progress = tasks.filter((t) => t.status === "on_progress" || t.status === "progress").length;
+        const done = tasks.filter((t) => t.status === "done").length;
+        const overdue = tasks.filter((t) => {
             if (!t.deadline || t.status === "done") return false;
             return new Date(t.deadline) < new Date();
         }).length;
-        const completionRate = total > 0 ? Math.round((done / total) * 100) : 0;
-        return { total, todo, progress, done, overdue, completionRate };
-    });
+        return { total, todo, progress, done, overdue };
+    },
 
-    async function fetchTasks() {
-        loading.value = true;
+    fetchTasks: async () => {
+        set({ loading: true });
         try {
-            const res = await axios.get(`${API}/tasks`);
-            tasks.value = res.data.data || [];
+            const res = await api.get("/tasks");
+            set({ tasks: res.data.data || [] });
         } catch {
-            tasks.value = [];
+            set({ tasks: [] });
         } finally {
-            loading.value = false;
+            set({ loading: false });
         }
-    }
+    },
 
-    async function addTask(data) {
+    addTask: async (data) => {
         const optimistic = {
             id: `temp-${Date.now()}`,
-            user_id: null,
             title: data.title,
             description: data.description || "",
             status: "todo",
@@ -60,86 +57,75 @@ export const useTaskStore = defineStore("task", () => {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
         };
-        tasks.value.unshift(optimistic);
-
+        set((s) => ({ tasks: [optimistic, ...s.tasks] }));
         try {
-            const res = await axios.post(`${API}/tasks`, data);
-            const idx = tasks.value.findIndex((t) => t.id === optimistic.id);
-            if (idx !== -1) tasks.value[idx] = res.data.data;
+            const res = await api.post("/tasks", data);
+            set((s) => ({
+                tasks: s.tasks.map((t) => (t.id === optimistic.id ? res.data.data : t)),
+            }));
         } catch {
-            tasks.value = tasks.value.filter((t) => t.id !== optimistic.id);
+            set((s) => ({ tasks: s.tasks.filter((t) => t.id !== optimistic.id) }));
             throw new Error("Failed to create task");
         }
-    }
+    },
 
-    async function updateTask(id, data) {
-        const original = tasks.value.find((t) => t.id === id);
+    updateTask: async (id, data) => {
+        const original = get().tasks.find((t) => t.id === id);
         if (!original) return;
-
-        Object.assign(original, { ...data, updated_at: new Date().toISOString() });
-
+        set((s) => ({
+            tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...data, updated_at: new Date().toISOString() } : t)),
+        }));
         try {
-            const res = await axios.put(`${API}/tasks/${id}`, data);
-            const idx = tasks.value.findIndex((t) => t.id === id);
-            if (idx !== -1) tasks.value[idx] = res.data.data;
+            const res = await api.put(`/tasks/${id}`, data);
+            set((s) => ({
+                tasks: s.tasks.map((t) => (t.id === id ? res.data.data : t)),
+            }));
         } catch {
-            const idx = tasks.value.findIndex((t) => t.id === id);
-            if (idx !== -1) tasks.value[idx] = original;
+            if (original) {
+                set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? original : t)) }));
+            }
             throw new Error("Failed to update task");
         }
-    }
+    },
 
-    async function toggleStatus(id) {
-        const task = tasks.value.find((t) => t.id === id);
+    toggleStatus: async (id) => {
+        const task = get().tasks.find((t) => t.id === id);
         if (!task) return;
-
         const next = { todo: "on_progress", on_progress: "done", progress: "done", done: "todo" };
         const newStatus = next[task.status] || "todo";
         const prev = task.status;
-
-        task.status = newStatus;
-
+        set((s) => ({
+            tasks: s.tasks.map((t) => (t.id === id ? { ...t, status: newStatus } : t)),
+        }));
         try {
-            await axios.put(`${API}/tasks/${id}`, { status: newStatus });
+            await api.put(`/tasks/${id}`, { status: newStatus });
         } catch {
-            task.status = prev;
+            set((s) => ({
+                tasks: s.tasks.map((t) => (t.id === id ? { ...t, status: prev } : t)),
+            }));
         }
-    }
+    },
 
-    async function deleteTask(id) {
-        const idx = tasks.value.findIndex((t) => t.id === id);
+    deleteTask: async (id) => {
+        const idx = get().tasks.findIndex((t) => t.id === id);
         if (idx === -1) return;
-
-        const [removed] = tasks.value.splice(idx, 1);
-
+        const [removed] = get().tasks.splice(idx, 1);
+        set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) }));
         try {
-            await axios.delete(`${API}/tasks/${id}`);
+            await api.delete(`/tasks/${id}`);
         } catch {
-            tasks.value.splice(idx, 0, removed);
+            set((s) => {
+                const tasks = [...s.tasks];
+                tasks.splice(idx, 0, removed);
+                return { tasks };
+            });
             throw new Error("Failed to delete task");
         }
-    }
+    },
 
-    function setFilter(updates) {
-        Object.assign(filter.value, updates);
-    }
+    setFilter: (updates) => {
+        set((s) => ({ filter: { ...s.filter, ...updates } }));
+    },
+}));
 
-    function resetFilter() {
-        filter.value = { status: "all", search: "", priority: "all", category_id: null };
-    }
-
-    return {
-        tasks,
-        loading,
-        filter,
-        filteredTasks,
-        statistics,
-        fetchTasks,
-        addTask,
-        updateTask,
-        toggleStatus,
-        deleteTask,
-        setFilter,
-        resetFilter,
-    };
-});
+export default useTaskStore;

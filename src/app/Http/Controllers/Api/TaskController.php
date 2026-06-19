@@ -49,6 +49,10 @@ class TaskController extends Controller
 
         $task->load('category');
 
+        if ($includes = request()->query('include')) {
+            $task->load(explode(',', $includes));
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => $task,

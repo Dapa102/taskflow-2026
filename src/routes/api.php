@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\TaskAssignmentController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TeamController;
+use App\Http\Controllers\Api\UserSearchController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +50,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::delete('notifications/{id}', [NotificationController::class, 'destroy']);
+
+    Route::get('users/search', [UserSearchController::class, 'search']);
 
     Route::apiResource('teams', TeamController::class);
     Route::post('teams/join', [TeamController::class, 'joinByInvite']);

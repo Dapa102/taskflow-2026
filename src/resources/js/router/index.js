@@ -24,6 +24,30 @@ const routes = [
         component: () => import("@/views/Dashboard.vue"),
         meta: { auth: true },
     },
+    {
+        path: "/tasks/:id",
+        name: "TaskDetail",
+        component: () => import("@/views/TaskDetail.vue"),
+        meta: { auth: true },
+    },
+    {
+        path: "/categories",
+        name: "Categories",
+        component: () => import("@/views/Categories.vue"),
+        meta: { auth: true },
+    },
+    {
+        path: "/teams",
+        name: "Teams",
+        component: () => import("@/views/Teams.vue"),
+        meta: { auth: true },
+    },
+    {
+        path: "/teams/:id",
+        name: "TeamDetail",
+        component: () => import("@/views/TeamDetail.vue"),
+        meta: { auth: true },
+    },
 ];
 
 const router = createRouter({

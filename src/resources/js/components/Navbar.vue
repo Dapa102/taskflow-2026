@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useAuthStore } from "@/stores/authStore";
 import { useTaskStore } from "@/stores/taskStore";
 import {
+    Squares2X2Icon,
     MagnifyingGlassIcon,
     ArrowRightOnRectangleIcon,
 } from "@heroicons/vue/24/outline";
@@ -57,6 +58,19 @@ function handleKeydown(e) {
                         ⌘K
                     </kbd>
                 </div>
+            </div>
+
+            <!-- Nav links -->
+            <div class="hidden md:flex items-center gap-1">
+                <router-link to="/dashboard" class="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200 transition-colors rounded-lg hover:bg-white/5">
+                    Dashboard
+                </router-link>
+                <router-link to="/categories" class="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200 transition-colors rounded-lg hover:bg-white/5">
+                    Categories
+                </router-link>
+                <router-link to="/teams" class="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200 transition-colors rounded-lg hover:bg-white/5">
+                    Teams
+                </router-link>
             </div>
 
             <!-- User Area -->

@@ -1,5 +1,6 @@
 <script setup>
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
+import axios from "axios";
 import { useTaskStore } from "@/stores/taskStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useTaskActions } from "@/composables/useTaskActions";
@@ -11,6 +12,7 @@ import { PlusIcon, ArrowRightOnRectangleIcon, MagnifyingGlassIcon } from "@heroi
 const taskStore = useTaskStore();
 const auth = useAuthStore();
 const { drawerOpen, editingTask, openCreate, openEdit, closeDrawer, saveTask } = useTaskActions();
+const categories = ref([]);
 
 const statusFilters = [
     { key: "all", label: "All" },
@@ -19,8 +21,12 @@ const statusFilters = [
     { key: "done", label: "Done" },
 ];
 
-onMounted(() => {
+onMounted(async () => {
     taskStore.fetchTasks();
+    try {
+        const res = await axios.get("/api/categories");
+        categories.value = res.data.data ?? [];
+    } catch {}
 });
 </script>
 
@@ -47,6 +53,12 @@ onMounted(() => {
                 </div>
 
                 <div class="flex items-center gap-2">
+                    <router-link to="/categories" class="text-xs text-zinc-600 hover:text-violet-400 transition-colors hidden sm:block">
+                        Categories
+                    </router-link>
+                    <router-link to="/teams" class="text-xs text-zinc-600 hover:text-violet-400 transition-colors hidden sm:block">
+                        Teams
+                    </router-link>
                     <span class="text-sm text-zinc-500 hidden sm:block">{{ auth.userName }}</span>
                     <button @click="auth.logout()" class="p-1.5 text-zinc-600 hover:text-rose-400 transition-colors rounded-lg hover:bg-white/5" title="Logout">
                         <ArrowRightOnRectangleIcon class="w-4 h-4" />
@@ -68,7 +80,7 @@ onMounted(() => {
             </div>
 
             <!-- Filter tabs -->
-            <div class="flex items-center gap-1 mb-4 bg-zinc-900 rounded-lg p-1 w-fit">
+            <div class="flex items-center gap-1 mb-3 bg-zinc-900 rounded-lg p-1 w-fit">
                 <button
                     v-for="s in statusFilters"
                     :key="s.key"
@@ -77,6 +89,27 @@ onMounted(() => {
                     :class="taskStore.filter.status === s.key ? 'bg-zinc-800 text-zinc-200 shadow-sm' : 'text-zinc-500 hover:text-zinc-300'"
                 >
                     {{ s.label }}
+                </button>
+            </div>
+
+            <!-- Category filters -->
+            <div v-if="categories.length" class="flex items-center gap-1.5 mb-4 flex-wrap">
+                <button
+                    @click="taskStore.setFilter({ category_id: null })"
+                    class="px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-200"
+                    :class="!taskStore.filter.category_id ? 'bg-zinc-800 text-zinc-200' : 'text-zinc-500 hover:text-zinc-300'"
+                >
+                    All
+                </button>
+                <button
+                    v-for="cat in categories"
+                    :key="cat.id"
+                    @click="taskStore.setFilter({ category_id: cat.id })"
+                    class="px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-200"
+                    :class="taskStore.filter.category_id === cat.id ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'"
+                    :style="taskStore.filter.category_id === cat.id ? { backgroundColor: cat.color + '30', color: cat.color } : {}"
+                >
+                    {{ cat.name }}
                 </button>
             </div>
 
