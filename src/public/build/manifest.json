@@ -1,145 +1,21 @@
 {
-  "_BadgePriority-4bi_qAnj.js": {
-    "file": "assets/BadgePriority-4bi_qAnj.js",
-    "name": "BadgePriority",
-    "imports": [
-      "resources/js/main.jsx"
-    ]
-  },
-  "_EmptyState-CPSbktt2.js": {
-    "file": "assets/EmptyState-CPSbktt2.js",
-    "name": "EmptyState",
-    "imports": [
-      "resources/js/main.jsx"
-    ]
-  },
-  "_TaskCard-D3ZzRLX3.js": {
-    "file": "assets/TaskCard-D3ZzRLX3.js",
-    "name": "TaskCard",
-    "imports": [
-      "resources/js/main.jsx",
-      "_BadgePriority-4bi_qAnj.js"
-    ]
-  },
   "resources/css/app.css": {
-    "file": "assets/app-DzM-34sD.css",
+    "file": "assets/app-JARcZxWj.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/css/filament/admin/theme.css": {
-    "file": "assets/theme-CfAWTehX.css",
+    "file": "assets/theme-pC3rSYIk.css",
     "src": "resources/css/filament/admin/theme.css",
     "isEntry": true
   },
-  "resources/js/main.jsx": {
-    "file": "assets/main-DZOJGE_f.js",
-    "name": "main",
-    "src": "resources/js/main.jsx",
+  "resources/js/app.js": {
+    "file": "assets/app-S_d-E3sr.js",
+    "name": "app",
+    "src": "resources/js/app.js",
     "isEntry": true,
-    "dynamicImports": [
-      "resources/js/pages/Dashboard.jsx",
-      "resources/js/pages/Login.jsx",
-      "resources/js/pages/Register.jsx",
-      "resources/js/pages/TaskDetail.jsx",
-      "resources/js/pages/Categories.jsx",
-      "resources/js/pages/Teams.jsx",
-      "resources/js/pages/TeamDetail.jsx"
-    ],
     "css": [
-      "assets/app-DzM-34sD.css"
-    ]
-  },
-  "resources/js/pages/Categories.jsx": {
-    "file": "assets/Categories-Dy-w1xYs.js",
-    "name": "Categories",
-    "src": "resources/js/pages/Categories.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/main.jsx",
-      "_TaskCard-D3ZzRLX3.js",
-      "_EmptyState-CPSbktt2.js",
-      "_BadgePriority-4bi_qAnj.js"
-    ],
-    "css": [
-      "assets/app-DzM-34sD.css"
-    ]
-  },
-  "resources/js/pages/Dashboard.jsx": {
-    "file": "assets/Dashboard-CLYCwc0V.js",
-    "name": "Dashboard",
-    "src": "resources/js/pages/Dashboard.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/main.jsx",
-      "_BadgePriority-4bi_qAnj.js",
-      "_TaskCard-D3ZzRLX3.js",
-      "_EmptyState-CPSbktt2.js"
-    ],
-    "css": [
-      "assets/app-DzM-34sD.css"
-    ]
-  },
-  "resources/js/pages/Login.jsx": {
-    "file": "assets/Login-DjyPkOb2.js",
-    "name": "Login",
-    "src": "resources/js/pages/Login.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/main.jsx"
-    ],
-    "css": [
-      "assets/app-DzM-34sD.css"
-    ]
-  },
-  "resources/js/pages/Register.jsx": {
-    "file": "assets/Register-DBzwaupy.js",
-    "name": "Register",
-    "src": "resources/js/pages/Register.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/main.jsx"
-    ],
-    "css": [
-      "assets/app-DzM-34sD.css"
-    ]
-  },
-  "resources/js/pages/TaskDetail.jsx": {
-    "file": "assets/TaskDetail-1KAI-ZKW.js",
-    "name": "TaskDetail",
-    "src": "resources/js/pages/TaskDetail.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/main.jsx",
-      "_BadgePriority-4bi_qAnj.js"
-    ],
-    "css": [
-      "assets/app-DzM-34sD.css"
-    ]
-  },
-  "resources/js/pages/TeamDetail.jsx": {
-    "file": "assets/TeamDetail-BTCeYGee.js",
-    "name": "TeamDetail",
-    "src": "resources/js/pages/TeamDetail.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/main.jsx",
-      "_TaskCard-D3ZzRLX3.js",
-      "_BadgePriority-4bi_qAnj.js"
-    ],
-    "css": [
-      "assets/app-DzM-34sD.css"
-    ]
-  },
-  "resources/js/pages/Teams.jsx": {
-    "file": "assets/Teams-CXFbYC1d.js",
-    "name": "Teams",
-    "src": "resources/js/pages/Teams.jsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/main.jsx"
-    ],
-    "css": [
-      "assets/app-DzM-34sD.css"
+      "assets/app-JARcZxWj.css"
     ]
   }
 }

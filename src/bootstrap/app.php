@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__ . '/../routes/api.php',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->api(prepend: [
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

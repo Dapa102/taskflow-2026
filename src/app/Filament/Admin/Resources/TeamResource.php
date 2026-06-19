@@ -74,6 +74,7 @@ class TeamResource extends Resource
                     ->sortable(),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -92,6 +93,7 @@ class TeamResource extends Resource
         return [
             'index' => Pages\ListTeams::route('/'),
             'create' => Pages\CreateTeam::route('/create'),
+            'view' => Pages\ViewTeam::route('/{record}'),
             'edit' => Pages\EditTeam::route('/{record}/edit'),
         ];
     }

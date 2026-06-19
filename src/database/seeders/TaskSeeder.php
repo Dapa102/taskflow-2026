@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Comment;
 use App\Models\Subtask;
 use App\Models\Task;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -18,6 +19,9 @@ class TaskSeeder extends Seeder
         if (!$user) {
             return;
         }
+
+        $teamDev = Team::where('name', 'Tim Developer')->first();
+        $teamDesain = Team::where('name', 'Tim Desain')->first();
 
         $categories = [
             ['name' => 'Pekerjaan', 'color' => '#3B82F6'],
@@ -42,6 +46,7 @@ class TaskSeeder extends Seeder
                 'priority' => 'high',
                 'deadline' => now()->addDays(2),
                 'category' => 'Pekerjaan',
+                'team' => $teamDev?->id,
                 'subtasks' => ['Kumpulkan data penjualan', 'Buat grafik revenue', 'Tulis kesimpulan'],
                 'comments' => ['Data dari tim finance sudah masuk, tinggal buat grafik.'],
             ],
@@ -61,6 +66,7 @@ class TaskSeeder extends Seeder
                 'priority' => 'high',
                 'deadline' => now()->addDay(),
                 'category' => 'Pekerjaan',
+                'team' => $teamDev?->id,
             ],
             [
                 'title' => 'Update dokumentasi API',
@@ -104,6 +110,7 @@ class TaskSeeder extends Seeder
                 'priority' => 'high',
                 'deadline' => now()->subDays(3),
                 'category' => 'Pekerjaan',
+                'team' => $teamDev?->id,
                 'comments' => ['Bug disebabkan oleh timezone mismatch. Sudah diperbaiki.'],
             ],
             [
@@ -120,6 +127,7 @@ class TaskSeeder extends Seeder
                 'priority' => 'high',
                 'deadline' => now()->addDays(1),
                 'category' => 'Pekerjaan',
+                'team' => $teamDev?->id,
                 'subtasks' => ['Identifikasi slow queries', 'Tambahkan index', 'Benchmark sebelum/sesudah'],
             ],
             [
@@ -129,6 +137,7 @@ class TaskSeeder extends Seeder
                 'priority' => 'medium',
                 'deadline' => now()->addDays(14),
                 'category' => 'Proyek',
+                'team' => $teamDesain?->id,
             ],
             [
                 'title' => 'Backup database production',
@@ -136,6 +145,7 @@ class TaskSeeder extends Seeder
                 'priority' => 'high',
                 'deadline' => now()->subDays(2),
                 'category' => 'Pekerjaan',
+                'team' => $teamDev?->id,
             ],
         ];
 
@@ -143,9 +153,11 @@ class TaskSeeder extends Seeder
             $subtasksData = $taskData['subtasks'] ?? [];
             $commentsData = $taskData['comments'] ?? [];
             $categoryName = $taskData['category'] ?? null;
-            unset($taskData['subtasks'], $taskData['comments'], $taskData['category']);
+            $teamId = $taskData['team'] ?? null;
+            unset($taskData['subtasks'], $taskData['comments'], $taskData['category'], $taskData['team']);
 
             $taskData['user_id'] = $user->id;
+            $taskData['team_id'] = $teamId;
             if ($categoryName && isset($categoryModels[$categoryName])) {
                 $taskData['category_id'] = $categoryModels[$categoryName]->id;
             }

@@ -14,9 +14,12 @@ class ReportController extends Controller
 {
     public function summary(Request $request): JsonResponse
     {
-        $userId = $request->user()->id;
+        $user = $request->user();
 
-        $tasks = Task::where('user_id', $userId);
+        $tasks = Task::where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->orWhereHas('team.members', fn ($mq) => $mq->where('user_id', $user->id));
+        });
 
         $total = (clone $tasks)->count();
         $todo = (clone $tasks)->where('status', 'todo')->count();
@@ -117,10 +120,12 @@ class ReportController extends Controller
 
     public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
     {
-        $userId = $request->user()->id;
+        $user = $request->user();
 
-        $tasks = Task::where('user_id', $userId)
-            ->with('category')
+        $tasks = Task::where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->orWhereHas('team.members', fn ($mq) => $mq->where('user_id', $user->id));
+        })->with('category')
             ->orderBy('created_at', 'desc')
             ->get();
 

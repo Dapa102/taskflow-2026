@@ -15,11 +15,13 @@ class TaskSummaryWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $userId = auth()->id();
+        $user = auth()->user();
 
-        $todo = Task::where('user_id', $userId)->where('status', 'todo')->count();
-        $onProgress = Task::where('user_id', $userId)->where('status', 'on_progress')->count();
-        $done = Task::where('user_id', $userId)->where('status', 'done')->count();
+        $tasks = $user->can('view_any_task') ? Task::query() : Task::where('user_id', $user->id);
+
+        $todo = (clone $tasks)->where('status', 'todo')->count();
+        $onProgress = (clone $tasks)->where('status', 'on_progress')->count();
+        $done = (clone $tasks)->where('status', 'done')->count();
         $total = $todo + $onProgress + $done;
 
         return [
