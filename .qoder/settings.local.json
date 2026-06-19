@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /root/perkuliahan/taskflow/src && docker compose -f ../docker-compose.yml exec -T php composer require laravel/sanctum 2>&1 || echo \"DOCKER_NOT_RUNNING\")"
+    ]
+  }
+}

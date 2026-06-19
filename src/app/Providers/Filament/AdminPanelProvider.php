@@ -53,6 +53,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make()
+                    ->label('Task Management'),
+                NavigationGroup::make()
                     ->label('Administration'),
             ])
             ->userMenuItems([
@@ -96,6 +98,7 @@ class AdminPanelProvider extends PanelProvider
                 \Awcodes\Overlook\OverlookPlugin::make()
                     ->includes([
                         \App\Filament\Admin\Resources\UserResource::class,
+                        \App\Filament\Admin\Resources\TaskResource::class,
                     ]),
                 \Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin::make()
                     ->slug('my-profile')

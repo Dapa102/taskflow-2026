@@ -2,7 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
+use App\Models\Comment;
+use App\Models\Task;
 use App\Policies\ActivityPolicy;
+use App\Policies\CategoryPolicy;
+use App\Policies\CommentPolicy;
+use App\Policies\TaskPolicy;
 use Filament\Actions\MountableAction;
 use Filament\Notifications\Livewire\Notifications;
 use Filament\Notifications\Notification;
@@ -30,6 +36,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Activity::class, ActivityPolicy::class);
+        Gate::policy(Task::class, TaskPolicy::class);
+        Gate::policy(Category::class, CategoryPolicy::class);
+        Gate::policy(Comment::class, CommentPolicy::class);
         Page::formActionsAlignment(Alignment::Right);
         Notifications::alignment(Alignment::End);
         Notifications::verticalAlignment(VerticalAlignment::End);
