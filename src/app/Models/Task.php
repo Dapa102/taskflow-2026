@@ -53,6 +53,11 @@ class Task extends Model
         return $this->hasMany(Comment::class)->oldest();
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(Attachment::class);
+    }
+
     public function getProgressAttribute(): int
     {
         $total = $this->subtasks()->count();

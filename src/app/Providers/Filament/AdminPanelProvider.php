@@ -33,6 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->spa()
             ->login()
             ->passwordReset()
+            ->databaseNotifications()
             ->profile(\App\Filament\Pages\Auth\EditProfile::class, isSimple: false)
             ->defaultThemeMode(ThemeMode::Light)
             ->font('Montserrat')

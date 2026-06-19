@@ -206,6 +206,7 @@ class TaskResource extends Resource
         return [
             RelationManagers\SubtasksRelationManager::class,
             RelationManagers\CommentsRelationManager::class,
+            RelationManagers\AttachmentsRelationManager::class,
         ];
     }
 
