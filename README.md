@@ -1,196 +1,147 @@
-# TaskFlow — Daily Task Management System
+# TaskFlow — Collaborative Task Management System
 
-Full-stack task management app: Laravel API + React SPA + Filament admin.
+## Deskripsi
+Sistem manajemen tugas kolaboratif 4-level hierarki: **Atasan → Super Admin → Project Manager → Anggota**. Berbasis Laravel 11 + Livewire 3 + Tailwind CSS + Alpine.js.
+
+Setiap role punya sidebar navigasi sendiri, tugas mengalir dari Atasan turun ke anggota dengan review di setiap level.
+
+---
+
+## Role & Alur
+
+| Role | Tanggung Jawab |
+|------|---------------|
+| **Atasan** | Buat tugas → kirim ke Super Admin. Pantau status tugas (sudah/belum diberikan). |
+| **Super Admin** | Terima tugas dari Atasan (Global Tasks). Assign PM. Final approve tugas selesai. |
+| **Project Manager** | Kelola tim. Assign tugas ke anggota. Approve/reject hasil kerja. |
+| **Anggota** | Kerjakan tugas. Upload file. Terima revisi. |
+
+Alur:
+```
+Atasan → Super Admin (Global Tasks) → PM (Daftar Tugas) → Anggota
+```
+
+---
 
 ## Tech Stack
 
-| Layer | Tech |
-|-------|------|
-| **Backend** | Laravel 12, MariaDB, Sanctum (token auth) |
-| **Frontend** | React 19, Vite 6, React Router, Zustand, Tailwind CSS |
-| **Admin** | Filament 3 + Shield (RBAC) |
-| **Infra** | Docker (nginx + php + mariadb) |
+- **Backend:** PHP 8.2+, Laravel 11
+- **Frontend:** Blade, Tailwind CSS 3.4, Alpine.js 3.0, Livewire 3
+- **Database:** MariaDB 10.6 (InnoDB)
+- **Auth:** Laravel Breeze (session-based)
+- **Build:** Vite
 
-## Features
+---
 
-### ✅ Built
-- **Auth** — Register, Login, Logout (split-screen UI, remember me)
-- **Tasks** — CRUD with optimistic updates, status toggle, priority, deadline
-- **Filter/Search** — By status, category, priority, keyword
-- **Task Detail** — Full page with subtasks, comments, attachments
-- **Subtasks** — Add, toggle, progress bar, delete
-- **Comments** — Post, delete, user avatars, relative timestamps
-- **Attachments** — Upload (png/jpg/pdf/docx/xlsx), download, delete, icon by type
-- **Categories** — CRUD with color picker, filter on dashboard
-- **Teams** — Create, join by invite code, add/remove members (by email search)
-- **Team Detail** — Member list with roles, invite code copy, team tasks
-- **Super Admin** — Filament `/admin` with Shield roles & permissions
-- **User Search API** — `GET /api/users/search?email=...`
-
-### 🚧 Backend exists, frontend pending
-- **Notifications** — DB notifications API ready, UI pending
-- **Task Assignment** — Assign/unassign users to team tasks API ready
-- **Reports** — Summary & team stats API ready (`/api/reports/*`)
-
-### 📋 Planned
-- Email notifications (deadline reminders)
-- User profile page (edit name/email/avatar)
-- PWA support
-- Frontend tests
-
-## Quick Start
-
-```bash
-docker compose up -d
-docker exec taskflow_php php artisan migrate --seed
-docker exec taskflow_php php artisan shield:generate --panel=admin --all
-npm --prefix src run build
-```
-
-### Credentials (Seeder)
+## User Demo
 
 | Role | Email | Password |
 |------|-------|----------|
-| Super Admin | `super@admin.com` | `password` |
-| User | `user@admin.com` | `password` |
-| Team Member | `member@team.com` | `password` |
+| Atasan | atasan@test.com | password |
+| Super Admin | admin@admin.com | password |
+| PM | pm1@test.com | password |
+| Anggota | member1@test.com | password |
+| Anggota | member2@test.com | password |
 
-### Invite Codes
-- Tim Developer: `DEV2026`
-- Tim Desain: `DESIGN2026`
+Login di `/login`.
 
-## Project Structure
+---
+
+## Struktur Direktori (Key)
 
 ```
-src/
-├── app/
-│   ├── Filament/Admin/Resources/   # Filament resources (Task, User, Team, etc.)
-│   ├── Http/Controllers/Api/       # REST API controllers
-│   ├── Models/                      # Eloquent models
-│   ├── Policies/                    # Authorization policies
-│   └── Providers/                   # Service providers
-├── database/
-│   ├── migrations/
-│   └── seeders/                     # DatabaseSeeder, TeamSeeder, etc.
-├── resources/
-│   └── js/
-│       ├── api/client.js            # Axios instance
-│       ├── stores/                  # Zustand stores
-│       ├── pages/                   # React pages
-│       ├── components/              # React components
-│       └── main.jsx                 # Entry point
-├── routes/
-│   └── api.php                      # API routes
-├── tests/
-├── docs/                            # Documentation
-├── docker-compose.yml
-└── vite.config.js
+app/
+├── Livewire/
+│   ├── Admin/          # Super Admin components
+│   ├── Atasan/         # Atasan components
+│   ├── Pm/             # PM components
+│   ├── Member/         # Member components
+│   └── AllTasks.php    # Read-only all tasks
+├── Models/
+│   ├── User.php
+│   ├── Task.php
+│   ├── Workspace.php
+│   ├── Team.php
+│   ├── TeamMember.php
+│   └── Attachment.php
+├── Http/Middleware/
+│   ├── CheckRole.php   # Filter by role
+│   └── CheckActive.php # Block inactive users
+resources/views/
+├── layouts/
+│   ├── admin.blade.php
+│   ├── atasan.blade.php
+│   ├── pm.blade.php
+│   └── member.blade.php
+├── livewire/
+│   ├── admin/
+│   ├── atasan/
+│   ├── pm/
+│   └── member/
+└── auth/               # Breeze auth views
 ```
 
-## API Endpoints
+---
 
-### Auth
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/register` | Register |
-| POST | `/api/login` | Login |
-| POST | `/api/logout` | Logout (auth) |
+## Routes
 
-### Tasks
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks` | List (supports `?include=`, `?status=`, `?search=`, `?category_id=`) |
-| POST | `/api/tasks` | Create |
-| GET | `/api/tasks/{id}` | Detail (supports `?include=subtasks,comments.user,attachments`) |
-| PUT | `/api/tasks/{id}` | Update |
-| DELETE | `/api/tasks/{id}` | Delete |
-| GET | `/api/tasks/assigned` | Tasks assigned to me |
+| Prefix | Role | Halaman |
+|--------|------|---------|
+| `/atasan` | atasan | Dashboard, Buat Tugas, Tugas Saya |
+| `/admin` | admin | Dashboard, Daftar Tugas, Global Tasks, PM Performance, Hubungi Team |
+| `/pm` | pm | Dashboard |
+| `/member` | member | Dashboard |
+| `/tasks` | all | Read-only all tasks |
 
-### Subtasks
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks/{id}/subtasks` | List |
-| POST | `/api/tasks/{id}/subtasks` | Create |
-| PUT | `/api/subtasks/{id}` | Update title |
-| PATCH | `/api/subtasks/{id}/toggle` | Toggle completion |
-| DELETE | `/api/subtasks/{id}` | Delete |
+---
 
-### Comments
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks/{id}/comments` | List (with user) |
-| POST | `/api/tasks/{id}/comments` | Create |
-| DELETE | `/api/comments/{id}` | Delete |
+## Status Task
 
-### Attachments
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks/{id}/attachments` | List |
-| POST | `/api/tasks/{id}/attachments` | Upload (multipart, max 5MB) |
-| DELETE | `/api/attachments/{id}` | Delete |
+### Workflow Status
+```
+todo → on_progress → pending_pm → pending_admin → done
+                  ↘ revision ↗
+```
 
-### Categories
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/categories` | List |
-| POST | `/api/categories` | Create |
-| PUT | `/api/categories/{id}` | Update |
-| DELETE | `/api/categories/{id}` | Delete |
+| Status | Arti |
+|--------|------|
+| todo | Menunggu |
+| on_progress | Dikerjakan |
+| pending_pm | Review PM |
+| pending_admin | Review Admin |
+| revision | Revisi |
+| done | Selesai |
 
-### Teams
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/teams` | List my teams (with members_count) |
-| POST | `/api/teams` | Create |
-| GET | `/api/teams/{id}` | Detail (with owner, members, tasks) |
-| PUT | `/api/teams/{id}` | Update name |
-| DELETE | `/api/teams/{id}` | Delete |
-| POST | `/api/teams/join` | Join by invite_code |
-| GET | `/api/teams/{id}/members` | List members |
-| POST | `/api/teams/{id}/members` | Add member (by user_id) |
-| DELETE | `/api/teams/{id}/members/{memberId}` | Remove member |
+### Global Tasks Status (Admin)
+| Status | Arti |
+|--------|------|
+| Belum Diberikan | Tugas dari Atasan, belum di-assign ke PM |
+| Sudah Diberikan | Tugas dari Atasan, sudah di-assign ke PM |
 
-### Notifications
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/notifications` | List |
-| POST | `/api/notifications/{id}/read` | Mark as read |
-| POST | `/api/notifications/read-all` | Mark all as read |
-| DELETE | `/api/notifications/{id}` | Delete |
+---
 
-### Assignments
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks/{id}/assignees` | List assignees |
-| POST | `/api/tasks/{id}/assign` | Assign user |
-| DELETE | `/api/tasks/{id}/assign/{userId}` | Unassign |
+## Cara Install
 
-### Reports
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/reports/summary` | User task summary |
-| GET | `/api/reports/team/{id}` | Team stats |
-| GET | `/api/reports/export` | Export |
+```bash
+git clone <repo-url>
+cd src
+cp .env.example .env
+composer install
+npm install
+php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
+npm run build
+```
 
-### Users
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/user` | Current user profile |
-| GET | `/api/users/search?email=` | Search user by email |
+Pastikan DB MariaDB running, sesuaikan `.env`.
 
-## Frontend Pages
+---
 
-| Route | Page | Description |
-|-------|------|-------------|
-| `/login` | Login.jsx | Split-screen with gradient bg |
-| `/register` | Register.jsx | Same layout |
-| `/dashboard` | Dashboard.jsx | Task list, filters, FAB |
-| `/tasks/:id` | TaskDetail.jsx | Subtasks, comments, attachments |
-| `/categories` | Categories.jsx | CRUD + task per category |
-| `/teams` | Teams.jsx | List, create/join modals |
-| `/teams/:id` | TeamDetail.jsx | Members, invite, tasks |
+## Migrasi & Seeder
 
-## Admin Panel
+```bash
+php artisan migrate:fresh --seed
+```
 
-URL: `/admin`  
-Super admin manages: users, roles, permissions, tasks, categories, teams.
+Seeder bawaan: 1 atasan, 1 admin, 2 PM (Budi, Siti), 2 member (Ahmad, Dewi), 3 workspace, 10+ tasks.
