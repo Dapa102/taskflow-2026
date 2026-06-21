@@ -63,12 +63,21 @@
                             <x-input-error :messages="$errors->get('inviteEmail')" class="mb-4" />
 
                             <ul class="space-y-2">
+                                <li class="flex items-center text-sm p-2 bg-purple-50 rounded border border-purple-200">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        {{ auth()->user()->name }}
+                                        <span class="text-purple-400">(Project Manager)</span>
+                                    </span>
+                                </li>
                                 @forelse($members as $member)
                                     <li class="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
-                                        <div>
-                                            <span>{{ $member->name }}</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                                {{ $member->name }}
+                                                <span class="text-gray-400">(Anggota)</span>
+                                            </span>
                                             @if($member->phone)
-                                                <span class="text-gray-400 text-xs ml-2">{{ $member->phone }}</span>
+                                                <span class="text-gray-400 text-xs">{{ $member->phone }}</span>
                                             @endif
                                         </div>
                                         <div class="flex items-center gap-2">

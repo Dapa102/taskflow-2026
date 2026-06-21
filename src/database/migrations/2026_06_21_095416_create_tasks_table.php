@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('workspace_id')->constrained()->onDelete('cascade');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->foreignId('assigned_to')->constrained('users')->onDelete('cascade');
+            $table->foreignId('team_id')->nullable()->index();
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('status', ['todo', 'on_progress', 'done'])->default('todo');

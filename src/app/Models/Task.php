@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Task extends Model
 {
@@ -14,6 +15,7 @@ class Task extends Model
         'workspace_id',
         'created_by',
         'assigned_to',
+        'team_id',
         'title',
         'description',
         'status',
@@ -38,5 +40,20 @@ class Task extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(Attachment::class);
+    }
+
+    public function isOverdue(): bool
+    {
+        return $this->deadline && $this->deadline->isPast() && $this->status !== 'done';
     }
 }

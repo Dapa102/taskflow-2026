@@ -15,6 +15,11 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard') || request()->routeIs('pm.dashboard') || request()->routeIs('member.dashboard') || request()->routeIs('admin.dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @if(in_array(Auth::user()->role, ['pm', 'member']))
+                    <x-nav-link :href="route('tasks.all')" :active="request()->routeIs('tasks.all')">
+                        {{ __('Daftar Tugas') }}
+                    </x-nav-link>
+                    @endif
                 </div>
             </div>
 

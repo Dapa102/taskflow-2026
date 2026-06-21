@@ -9,7 +9,7 @@ use App\Models\Task;
 use App\Models\Team;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.admin')]
 class AdminDashboard extends Component
 {
     public function toggleUserStatus($userId)
@@ -28,21 +28,30 @@ class AdminDashboard extends Component
 
     public function render()
     {
+        $taskStats = [
+            'total' => Task::count(),
+            'todo' => Task::where('status', 'todo')->count(),
+            'on_progress' => Task::where('status', 'on_progress')->count(),
+            'done' => Task::where('status', 'done')->count(),
+        ];
+
         $stats = [
             'users' => User::count(),
             'workspaces' => Workspace::count(),
-            'tasks' => Task::count(),
+            'tasks' => $taskStats,
         ];
 
         $users = User::latest()->get();
-        $workspaces = Workspace::with('pm')->latest()->get();
-        $teams = Team::with('owner')->latest()->get();
+        $workspaces = Workspace::with('pm', 'tasks.assignee')->latest()->get();
+        $teams = Team::with('owner', 'tasks.assignee', 'members.user')->latest()->get();
+        $tasks = Task::with(['workspace', 'assignee', 'creator'])->latest()->get();
 
         return view('livewire.admin.admin-dashboard', [
             'stats' => $stats,
             'users' => $users,
             'workspaces' => $workspaces,
             'teams' => $teams,
+            'tasks' => $tasks,
         ]);
     }
 }

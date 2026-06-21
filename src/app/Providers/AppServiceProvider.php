@@ -20,6 +20,7 @@ use Filament\Pages\Page;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\VerticalAlignment;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\Models\Activity;
@@ -56,6 +57,15 @@ class AppServiceProvider extends ServiceProvider
         };
         MountableAction::configureUsing(function (MountableAction $action) {
             $action->modalFooterActionsAlignment(Alignment::Right);
+        });
+
+        View::composer('layouts.admin', function ($view) {
+            $sidebarTasks = Task::with('assignee')
+                ->latest()
+                ->take(50)
+                ->get();
+
+            $view->with('sidebarTasks', $sidebarTasks);
         });
     }
 }

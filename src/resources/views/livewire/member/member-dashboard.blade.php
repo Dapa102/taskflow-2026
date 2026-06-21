@@ -11,7 +11,10 @@
             @if($pm)
             <div class="bg-white shadow sm:rounded-lg p-4 flex items-center justify-between">
                 <div class="text-sm text-gray-600">
-                    Project Manager: <span class="font-semibold">{{ $pm->name }}</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        {{ $pm->name }}
+                        <span class="text-purple-400">(Project Manager)</span>
+                    </span>
                     @if($pm->phone) &middot; <span class="text-gray-400">{{ $pm->phone }}</span> @endif
                 </div>
                 <div x-data="{ open: false }" class="relative">

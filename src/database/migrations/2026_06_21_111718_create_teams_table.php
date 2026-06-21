@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
             $table->string('name');
-            $table->string('invite_code', 8)->unique();
+            $table->string('invite_code', 20)->unique();
             $table->timestamps();
         });
     }

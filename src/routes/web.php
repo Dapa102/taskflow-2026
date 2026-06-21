@@ -7,6 +7,9 @@ use App\Livewire\Member\MemberDashboard;
 use App\Livewire\Admin\AdminDashboard;
 use App\Livewire\Admin\TaskOversight;
 use App\Livewire\Admin\PmPerformance;
+use App\Livewire\Admin\AssignTask;
+use App\Livewire\Admin\TaskList;
+use App\Livewire\AllTasks;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,6 +24,8 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+    Route::get('/tasks', AllTasks::class)->name('tasks.all');
+
     Route::middleware(['role:pm'])->prefix('pm')->name('pm.')->group(function () {
         Route::get('/dashboard', PmDashboard::class)->name('dashboard');
         Route::get('/compose-email', \App\Livewire\Pm\ComposeEmail::class)->name('compose.email');
@@ -32,7 +37,9 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
-        Route::get('/tasks', TaskOversight::class)->name('tasks.oversight');
+        Route::get('/tasks', TaskList::class)->name('tasks.list');
+        Route::get('/tasks/oversight/{taskId?}', TaskOversight::class)->name('tasks.oversight');
+        Route::get('/assign-task', AssignTask::class)->name('assign.task');
         Route::get('/pm-performance', PmPerformance::class)->name('pm.performance');
         Route::get('/compose-email', \App\Livewire\Admin\ComposeEmail::class)->name('compose.email');
     });

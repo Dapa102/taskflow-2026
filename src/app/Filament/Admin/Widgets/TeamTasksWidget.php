@@ -61,7 +61,7 @@ class TeamTasksWidget extends BaseWidget
                     ->state(function (Team $team) {
                         $tasks = $team->tasks()
                             ->where('status', 'on_progress')
-                            ->with('assignees')
+                            ->with('assignee')
                             ->limit(5)
                             ->get();
 
@@ -83,7 +83,7 @@ class TeamTasksWidget extends BaseWidget
                                     </div>
                                 </div>
                                 <div class="flex -space-x-2">'
-                                    . $task->assignees->map(fn ($u) =>
+                                    . collect([$task->assignee])->filter()->map(fn ($u) =>
                                         '<div class="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-xs font-medium ring-2 ring-gray-800" title="' . e($u->name) . '">'
                                             . strtoupper(substr($u->name, 0, 2)) .
                                         '</div>'
