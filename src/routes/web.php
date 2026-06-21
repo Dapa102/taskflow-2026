@@ -1,16 +1,20 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use Livewire\Livewire;
 
-Livewire::setUpdateRoute(function ($handle) {
-    return Route::post(config('app.asset_prefix') . '/livewire/update', $handle);
+Route::get('/', function () {
+    return view('welcome');
 });
 
-Livewire::setScriptRoute(function ($handle) {
-    return Route::get(config('app.asset_prefix') . '/livewire/livewire.js', $handle);
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/', fn () => redirect('/admin'));
-Route::get('/login', fn () => redirect('/admin/login'));
-Route::get('/register', fn () => redirect('/admin/login'));
+require __DIR__.'/auth.php';

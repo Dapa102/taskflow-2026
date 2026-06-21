@@ -1,35 +1,36 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#8B5CF6">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%238B5CF6'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='18' font-weight='bold'>T</text></svg>">
-    <title>@yield('title', 'TaskFlow')</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script>
-        window.currentUser = @json(auth()->user());
-        window.currentUserId = {{ auth()->id() ?? 'null' }};
-    </script>
-</head>
-<body class="bg-slate-950 text-zinc-100 antialiased min-h-screen">
-    <div class="fixed inset-0 pointer-events-none z-0">
-        <div class="absolute top-0 -left-40 w-96 h-96 bg-violet-500/5 rounded-full blur-[128px]"></div>
-        <div class="absolute bottom-0 -right-40 w-96 h-96 bg-pink-500/5 rounded-full blur-[128px]"></div>
-    </div>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    @auth
-        <x-navbar />
-    @endauth
+        <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <main class="relative z-10">
-        @yield('content')
-    </main>
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    @auth
-        <x-mobile-nav />
-    @endauth
-</body>
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body class="font-sans antialiased">
+        <div class="min-h-screen bg-gray-100">
+            @include('layouts.navigation')
+
+            <!-- Page Heading -->
+            @isset($header)
+                <header class="bg-white shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        {{ $header }}
+                    </div>
+                </header>
+            @endisset
+
+            <!-- Page Content -->
+            <main>
+                {{ $slot }}
+            </main>
+        </div>
+    </body>
 </html>
