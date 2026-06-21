@@ -47,7 +47,7 @@ class TeamResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => auth()->user()->hasRole('super_admin') ? $query : $query->where('owner_id', auth()->id()))
+            ->modifyQueryUsing(fn (Builder $query) => auth()->user()->role === 'admin' ? $query : $query->where('owner_id', auth()->id()))
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Tim')

@@ -15,6 +15,11 @@ class TeamTasksWidget extends BaseWidget
 
     protected static ?int $sort = 2;
 
+    public static function canView(): bool
+    {
+        return true;
+    }
+
     protected int|string|array $columnSpan = 2;
 
     public function table(Table $table): Table
@@ -23,7 +28,7 @@ class TeamTasksWidget extends BaseWidget
 
         return $table
             ->query(
-                $user->hasRole('super_admin')
+                $user->role === 'admin'
                     ? Team::query()->withCount('members')
                     : Team::whereHas('members', fn ($q) => $q->where('user_id', $user->id))->withCount('members')
             )

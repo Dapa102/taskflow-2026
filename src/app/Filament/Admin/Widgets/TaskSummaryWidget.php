@@ -13,11 +13,16 @@ class TaskSummaryWidget extends BaseWidget
 
     protected static ?int $sort = 1;
 
+    public static function canView(): bool
+    {
+        return true;
+    }
+
     protected function getStats(): array
     {
         $user = auth()->user();
 
-        $tasks = $user->can('view_any_task') ? Task::query() : Task::where('user_id', $user->id);
+        $tasks = $user->role === 'admin' ? Task::query() : Task::where('created_by', $user->id);
 
         $todo = (clone $tasks)->where('status', 'todo')->count();
         $onProgress = (clone $tasks)->where('status', 'on_progress')->count();
