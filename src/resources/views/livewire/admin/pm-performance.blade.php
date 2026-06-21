@@ -61,7 +61,7 @@
                                             Hubungi
                                         </button>
                                         <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border z-10" x-transition>
-                                            <a href="{{ route('admin.compose.email') }}?recipient={{ $pm->id }}"
+                                            <a href="{{ route('admin.hubungi.team') }}?recipient={{ $pm->id }}"
                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                 Kirim Email
                                             </a>

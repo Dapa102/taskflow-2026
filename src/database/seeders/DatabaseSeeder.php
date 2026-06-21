@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Workspace;
 use App\Models\Task;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,43 +15,38 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             TeamSeeder::class,
-            TaskSeeder::class,
         ]);
 
-        $pm1 = User::where('email', 'pm1@test.com')->first();
-        $pm2 = User::where('email', 'pm2@test.com')->first();
+        $admin = User::where('email', 'admin@admin.com')->first();
+        $pm = User::where('email', 'pm1@test.com')->first();
         $member1 = User::where('email', 'member1@test.com')->first();
         $member2 = User::where('email', 'member2@test.com')->first();
 
-        $ws1 = Workspace::firstOrCreate(
-            ['pm_id' => $pm1->id],
-            ['name' => 'Alpha Team', 'description' => 'Project pengembangan aplikasi']
-        );
-        $ws1->members()->syncWithoutDetaching([$member1->id, $member2->id]);
+        if (!$pm || !$member1 || !$member2) return;
 
-        if ($pm2) {
-            Workspace::firstOrCreate(
-                ['pm_id' => $pm2->id],
-                ['name' => 'Beta Team', 'description' => 'Project desain UI/UX']
-            );
-        }
+        $ws = Workspace::firstOrCreate(
+            ['pm_id' => $pm->id],
+            ['name' => 'Project Aplikasi', 'description' => 'Pengembangan aplikasi manajemen tugas']
+        );
+        $ws->members()->syncWithoutDetaching([$member1->id, $member2->id]);
 
         $tasks = [
-            ['title' => 'Setup Frontend', 'desc' => 'Install React & Tailwind', 'status' => 'done', 'priority' => 'high', 'deadline' => -1, 'pm' => $pm1, 'assign' => $member1],
-            ['title' => 'API Integration', 'desc' => 'Connect frontend to API', 'status' => 'on_progress', 'priority' => 'medium', 'deadline' => 2, 'pm' => $pm1, 'assign' => $member1],
-            ['title' => 'Write Documentation', 'desc' => 'Update README', 'status' => 'todo', 'priority' => 'low', 'deadline' => -2, 'pm' => $pm1, 'assign' => $member2],
-            ['title' => 'Penjadwalan Sprint', 'desc' => 'Jadwalkan sprint review', 'status' => 'todo', 'priority' => 'medium', 'deadline' => 5, 'pm' => $pm1, 'assign' => $member1],
-            ['title' => 'Bug Report Dashboard', 'desc' => 'Filter tanggal tidak berfungsi', 'status' => 'on_progress', 'priority' => 'high', 'deadline' => 1, 'pm' => $pm1, 'assign' => $member2],
-            ['title' => 'Code Review', 'desc' => 'Review PR modul auth', 'status' => 'todo', 'priority' => 'low', 'deadline' => 3, 'pm' => $pm1, 'assign' => $member1],
-            ['title' => 'Deployment Staging', 'desc' => 'Deploy ke staging', 'status' => 'done', 'priority' => 'high', 'deadline' => -1, 'pm' => $pm1, 'assign' => $member2],
+            // Tasks created by admin → assigned to PM
+            ['title' => 'Buat modul login', 'desc' => 'Integrasi Laravel Breeze', 'status' => 'done', 'priority' => 'high', 'deadline' => -2, 'assign' => $pm->id, 'creator' => $admin->id],
+            ['title' => 'Desain dashboard utama', 'desc' => 'Wireframe & mockup', 'status' => 'todo', 'priority' => 'medium', 'deadline' => 5, 'assign' => $pm->id, 'creator' => $admin->id],
+            ['title' => 'Siapkan server staging', 'desc' => 'Deploy VPS', 'status' => 'on_progress', 'priority' => 'high', 'deadline' => 2, 'assign' => $pm->id, 'creator' => $admin->id],
+            ['title' => 'Testing fitur notifikasi', 'desc' => 'Pastikan notifikasi berjalan', 'status' => 'pending_pm', 'priority' => 'medium', 'deadline' => 1, 'assign' => $member1->id, 'creator' => $pm->id],
+            ['title' => 'Buat halaman profil user', 'desc' => 'Edit profil + avatar', 'status' => 'pending_admin', 'priority' => 'medium', 'deadline' => -1, 'assign' => $member2->id, 'creator' => $pm->id],
+            ['title' => 'Implementasi dark mode', 'desc' => 'Toggle theme', 'status' => 'revision', 'priority' => 'low', 'deadline' => 3, 'assign' => $member1->id, 'creator' => $pm->id],
+            ['title' => 'Optimasi query database', 'desc' => 'Tambahkan index', 'status' => 'todo', 'priority' => 'high', 'deadline' => 7, 'assign' => $pm->id, 'creator' => $admin->id],
         ];
 
         foreach ($tasks as $t) {
             Task::firstOrCreate(
-                ['title' => $t['title'], 'workspace_id' => $ws1->id],
+                ['title' => $t['title'], 'workspace_id' => $ws->id],
                 [
-                    'created_by' => $t['pm']->id,
-                    'assigned_to' => $t['assign']->id,
+                    'created_by' => $t['creator'],
+                    'assigned_to' => $t['assign'],
                     'description' => $t['desc'],
                     'status' => $t['status'],
                     'priority' => $t['priority'],
