@@ -1,9 +1,9 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
-## Collaborative Task Management System — Review Workflow Edition
+## Collaborative Task Management System — 3-Level Hierarchy
 
 ---
 
-**Versi:** 2.0
+**Versi:** 3.0
 **Tanggal:** 21 Juni 2026
 **Status:** Final untuk Tim Engineering
 
@@ -20,14 +20,20 @@ Laravel Fullstack (Blade + Livewire) + MariaDB. Sidebar layout per role.
     → [Eloquent ORM] → [MariaDB] → [Blade View + Sidebar Layout] → [Browser]
 ```
 
-### 1.3. Layer Layout
+### 1.3. Alur Hierarki Tugas
+```
+Atasan (buat tugas) → Super Admin (Global Tasks) → PM (Daftar Tugas) → Member
+```
+
+### 1.4. Layer Layout
 | Role | Layout | Sidebar |
 |------|--------|---------|
-| admin | `layouts.admin` | Daftar Tugas + Links Admin |
-| pm | `layouts.pm` | Daftar Tugas + Links PM |
-| member | `layouts.member` | Tugas Saya + Links Member |
+| atasan | `layouts.atasan` | Dashboard, Buat Tugas, Tugas Saya |
+| admin | `layouts.admin` | Dashboard, Global Tasks, Daftar Tugas, PM Performance, Hubungi Team |
+| pm | `layouts.pm` | Dashboard |
+| member | `layouts.member` | My Tasks |
 
-### 1.4. Tech Stack
+### 1.5. Tech Stack
 - Laravel ^11.0, Livewire ^3.0, Tailwind ^3.4, Alpine.js ^3.0, MariaDB ^10.6
 
 ---
@@ -42,7 +48,7 @@ Laravel Fullstack (Blade + Livewire) + MariaDB. Sidebar layout per role.
 | email | VARCHAR(255) | Unique |
 | password | VARCHAR(255) | Hash bcrypt |
 | phone | VARCHAR(20) | Nullable |
-| role | ENUM('admin','pm','member') | Default: 'member' |
+| role | VARCHAR(20) | 'admin','pm','member','atasan' |
 | is_active | BOOLEAN | Default: true |
 
 ### 2.2. Tabel `workspaces`
@@ -82,8 +88,8 @@ Laravel Fullstack (Blade + Livewire) + MariaDB. Sidebar layout per role.
 |-------|------|-----|
 | id | BIGINT UNSIGNED PK | - |
 | workspace_id | BIGINT UNSIGNED | FK → workspaces.id |
-| created_by | BIGINT UNSIGNED | FK → users.id |
-| assigned_to | BIGINT UNSIGNED | FK → users.id |
+| created_by | BIGINT UNSIGNED | FK → users.id (Atasan/Admin/PM) |
+| assigned_to | BIGINT UNSIGNED | Nullable, FK → users.id (PM/Member) |
 | reviewed_by | BIGINT UNSIGNED | Nullable, FK → users.id |
 | team_id | BIGINT UNSIGNED | Nullable, index |
 | title | VARCHAR(255) | - |
@@ -116,27 +122,34 @@ Laravel Fullstack (Blade + Livewire) + MariaDB. Sidebar layout per role.
 ```php
 // Auth + check.active
 Route::get('/dashboard', [role redirect])->name('dashboard');
-Route::get('/tasks', AllTasks::class)->name('tasks.all'); // Semua role
+Route::get('/tasks', AllTasks::class)->name('tasks.all');
+
+// Atasan
+Route::middleware(['role:atasan'])->prefix('atasan')->name('atasan.')->group(function () {
+    Route::get('/dashboard', AtasanDashboard::class)->name('dashboard');
+    Route::get('/create-task', CreateTask::class)->name('create.task');
+    Route::get('/tasks', AtasanTaskList::class)->name('tasks');
+});
 
 // PM
-Route::prefix('pm')->name('pm.')->middleware('role:pm')->group(function () {
+Route::middleware(['role:pm'])->prefix('pm')->name('pm.')->group(function () {
     Route::get('/dashboard', PmDashboard::class)->name('dashboard');
     Route::get('/compose-email', ComposeEmail::class)->name('compose.email');
 });
 
 // Member
-Route::prefix('member')->name('member.')->middleware('role:member')->group(function () {
+Route::middleware(['role:member'])->prefix('member')->name('member.')->group(function () {
     Route::get('/dashboard', MemberDashboard::class)->name('dashboard');
 });
 
 // Admin
-Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
+Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
     Route::get('/tasks', TaskList::class)->name('tasks.list');
     Route::get('/tasks/oversight/{taskId?}', TaskOversight::class)->name('tasks.oversight');
     Route::get('/assign-task', AssignTask::class)->name('assign.task');
     Route::get('/pm-performance', PmPerformance::class)->name('pm.performance');
-    Route::get('/compose-email', ComposeEmail::class)->name('compose.email');
+    Route::get('/hubungi-team', HubungiTeam::class)->name('hubungi.team');
 });
 ```
 
@@ -144,31 +157,43 @@ Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function
 
 ## 4. LIVEWIRE COMPONENTS
 
-### 4.1. Admin\TaskList (`layouts.admin`)
-- Buat tugas baru → pilih PM → tampil tim yang dipimpin.
-- Filter status (Semua/Pending/Menunggu Admin/Selesai/Terlambat).
-- Tombol "Selesai" untuk tugas `pending_admin` (final approve).
-- Tombol "Hapus".
+### 4.1. Atasan\AtasanDashboard (`layouts.atasan`)
+- Stats cards: Total, Belum Diberikan, Sudah Diberikan, Selesai.
+- Quick actions: Buat Tugas Baru, Lihat Tugas Saya.
 
-### 4.2. Admin\AdminDashboard (`layouts.admin`)
+### 4.2. Atasan\CreateTask (`layouts.atasan`)
+- Form: title, description, priority, deadline, workspace.
+- Tidak ada PM selector — tugas langsung ke Super Admin.
+- `assigned_to` = null, `created_by` = atasan ID.
+
+### 4.3. Atasan\AtasanTaskList (`layouts.atasan`)
+- Filter: Semua, Belum Diberikan, Sudah Diberikan, Selesai.
+- Table: Tugas, Workspace, Assignee, Status, Priority, Deadline.
+
+### 4.4. Admin\AdminDashboard (`layouts.admin`)
 - Statistik global + breakdown status.
-- Manajemen user (aktif/suspend) + label tim.
-- Tabel workspaces + label PM + tim.
-- Tabel teams dengan label (Project Manager) / (Anggota).
+- Manajemen user.
 
-### 4.3. Pm\PmDashboard (`layouts.pm`)
+### 4.5. Admin\TaskOversight (`layouts.admin`)
+- Global Tasks: tugas dari Atasan (`whereHas('creator', role=atasan)`).
+- Status: Belum Diberikan / Sudah Diberikan / Selesai.
+- Detail modal + assign ke PM.
+
+### 4.6. Admin\TaskList (`layouts.admin`)
+- Daftar Tugas: tugas yang sudah di-assign ke PM.
+- Tidak ada tombol "Tambah Tugas" atau form create.
+- Final approve untuk `pending_admin`.
+- Delete + Detail modal.
+
+### 4.7. Pm\PmDashboard (`layouts.pm`)
 - Statistik: Total, Done, Menunggu Review, Revisi.
-- Team Members list dengan label (Project Manager) / (Anggota) + nama tim.
-- Daftar Tugas Team: Assign ke anggota, Approve, Revisi + catatan.
-- **Tidak ada** tombol "Buat Tugas Baru".
+- Assign ke anggota, Approve, Revisi + catatan.
 
-### 4.4. Member\MemberDashboard (`layouts.member`)
-- Info PM dengan label (Project Manager).
-- Team Saya card (nama tim + PM).
-- Daftar Tugas Saya: upload file + submit (→ pending_pm).
+### 4.8. Member\MemberDashboard (`layouts.member`)
+- Tugas Saya: upload file + submit (→ pending_pm).
 - Status revision tampilkan catatan revisi.
 
-### 4.5. AllTasks (`layouts.app`)
+### 4.9. AllTasks (`layouts.app`)
 - Read-only daftar semua tugas untuk semua role.
 
 ---
@@ -176,37 +201,39 @@ Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function
 ## 5. ALUR STATUS TUGAS
 
 ```
-SuperAdmin buat → todo
+Atasan buat → todo (assigned_to = null)
+  ↓ (Super Admin assign ke PM)
+todo → on_progress (PM assigns ke member)
   ↓
-PM assign → on_progress
+on_progress → pending_pm (Member submits + upload)
   ↓
-Anggota selesai + upload → pending_pm
-  ↓
-PM approve → pending_admin  |  PM reject + note → revision
-  ↓                              ↓
-SuperAdmin final → done     Anggota perbaiki + upload ulang → pending_pm
+pending_pm → pending_admin (PM approves)  |  pending_pm → revision (PM rejects)
+  ↓                                            ↓
+pending_admin → done (Super Admin final)   revision → pending_pm (Member re-submits)
 ```
 
 ---
 
 ## 6. SIDEBAR LAYOUTS
 
-### 6.1. `layouts.admin`
-- Logo + Nav (Dashboard, Daftar Tugas, Assign Task, Global Tasks, PM Performance, Compose Email).
-- Sidebar task list (50 tugas terbaru).
+### 6.1. `layouts.atasan`
+- Nav: Dashboard, Buat Tugas, Tugas Saya.
+- User footer (nama, "Atasan").
+
+### 6.2. `layouts.admin`
+- Nav: Dashboard, Global Tasks, Daftar Tugas, PM Performance, Hubungi Team.
+- Sidebar task list.
 - User footer (nama, "Super Admin", tim).
 
-### 6.2. `layouts.pm`
-- Logo + Nav (Dashboard, Daftar Tugas).
+### 6.3. `layouts.pm`
+- Nav: Dashboard.
 - Sidebar task list (tugas workspace PM).
 - User footer (nama, "Project Manager", tim).
 
-### 6.3. `layouts.member`
-- Logo + Nav (My Tasks, Daftar Tugas).
+### 6.4. `layouts.member`
+- Nav: My Tasks.
 - Sidebar task list (tugas di-assign ke member).
 - User footer (nama, "Anggota", tim).
-
-View Composer di `AppServiceProvider` inject `$sidebarTasks` ke tiap layout.
 
 ---
 
@@ -215,10 +242,9 @@ View Composer di `AppServiceProvider` inject `$sidebarTasks` ke tiap layout.
 | Seeder | Data |
 |--------|------|
 | RoleSeeder | Roles default |
-| UserSeeder | 1 admin, 2 PM (Budi/Siti), 4 member (Ahmad/Dewi/Rudi/Fitri), user@admin.com |
-| TeamSeeder | Tim Developer (PM Budi), Tim Desain (PM Siti), masing-masing 3 anggota |
-| DatabaseSeeder | 3 workspaces, 7 tasks |
-| TaskSeeder | 6 personal tasks for user@admin.com |
+| UserSeeder | 1 atasan (Hendra), 1 admin, 2 PM (Budi/Siti), 2 member |
+| TeamSeeder | Tim masing-masing PM |
+| DatabaseSeeder | Tasks from atasan (assigned + unassigned) + PM internal tasks |
 
 ---
 
@@ -234,5 +260,4 @@ View Composer di `AppServiceProvider` inject `$sidebarTasks` ke tiap layout.
 
 - Anggota upload file (pdf, doc, docx, zip, xlsx, jpg, png, max 10MB).
 - File disimpan di `storage/app/public/task-submissions/`.
-- Attachment tercatat di tabel `attachments`.
 - Storage link: `php artisan storage:link`.

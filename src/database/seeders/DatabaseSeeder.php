@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $admin = User::where('email', 'admin@admin.com')->first();
+        $atasan = User::where('email', 'atasan@test.com')->first();
         $pm = User::where('email', 'pm1@test.com')->first();
         $member1 = User::where('email', 'member1@test.com')->first();
         $member2 = User::where('email', 'member2@test.com')->first();
@@ -31,14 +32,20 @@ class DatabaseSeeder extends Seeder
         $ws->members()->syncWithoutDetaching([$member1->id, $member2->id]);
 
         $tasks = [
-            // Tasks created by admin → assigned to PM
-            ['title' => 'Buat modul login', 'desc' => 'Integrasi Laravel Breeze', 'status' => 'done', 'priority' => 'high', 'deadline' => -2, 'assign' => $pm->id, 'creator' => $admin->id],
-            ['title' => 'Desain dashboard utama', 'desc' => 'Wireframe & mockup', 'status' => 'todo', 'priority' => 'medium', 'deadline' => 5, 'assign' => $pm->id, 'creator' => $admin->id],
-            ['title' => 'Siapkan server staging', 'desc' => 'Deploy VPS', 'status' => 'on_progress', 'priority' => 'high', 'deadline' => 2, 'assign' => $pm->id, 'creator' => $admin->id],
+            // Tasks from atasan → not yet assigned to PM
+            ['title' => 'Pengembangan aplikasi mobile', 'desc' => 'Membuat aplikasi mobile untuk manajemen inventaris', 'status' => 'todo', 'priority' => 'high', 'deadline' => 14, 'assign' => null, 'creator' => $atasan->id],
+            ['title' => 'Migrasi server ke cloud', 'desc' => 'Pindahkan semua server ke AWS', 'status' => 'todo', 'priority' => 'medium', 'deadline' => 30, 'assign' => null, 'creator' => $atasan->id],
+
+            // Tasks from atasan → already assigned to PM
+            ['title' => 'Buat modul login', 'desc' => 'Integrasi Laravel Breeze', 'status' => 'done', 'priority' => 'high', 'deadline' => -2, 'assign' => $pm->id, 'creator' => $atasan->id],
+            ['title' => 'Desain dashboard utama', 'desc' => 'Wireframe & mockup', 'status' => 'todo', 'priority' => 'medium', 'deadline' => 5, 'assign' => $pm->id, 'creator' => $atasan->id],
+            ['title' => 'Siapkan server staging', 'desc' => 'Deploy VPS', 'status' => 'on_progress', 'priority' => 'high', 'deadline' => 2, 'assign' => $pm->id, 'creator' => $atasan->id],
+            ['title' => 'Optimasi query database', 'desc' => 'Tambahkan index', 'status' => 'todo', 'priority' => 'high', 'deadline' => 7, 'assign' => $pm->id, 'creator' => $atasan->id],
+
+            // PM tasks (internal team)
             ['title' => 'Testing fitur notifikasi', 'desc' => 'Pastikan notifikasi berjalan', 'status' => 'pending_pm', 'priority' => 'medium', 'deadline' => 1, 'assign' => $member1->id, 'creator' => $pm->id],
             ['title' => 'Buat halaman profil user', 'desc' => 'Edit profil + avatar', 'status' => 'pending_admin', 'priority' => 'medium', 'deadline' => -1, 'assign' => $member2->id, 'creator' => $pm->id],
             ['title' => 'Implementasi dark mode', 'desc' => 'Toggle theme', 'status' => 'revision', 'priority' => 'low', 'deadline' => 3, 'assign' => $member1->id, 'creator' => $pm->id],
-            ['title' => 'Optimasi query database', 'desc' => 'Tambahkan index', 'status' => 'todo', 'priority' => 'high', 'deadline' => 7, 'assign' => $pm->id, 'creator' => $admin->id],
         ];
 
         foreach ($tasks as $t) {

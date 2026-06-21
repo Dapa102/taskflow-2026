@@ -7,52 +7,59 @@
 
 ## Layouts
 
+### Atasan Sidebar (`layouts.atasan`)
+- Fixed left sidebar 72rem width.
+- Nav: Dashboard, Buat Tugas, Tugas Saya.
+- User footer with name, "Atasan" label.
+
 ### Admin Sidebar (`layouts.admin`)
 - Fixed left sidebar 72rem width.
-- Nav: Dashboard, Daftar Tugas, Assign Task, Global Tasks, PM Performance, Compose Email.
-- Sidebar task list (latest 50) with color dots + deadline.
+- Nav: Dashboard, Global Tasks (tugas dari Atasan), Daftar Tugas (tugas ke PM), PM Performance, Hubungi Team.
 - User footer with avatar, name, "Super Admin" label + team badge.
 
 ### PM Sidebar (`layouts.pm`)
-- Nav: Dashboard, Daftar Tugas.
-- Sidebar task list (workspace tasks).
+- Nav: Dashboard.
 - User footer with team badge.
 
 ### Member Sidebar (`layouts.member`)
-- Nav: My Tasks, Daftar Tugas.
-- Sidebar task list (assigned tasks).
+- Nav: My Tasks.
 - User footer with team badges.
 
 ## Pages
 
-### 1. Authentication
-- Centered card login/register.
+### 1. Atasan Dashboard (`/atasan/dashboard`)
+- Stats: Total Tugas, Belum Diberikan, Sudah Diberikan, Selesai.
+- Quick actions: Buat Tugas Baru, Lihat Tugas Saya.
 
-### 2. Admin Dashboard (`/admin/dashboard`)
-- Stats: Users, Workspaces, Tasks.
-- Task breakdown: Todo, On Progress, Review PM, Review Admin, Revisi, Done.
-- User management table with role label + team badges.
-- Workspaces table.
-- Teams table: (Project Manager) label, on-progress tasks.
+### 2. Atasan Create Task (`/atasan/create-task`)
+- Form: title, description, priority, deadline, workspace.
+- No PM selector — tugas langsung ke Super Admin.
 
-### 3. Admin Task List (`/admin/tasks`)
-- Create Task form with PM selector → shows PM's teams.
-- Task table with status filter + search.
-- Final approve button for `pending_admin` tasks.
-- Delete button.
+### 3. Atasan Task List (`/atasan/tasks`)
+- Table with status filter (Semua, Belum Diberikan, Sudah Diberikan, Selesai).
+- Columns: Tugas, Workspace, Assignee, Status, Priority, Deadline.
 
-### 4. PM Dashboard (`/pm/dashboard`)
-- Stats cards: Total, Done, Menunggu Review, Revisi.
-- Team Members list with (Project Manager) / (Anggota) labels + team names.
-- Task list: assign to member, approve pending_pm, reject with note.
+### 4. Admin Global Tasks (`/admin/tasks/oversight`)
+- Tasks from Atasan (created_by user role = atasan).
+- Status: Belum Diberikan / Sudah Diberikan / Selesai.
+- Detail modal with assign-to-PM functionality.
 
-### 5. Member Dashboard (`/member/dashboard`)
-- PM info card with (Project Manager) label.
-- Team badges.
+### 5. Admin Task List (`/admin/tasks`)
+- Tasks assigned to PMs (assigned_to is not null).
+- No "Tambah Tugas" button or create form.
+- Final approve for pending_admin tasks.
+- Detail modal for all tasks.
+
+### 6. PM Dashboard (`/pm/dashboard`)
+- Stats cards.
+- Assign task to member, approve pending_pm, reject with note.
+
+### 7. Member Dashboard (`/member/dashboard`)
 - Task list with file upload + submit button.
-- Revision note display.
 
 ## Status Badge Colors
+
+### Task Workflow Status
 | Status | Color |
 |--------|-------|
 | todo / Menunggu | Gray |
@@ -62,15 +69,17 @@
 | revision / Revisi | Orange |
 | done / Selesai | Green |
 
+### Global Tasks Status
+| Status | Color |
+|--------|-------|
+| Belum Diberikan | Yellow |
+| Sudah Diberikan | Blue |
+| Selesai | Green |
+
 ## Role Labels
 | User Role | Label |
 |-----------|-------|
-| admin | Admin / Super Admin |
+| atasan | Atasan |
+| admin | Super Admin |
 | pm | Project Manager |
-| member | Anggota |
-
-## Team Member Labels (in team_members)
-| team_members.role | Label |
-|-------------------|-------|
-| admin | Project Manager (team admin) |
 | member | Anggota |

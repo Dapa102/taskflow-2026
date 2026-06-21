@@ -9,10 +9,15 @@ use App\Livewire\Admin\TaskOversight;
 use App\Livewire\Admin\PmPerformance;
 use App\Livewire\Admin\AssignTask;
 use App\Livewire\Admin\TaskList;
+use App\Livewire\Atasan\AtasanDashboard;
+use App\Livewire\Atasan\CreateTask;
+use App\Livewire\Atasan\AtasanTaskList;
 use App\Livewire\AllTasks;
 
 Route::get('/', function () {
-    return view('welcome');
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 });
 
 Route::middleware(['auth', 'check.active'])->group(function () {
@@ -21,6 +26,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         if ($role === 'pm') return redirect()->route('pm.dashboard');
         if ($role === 'member') return redirect()->route('member.dashboard');
         if ($role === 'admin') return redirect()->route('admin.dashboard');
+        if ($role === 'atasan') return redirect()->route('atasan.dashboard');
         return view('dashboard');
     })->name('dashboard');
 
@@ -33,6 +39,12 @@ Route::middleware(['auth', 'check.active'])->group(function () {
 
     Route::middleware(['role:member'])->prefix('member')->name('member.')->group(function () {
         Route::get('/dashboard', MemberDashboard::class)->name('dashboard');
+    });
+
+    Route::middleware(['role:atasan'])->prefix('atasan')->name('atasan.')->group(function () {
+        Route::get('/dashboard', AtasanDashboard::class)->name('dashboard');
+        Route::get('/create-task', CreateTask::class)->name('create.task');
+        Route::get('/tasks', AtasanTaskList::class)->name('tasks');
     });
     
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {

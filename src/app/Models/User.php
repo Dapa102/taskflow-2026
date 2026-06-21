@@ -58,4 +58,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class, 'created_by');
     }
+
+    public function teams(): HasMany
+    {
+        return $this->hasMany(Team::class, 'owner_id');
+    }
 }

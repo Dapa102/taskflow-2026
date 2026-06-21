@@ -1,4 +1,9 @@
 <x-guest-layout>
+    <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Selamat Datang</h2>
+        <p class="mt-1 text-sm text-gray-600">Silakan login terlebih dahulu untuk melanjutkan</p>
+    </div>
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 

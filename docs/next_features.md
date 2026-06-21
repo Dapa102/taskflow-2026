@@ -11,6 +11,7 @@ Integrasi notifikasi dua kanal: WhatsApp (via Fonnte API) dan Email (via SMTP).
 
 | Trigger | Pengirim | Penerima | Pesan |
 |---------|----------|----------|-------|
+| Atasan create task ke Super Admin | Sistem | Admin | "Task baru: {title} dari {Atasan_name}" |
 | Super Admin assign task ke PM | Sistem | PM | "Task baru: {title} dari Super Admin. Deadline: {deadline}" |
 | PM assign task ke Member | Sistem | Member | "Task baru: {title} dari {PM_name}. Deadline: {deadline}" |
 
@@ -43,8 +44,9 @@ MAIL_PASSWORD=your-app-password
 ### 2.3. Channel
 `app/Notifications/Channels/FonnteChannel.php` — calls FonnteService.
 
-### 2.4. Trigger Points (update these file references)
-- **Super Admin → PM:** `app/Livewire/Admin/TaskList.php` — setelah `createTask()`.
+### 2.4. Trigger Points
+- **Atasan → Super Admin:** `app/Livewire/Atasan/CreateTask.php` — setelah `save()`.
+- **Super Admin → PM:** `app/Livewire/Admin/TaskOversight.php` — setelah `assignToPm()`.
 - **PM → Member:** `app/Livewire/Pm/PmDashboard.php` — setelah `assignToMember()`.
 
 ### 2.5. Database
@@ -61,7 +63,7 @@ Migration: `$table->string('phone', 20)->nullable()` di tabel `users` (sudah ada
 - `app/Livewire/Admin/ComposeEmail.php` — SA → PM.
 - `app/Livewire/Pm/ComposeEmail.php` — PM → Member.
 
-### 3.3. Routes (already exist)
+### 3.3. Routes
 ```php
 Route::get('/compose-email', \App\Livewire\Admin\ComposeEmail::class)->name('compose.email');
 Route::get('/compose-email', \App\Livewire\Pm\ComposeEmail::class)->name('compose.email');
@@ -73,6 +75,7 @@ Route::get('/compose-email', \App\Livewire\Pm\ComposeEmail::class)->name('compos
 
 | Fitur | Kanal | Pengirim | Penerima | Trigger |
 |-------|-------|----------|----------|---------|
+| Notifikasi task baru ke Admin | WhatsApp | Sistem | Admin | Atasan create task |
 | Notifikasi task ke PM | WhatsApp | Sistem | PM | SA assign task |
 | Notifikasi task ke Member | WhatsApp | Sistem | Member | PM assign task |
 | Komunikasi SA → PM | Email | SA | PM | Manual form |

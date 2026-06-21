@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Team;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -39,7 +40,7 @@ class TaskOversight extends Component
     public function viewDetail($taskId)
     {
         $this->selectedTaskId = $taskId;
-        $this->detailTask = Task::with(['workspace', 'creator', 'assignee', 'team', 'attachments'])->find($taskId);
+        $this->detailTask = Task::with(['workspace', 'creator', 'assignee', 'attachments'])->find($taskId);
     }
 
     public function closeDetail()
@@ -69,23 +70,30 @@ class TaskOversight extends Component
 
     public function render()
     {
-        $query = Task::with(['workspace', 'assignee', 'creator', 'attachments']);
+        $query = Task::with(['workspace', 'assignee', 'creator', 'attachments'])
+            ->whereHas('creator', function ($q) {
+                $q->where('role', 'atasan');
+            });
 
         if ($this->search) {
-            $query->where('title', 'like', '%' . $this->search . '%')
-                  ->orWhereHas('workspace', function($q) {
-                      $q->where('name', 'like', '%' . $this->search . '%');
+            $query->where(function ($q) {
+                $q->where('title', 'like', '%' . $this->search . '%')
+                  ->orWhereHas('workspace', function ($wq) {
+                      $wq->where('name', 'like', '%' . $this->search . '%');
                   });
+            });
         }
 
-        if ($this->statusFilter === 'overdue') {
+        if ($this->statusFilter === 'pending') {
+            $query->whereNull('assigned_to');
+        } elseif ($this->statusFilter === 'given') {
+            $query->whereNotNull('assigned_to');
+        } elseif ($this->statusFilter === 'overdue') {
             $query->whereNotNull('deadline')
                   ->where('deadline', '<', now())
                   ->where('status', '!=', 'done');
         } elseif ($this->statusFilter === 'done') {
             $query->where('status', 'done');
-        } elseif ($this->statusFilter === 'pending') {
-            $query->where('status', '!=', 'done');
         }
 
         $pms = User::where('role', 'pm')->get();

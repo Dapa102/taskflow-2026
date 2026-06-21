@@ -15,11 +15,15 @@ app/
 ├── Livewire/
 │   ├── Admin/
 │   │   ├── Dashboard.php         # Super admin stats + user management
-│   │   ├── TaskList.php          # CRUD tasks + final approve
-│   │   ├── TaskOversight.php     # Global task detail
+│   │   ├── TaskList.php          # Tasks assigned to PMs + final approve
+│   │   ├── TaskOversight.php     # Tasks from Atasan → assign to PM
 │   │   ├── PmPerformance.php     # PM KPI metrics
 │   │   ├── AssignTask.php        # Assign task to PM
-│   │   └── ComposeEmail.php      # Email SA → PM
+│   │   └── HubungiTeam.php       # Contact team
+│   ├── Atasan/
+│   │   ├── AtasanDashboard.php   # Stats overview for Atasan
+│   │   ├── CreateTask.php        # Create task → Super Admin
+│   │   └── AtasanTaskList.php    # View created tasks status
 │   ├── Pm/
 │   │   ├── PmDashboard.php       # Manage team tasks + review
 │   │   └── ComposeEmail.php      # Email PM → Member
@@ -38,13 +42,19 @@ app/
 resources/views/
 ├── layouts/
 │   ├── admin.blade.php           # Sidebar admin
+│   ├── atasan.blade.php          # Sidebar atasan
 │   ├── pm.blade.php              # Sidebar PM
 │   ├── member.blade.php          # Sidebar member
 │   └── app.blade.php             # Default top-nav (for AllTasks)
 ├── livewire/
 │   ├── admin/
 │   │   ├── admin-dashboard.blade.php
-│   │   └── task-list.blade.php
+│   │   ├── task-list.blade.php
+│   │   └── task-oversight.blade.php
+│   ├── atasan/
+│   │   ├── atasan-dashboard.blade.php
+│   │   ├── create-task.blade.php
+│   │   └── atasan-task-list.blade.php
 │   ├── pm/
 │   │   └── pm-dashboard.blade.php
 │   ├── member/
@@ -53,17 +63,23 @@ resources/views/
 ```
 
 ## Models & Relationships
-- **User:** HasOne Workspace (if PM), HasMany Tasks (assigned_to), HasMany Teams (owner).
+- **User (role: admin/pm/member/atasan):** HasOne Workspace (if PM), HasMany Tasks (assigned_to), HasMany Teams (owner), HasMany createdTasks.
 - **Workspace:** BelongsTo User (PM), BelongsToMany Users (members), HasMany Tasks.
 - **Team:** BelongsTo User (owner), HasMany TeamMembers.
 - **Task:** BelongsTo Workspace, BelongsTo User (created_by), BelongsTo User (assigned_to), BelongsTo User (reviewed_by), HasMany Attachments.
 - **TeamMember:** BelongsTo Team, BelongsTo User.
 
 ## Layout System
-Each role gets a dedicated sidebar layout injected with `$sidebarTasks` via View Composer:
-- `layouts.admin`: `Task::latest()->take(50)` — all tasks.
-- `layouts.pm`: `Task::where('workspace_id', $workspace->id)` — workspace tasks.
-- `layouts.member`: `Task::where('assigned_to', auth()->id())` — assigned tasks.
+Each role gets a dedicated sidebar layout:
+- `layouts.admin`: Nav (Dashboard, Global Tasks, Daftar Tugas, PM Performance, Hubungi Team).
+- `layouts.atasan`: Nav (Dashboard, Buat Tugas, Tugas Saya).
+- `layouts.pm`: Nav (Dashboard).
+- `layouts.member`: Nav (My Tasks).
+
+## Task Flow (3-level hierarchy)
+```
+Atasan (buat tugas) → Super Admin (terima di Global Tasks) → PM (assign ke anggota) → Member
+```
 
 ## Task Status Flow
 ```
@@ -75,8 +91,13 @@ revision → pending_pm (Member re-submits)
 pending_admin → done (Super Admin final approve)
 ```
 
+## Global Tasks Status
+- **Belum Diberikan** — tugas dari Atasan, belum di-assign ke PM.
+- **Sudah Diberikan** — tugas dari Atasan, sudah di-assign ke PM.
+
 ## Authorization
 TaskPolicy:
 - Admin: view all, final approve only (no edit/delete).
 - PM: manage workspace tasks (assign, approve, reject).
 - Member: only assigned tasks (submit + upload).
+- Atasan: create tasks (created_by).

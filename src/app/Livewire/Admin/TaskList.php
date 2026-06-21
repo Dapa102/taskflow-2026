@@ -15,15 +15,10 @@ class TaskList extends Component
 {
     use WithPagination;
 
-    public $showForm = false;
-    public $title = '';
-    public $description = '';
-    public $priority = 'medium';
-    public $deadline = '';
-    public $selectedPm = '';
-    public $workspaceId = '';
     public $statusFilter = 'all';
     public $search = '';
+    public $selectedTask = null;
+    public $showDetail = false;
 
     protected $rules = [
         'title' => 'required|min:3|max:255',
@@ -34,27 +29,27 @@ class TaskList extends Component
         'workspaceId' => 'required|exists:workspaces,id',
     ];
 
+    public $title = '';
+    public $description = '';
+    public $priority = 'medium';
+    public $deadline = '';
+    public $selectedPm = '';
+    public $workspaceId = '';
+
+    public function viewTask($id)
+    {
+        $this->selectedTask = Task::with(['workspace', 'assignee', 'creator', 'attachments'])->findOrFail($id);
+        $this->showDetail = true;
+    }
+
+    public function closeDetail()
+    {
+        $this->showDetail = false;
+        $this->selectedTask = null;
+    }
+
     public function updatingStatusFilter() { $this->resetPage(); }
     public function updatingSearch() { $this->resetPage(); }
-
-    public function createTask()
-    {
-        $this->validate();
-
-        Task::create([
-            'workspace_id' => $this->workspaceId,
-            'created_by' => auth()->id(),
-            'assigned_to' => $this->selectedPm,
-            'title' => $this->title,
-            'description' => $this->description,
-            'status' => 'todo',
-            'priority' => $this->priority,
-            'deadline' => $this->deadline ?: null,
-        ]);
-
-        session()->flash('message', 'Tugas berhasil dibuat.');
-        $this->reset(['title', 'description', 'priority', 'deadline', 'selectedPm', 'workspaceId', 'showForm']);
-    }
 
     public function deleteTask($id)
     {
@@ -64,9 +59,13 @@ class TaskList extends Component
 
     public function finalApproveTask($id)
     {
-        $task = Task::findOrFail($id);
+        $task = Task::with('attachments')->findOrFail($id);
         if ($task->status !== 'pending_admin') {
             session()->flash('error', 'Task is not pending admin review.');
+            return;
+        }
+        if ($task->attachments->isEmpty()) {
+            session()->flash('error', 'Tugas wajib melampirkan file sebelum diselesaikan.');
             return;
         }
         $task->update(['status' => 'done']);
@@ -75,7 +74,8 @@ class TaskList extends Component
 
     public function render()
     {
-        $query = Task::with(['workspace', 'assignee', 'creator']);
+        $query = Task::with(['workspace', 'assignee', 'creator', 'attachments'])
+            ->whereNotNull('assigned_to');
 
         if ($this->search) {
             $query->where('title', 'like', '%' . $this->search . '%');
@@ -91,20 +91,8 @@ class TaskList extends Component
                   ->where('status', '!=', 'done');
         }
 
-        $pms = User::where('role', 'pm')->get();
-        $workspaces = Workspace::with('pm')->latest()->get();
-        $pmTeams = collect();
-        if ($this->selectedPm) {
-            $pmTeams = Team::where('owner_id', $this->selectedPm)
-                ->with('members.user')
-                ->get();
-        }
-
         return view('livewire.admin.task-list', [
             'tasks' => $query->latest()->paginate(20),
-            'pms' => $pms,
-            'workspaces' => $workspaces,
-            'pmTeams' => $pmTeams,
         ]);
     }
 }
