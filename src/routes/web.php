@@ -4,6 +4,9 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Pm\PmDashboard;
 use App\Livewire\Member\MemberDashboard;
+use App\Livewire\Admin\AdminDashboard;
+use App\Livewire\Admin\TaskOversight;
+use App\Livewire\Admin\PmPerformance;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,9 +29,10 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/dashboard', MemberDashboard::class)->name('dashboard');
     });
     
-    // Admin routes placeholder
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', function() { return "Admin Dashboard"; })->name('dashboard');
+        Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
+        Route::get('/tasks', TaskOversight::class)->name('tasks.oversight');
+        Route::get('/pm-performance', PmPerformance::class)->name('pm.performance');
     });
 });
 
