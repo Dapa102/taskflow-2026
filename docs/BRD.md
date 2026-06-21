@@ -1,214 +1,254 @@
-# BUSINESS REQUIREMENTS DOCUMENT (BRD) - MVP
-## Daily Task Management System (Personal Edition)
-
-**Versi:** 3.0 (Final MVP Scope)
-**Tanggal:** 19 Juni 2026
-**Status:** Final untuk Pengembangan Awal
+# 📄 BUSINESS REQUIREMENT DOCUMENT (BRD) - REVISI FINAL
+## Collaborative Task Management System (Pure Team Edition)
 
 ---
 
-## 1. PENDAHULUAN
-
-### 1.1 Tujuan Dokumen
-Dokumen ini adalah acuan resmi untuk membangun **versi perdana (MVP)** dari aplikasi manajemen pekerjaan sehari-hari. Fokus utama adalah menyediakan alat yang **stabil, cepat, dan fungsional** bagi pengguna individu untuk mencatat, melacak, dan menyelesaikan tugas pribadi.
-
-### 1.2 Ruang Lingkup MVP
-Sistem dibangun sebagai **Single Page Application (SPA)** dengan backend API yang terpisah. Aplikasi hanya melayani pengguna tunggal (tidak ada fitur tim) dan berfokus pada siklus hidup dasar sebuah tugas: **Buat → Baca → Perbarui Status → Hapus**.
-
-### 1.3 Target Pengguna (MVP)
-| No | Jenis Pengguna | Deskripsi |
-|----|----------------|-----------|
-| 1 | **Individual User** | Pengguna tunggal yang ingin mengatur rutinitas, pekerjaan freelance, atau tugas kuliah/kantor sehari-hari. |
+**Versi:** 6.0 (Super Admin dengan Fungsi Oversight Penuh)
+**Tanggal:** 20 Juni 2026
+**Status:** Final untuk Stakeholder
 
 ---
 
-## 2. TUJUAN BISNIS (MVP)
+## 1. Ringkasan Eksekutif
 
-1. **Bukti Konsep (Proof of Concept)** - Meluncurkan aplikasi dalam waktu ≤ 4 minggu.
-2. **Validasi Pasar** - Mendapatkan pengguna awal untuk menguji apakah aplikasi ini membantu produktivitas.
-3. **Landasan Teknis** - Membangun arsitektur (Laravel API + Vue) yang siap dikembangkan ke fitur yang lebih kompleks di masa depan.
+Dokumen ini menguraikan persyaratan untuk pengembangan aplikasi kolaborasi tim yang dirancang khusus untuk membantu tim kecil (3-10 orang) mengelola tugas sehari-hari. Sistem ini **sepenuhnya berbasis tim**; setiap tugas wajib terikat pada Workspace dan ditugaskan (assign) ke anggota tim tertentu. 
 
----
-
-## 3. KEBUTUHAN FUNGSIONAL (FITUR MVP)
-
-### 🔴 LEVEL P0 (WAJIB HADIR - "Kill Zone")
-
-| ID | Modul | Fitur | Deskripsi |
-|----|-------|-------|-----------|
-| UF-01 | **Auth** | Register | Pengguna mendaftar dengan **Nama**, **Email**, dan **Password** |
-| UF-02 | **Auth** | Login | Pengguna masuk menggunakan Email dan Password |
-| UF-03 | **Auth** | Logout | Pengguna keluar dari sistem |
-| UF-04 | **Auth** | Route Guard | Halaman dashboard tidak bisa diakses jika belum login (otomatis redirect ke login) |
-| TF-01 | **Task** | Buat Tugas | Pengguna dapat membuat tugas baru dengan **Judul** (*wajib diisi*) dan **Deskripsi** (*opsional*) |
-| TF-02 | **Task** | Lihat Daftar Tugas | Menampilkan seluruh tugas dalam bentuk daftar/table |
-| TF-03 | **Task** | Edit Tugas | Pengguna dapat mengubah **Judul**, **Deskripsi**, **Deadline**, **Prioritas**, dan **Status** |
-| TF-04 | **Task** | Hapus Tugas | Pengguna dapat menghapus tugas yang tidak diperlukan |
-| TF-05 | **Task** | Ubah Status | Tugas memiliki 3 status wajib: **To-Do** → **On-Progress** → **Done** |
-| TF-06 | **Task** | Deadline | Pengguna dapat menambahkan tanggal batas akhir (Deadline) pada tugas |
-| TF-07 | **Task** | Prioritas | Tugas memiliki 3 level prioritas: **Rendah**, **Sedang**, **Tinggi** |
-
-### 🟡 LEVEL P1 (SANGAT DISARANKAN - "User Experience Basic")
-
-| ID | Modul | Fitur | Deskripsi |
-|----|-------|-------|-----------|
-| TF-08 | **Task** | Filter Status | Pengguna dapat memfilter daftar tugas berdasarkan status (misal: klik "To-Do" hanya menampilkan tugas To-Do) |
-| TF-09 | **Task** | Sorting Otomatis | Daftar tugas diurutkan secara default berdasarkan **Deadline terdekat** (paling mendesak di atas) |
-| TF-10 | **Task** | Pencarian (Search) | Pengguna dapat mencari tugas berdasarkan **Judul** |
-| DF-01 | **Dashboard** | Ringkasan Jumlah | Dashboard menampilkan angka total tugas per status (Contoh: To-Do: 5, On-Progress: 3, Done: 10) |
-| UX-01 | **UI/UX** | Loading State | Menampilkan animasi/indikator "Memuat..." saat aplikasi sedang mengambil data dari server |
-| UX-02 | **UI/UX** | Validasi Form | Form tidak bisa dikirim jika judul tugas kosong; menampilkan pesan error yang jelas dari backend |
+Aplikasi ini memiliki tiga pilar utama: 
+1. **Project Manager** sebagai koordinator yang membuat tugas dan memantau timnya.
+2. **Team Member** sebagai pelaksana yang hanya fokus pada tugasnya.
+3. **Super Admin** sebagai pengawas platform yang tidak hanya mengelola akun, tetapi juga memantau kinerja seluruh Project Manager dan timnya (melihat tugas yang selesai, pending, atau terlambat) untuk memastikan produktivitas dan kepatuhan di seluruh ekosistem.
 
 ---
 
-## 4. KEBUTUHAN NON-FUNGSIONAL (MVP)
+## 2. Latar Belakang dan Justifikasi Bisnis
 
-| ID | Kategori | Deskripsi |
-|----|----------|-----------|
-| NF-01 | **Keamanan** | Autentikasi menggunakan **Laravel Sanctum** dengan token yang disimpan di HTTP-Only Cookie atau LocalStorage (sesuai konfigurasi). |
-| NF-02 | **Keamanan** | Semua endpoint API (kecuali login/register) harus dilindungi oleh middleware `auth:sanctum`. |
-| NF-03 | **Kinerja** | Waktu muat halaman (First Contentful Paint) < 3 detik. |
-| NF-04 | **Database** | Hanya menggunakan 2 tabel utama: `users` dan `tasks` (tidak ada tabel kategori, assignee, dll.). |
-| NF-05 | **Ketersediaan** | Aplikasi harus berjalan di browser modern (Chrome, Firefox, Edge, Safari versi terbaru). |
+- **Konteks:** Dalam tim kecil, pemimpin tim (PM) sering kali sibuk mengkoordinasi hingga lupa memonitor secara objektif. Sementara itu, pemilik platform membutuhkan visibilitas penuh untuk memastikan semua tim berjalan produktif dan tidak ada penyalahgunaan.
+- **Permasalahan:** Tools kolaborasi yang ada biasanya hanya memberikan visibilitas kepada PM tim masing-masing. Pemilik platform (Super Admin) tidak memiliki alat untuk melihat "gambaran besar" kinerja seluruh tim secara agregat.
+- **Solusi yang Diusulkan:** Membangun platform di mana Super Admin memiliki **hak melihat (read-only oversight)** ke semua tugas di semua tim, lengkap dengan filter status (belum selesai, selesai, terlambat), serta dasbor khusus untuk menilai kinerja setiap Project Manager.
 
 ---
 
-## 5. SPESIFIKASI TEKNIS (ARSITEKTUR)
+## 3. Tujuan Bisnis
 
-| Komponen | Teknologi | Keterangan |
-|----------|-----------|------------|
-| **Backend API** | Laravel 11 (PHP 8.2+) | Menyediakan endpoint RESTful |
-| **Frontend SPA** | Vue 3 (Composition API) | Menggunakan `<script setup>` |
-| **State Management** | Pinia | Menyimpan data user dan daftar tugas secara global |
-| **Routing Frontend** | Vue Router v4 | Navigasi antar halaman (Login, Register, Dashboard) |
-| **HTTP Client** | Axios | Menghubungkan Vue ke Laravel API + Interceptor Token |
-| **Database** | MariaDB (>= 10.6) | Relational database |
-| **Autentikasi API** | Laravel Sanctum | Manajemen token berbasis cookie/token |
-| **CSS Framework** | Tailwind CSS | Styling cepat dan responsif |
-
-### 5.1 Struktur Folder (Monorepo Sederhana)
-```
-project-mvp/
-├── backend/               (Laravel API)
-│   ├── app/Models/
-│   ├── routes/api.php
-│   └── .env
-└── frontend/              (Vue 3 SPA)
-    ├── src/
-    │   ├── views/         (Login.vue, Register.vue, Dashboard.vue)
-    │   ├── components/    (TaskList.vue, TaskForm.vue, FilterButton.vue)
-    │   ├── stores/        (authStore.js, taskStore.js)
-    │   ├── router/        (index.js - berisi Route Guard)
-    │   └── api/           (axios instance & endpoint calls)
-    ├── package.json
-    └── vite.config.js
-```
+- Menyediakan platform kolaborasi yang terjangkau bagi tim kecil.
+- Memberdayakan Project Manager dalam mendelegasikan dan memonitor tugas.
+- Memberikan **Super Admin** kendali penuh atas keamanan **dan** visibilitas operasional (produktivitas tim).
+- Membantu Super Admin mengidentifikasi tim atau PM yang bermasalah (banyak tugas terlambat) lebih awal.
+- Menjadi alat bagi Super Admin untuk melakukan audit tugas secara cepat.
 
 ---
 
-## 6. DATABASE DESIGN (MVP - HANYA 2 TABEL)
+## 4. Ruang Lingkup
 
-Berikut adalah struktur minimalis untuk memenuhi semua fitur di atas:
+**A. Modul Manajemen Workspace (PM):**
+- PM membuat workspace, mengundang member, dan mengelola anggota.
 
-### Tabel `users`
+**B. Modul Manajemen Tugas Tim (PM & Member):**
+- PM membuat & assign tugas; Member hanya mengupdate status.
+- **Tidak ada tugas pribadi.** Semua tugas bersifat tim.
 
-| Kolom | Tipe Data | Keterangan |
-|-------|-----------|------------|
-| id | BIGINT (PK, AI) | Primary Key |
-| name | VARCHAR(255) | Nama lengkap pengguna |
-| email | VARCHAR(255) | Unique, untuk login |
-| password | VARCHAR(255) | Hash bcrypt |
-| created_at | TIMESTAMP | Otomatis |
-| updated_at | TIMESTAMP | Otomatis |
-
-### Tabel `tasks`
-
-| Kolom | Tipe Data | Keterangan |
-|-------|-----------|------------|
-| id | BIGINT (PK, AI) | Primary Key |
-| user_id | BIGINT (FK) | Foreign Key ke `users.id` (ON DELETE CASCADE) |
-| title | VARCHAR(255) | **Wajib diisi** (Judul tugas) |
-| description | TEXT | **Nullable** (Deskripsi opsional) |
-| status | ENUM('todo','on_progress','done') | Default: 'todo' |
-| priority | ENUM('low','medium','high') | Default: 'medium' |
-| deadline | DATE | **Nullable** (Tanggal batas akhir) |
-| created_at | TIMESTAMP | Otomatis |
-| updated_at | TIMESTAMP | Otomatis |
-
-> **Catatan:** Tidak ada tabel `categories`, `task_assignees`, atau `notifications` di MVP.
+**C. Modul Pengawasan & Oversight (Super Admin - Diperluas):**
+- Admin dapat melihat **daftar seluruh tugas dari semua workspace** dengan filter status (Pending / Selesai / Terlambat).
+- Admin dapat melihat **detail** sebuah tugas (judul, deskripsi, assignee, deadline, status) tanpa bisa mengeditnya.
+- Admin dapat melihat **dasbor kinerja per Project Manager** (berapa total tugas di timnya, berapa yang selesai tepat waktu, berapa yang terlambat).
+- Admin tetap memiliki fungsi manajemen akun (aktivasi/suspend pengguna).
 
 ---
 
-## 7. LIST API ENDPOINT (BACKEND LARAVEL)
+## 5. Stakeholders dan Pengguna
 
-Hanya 7 endpoint yang perlu dibuat di `routes/api.php`:
-
-| Method | Endpoint | Fungsi | Proteksi |
-|--------|----------|--------|----------|
-| POST | `/api/register` | Registrasi akun baru | ❌ Public |
-| POST | `/api/login` | Login dan mendapatkan token | ❌ Public |
-| POST | `/api/logout` | Logout (revoke token) | ✅ Auth:sanctum |
-| GET | `/api/user` | Ambil data profil (untuk cek login & tampil nama di header) | ✅ Auth:sanctum |
-| GET | `/api/tasks` | Ambil daftar tugas (bisa pakai query: `?status=todo&search=belajar`) | ✅ Auth:sanctum |
-| POST | `/api/tasks` | Buat tugas baru | ✅ Auth:sanctum |
-| GET | `/api/tasks/{id}` | Ambil detail 1 tugas (untuk modal edit) | ✅ Auth:sanctum |
-| PUT | `/api/tasks/{id}` | Update tugas | ✅ Auth:sanctum |
-| DELETE | `/api/tasks/{id}` | Hapus tugas | ✅ Auth:sanctum |
+| Stakeholder | Peran dan Tanggung Jawab |
+|-------------|---------------------------|
+| **Project Manager (Pimpinan Tim)** | Membuat workspace, mengundang anggota, membuat & assign tugas, memantau progres timnya sendiri. |
+| **Team Member (Anggota Tim)** | Menerima tugas dari PM, mengupdate status tugas yang menjadi tanggung jawabnya. |
+| **Super Admin** | Mengelola akun pengguna, **memantau seluruh aktivitas tugas di semua tim**, mengevaluasi kinerja PM, dan memastikan kepatuhan terhadap aturan platform. |
+| **Pemilik Produk** | Menentukan prioritas fitur berdasarkan umpan balik pasar. |
 
 ---
 
-## 8. LIST HALAMAN FRONTEND (VUE ROUTER)
+## 6. Persyaratan Fungsional
 
-| Path | Nama Halaman | Komponen | Deskripsi |
-|------|--------------|----------|-----------|
-| `/login` | Login | `Login.vue` | Form email & password |
-| `/register` | Register | `Register.vue` | Form nama, email, password |
-| `/dashboard` | Dashboard | `Dashboard.vue` | Menampilkan ringkasan jumlah tugas + daftar tugas (dengan filter & search) |
-| *(Modal)* | Form Tugas | `TaskForm.vue` | Muncul sebagai modal/dialog untuk tambah atau edit tugas |
+### 6.1 Manajemen Akun & Peran
+| Kode | Kebutuhan | Prioritas |
+|------|-----------|-----------|
+| F-01 | Pengguna mendaftar dengan memilih peran: **Project Manager** atau **Team Member**. | Wajib |
+| F-02 | Semua pengguna dapat login dan logout. | Wajib |
+| F-03 | Sistem membatasi akses fitur berdasarkan peran (middleware). | Wajib |
 
----
+### 6.2 Manajemen Workspace (Khusus Project Manager)
+| Kode | Kebutuhan | Prioritas |
+|------|-----------|-----------|
+| F-04 | PM dapat membuat 1 Workspace (nama, deskripsi). | Wajib |
+| F-05 | PM dapat mengundang anggota (max 10 orang di MVP). | Wajib |
+| F-06 | PM dapat menghapus anggota dari workspace. | Wajib |
 
-## 9. DI LUAR LINGKUP MVP (TIDAK DIKERJAKAN!)
+### 6.3 Manajemen Tugas (PM & Member)
+| Kode | Kebutuhan | Prioritas |
+|------|-----------|-----------|
+| F-07 | PM dapat membuat tugas (judul, deskripsi, deadline, prioritas) dan **menentukan assignee**. | Wajib |
+| F-08 | PM dapat mengedit dan menghapus tugas. | Wajib |
+| F-09 | PM dapat melihat dashboard progres timnya sendiri. | Wajib |
+| F-10 | Member dapat melihat daftar tugas yang di-assign kepadanya. | Wajib |
+| F-11 | Member dapat mengubah status tugas yang di-assign (To-Do → On-Progress → Done). | Wajib |
+| F-12 | Member **tidak dapat** mengedit/menghapus tugas (hanya PM yang bisa). | Wajib |
 
-Fitur-fitur berikut **secara tegas DITUNDA** ke rilis versi 2.0 agar tidak menghambat peluncuran:
-
-- ❌ Kolaborasi Tim / Berbagi Tugas
-- ❌ Kategori atau Label
-- ❌ Notifikasi (Email atau Web Push)
-- ❌ Sub-tugas (Nested Task)
-- ❌ Komentar / Diskusi pada tugas
-- ❌ Laporan Grafik atau Ekspor PDF/CSV
-- ❌ Ganti Foto Profil
-- ❌ Dark Mode
-- ❌ Integrasi dengan Google Calendar
-
----
-
-## 10. KRITERIA KEBERHASILAN MVP
-
-| No | Metrik | Target Minimal |
-|----|--------|----------------|
-| 1 | Fungsionalitas | Semua fitur P0 dan P1 berjalan tanpa error kritis |
-| 2 | Stabilitas API | Response time < 500ms untuk semua endpoint (dengan < 50 tugas) |
-| 3 | Pengalaman Pengguna | Pengguna dapat membuat tugas pertama dalam waktu < 1 menit setelah registrasi |
-| 4 | Deployment | Aplikasi berhasil di-deploy ke environment staging (atau production) |
-
----
-
-## 11. JADWAL PENGEMBANGAN (4 MINGGU)
-
-| Minggu | Fokus | Aktivitas Utama |
-|--------|-------|-----------------|
-| **Minggu 1** | **Backend (Laravel API)** | Setup Laravel + MariaDB, Buat Model & Migration `users` & `tasks`, Implementasi Sanctum Auth (Login/Register), Buat semua endpoint CRUD Tasks, Testing API dengan Postman. |
-| **Minggu 2** | **Frontend (Vue 3) - Bagian 1** | Setup Vue + Vite + Pinia + Router, Buat halaman Login & Register, Buat interceptor Axios untuk token, Implementasi Route Guard. |
-| **Minggu 3** | **Frontend (Vue 3) - Bagian 2** | Buat halaman Dashboard, Komponen Daftar Tugas, Modal Form (Tambah/Edit), Implementasi Fitur Filter, Search, dan Sorting. |
-| **Minggu 4** | **Integrasi & Polish** | Hubungkan semua API ke Vue, Tambahkan Loading State & Validasi Form, Uji coba End-to-End (manual), Deploy ke Server. |
+### 6.4 Fungsi Oversight & Pengawasan (Super Admin - DIPERLUAS)
+| Kode | Kebutuhan | Prioritas |
+|------|-----------|-----------|
+| F-13 | Admin dapat melihat **daftar seluruh pengguna** (PM dan Member) dengan status akun. | Wajib |
+| F-14 | Admin dapat **mengaktifkan/menonaktifkan** akun pengguna. | Wajib |
+| F-15 | Admin dapat melihat **statistik platform dasar** (total user, total workspace, total tugas). | Wajib |
+| **F-16** | **Admin dapat melihat daftar seluruh tugas** dari semua workspace yang ada di platform, dengan fitur **filter** berdasarkan: status (Belum Selesai / Selesai / Terlambat), workspace, atau assignee. | **Wajib** |
+| **F-17** | **Admin dapat melihat detail** sebuah tugas (judul, deskripsi, deadline, status, assignee, workspace) dalam mode read-only. Admin **tidak memiliki hak** untuk mengedit atau menghapus tugas tersebut. | **Wajib** |
+| **F-18** | **Admin dapat melihat dasbor kinerja per Project Manager**, yang menampilkan metrik: Total tugas di timnya, tugas yang sudah selesai, tugas yang terlambat, dan tingkat penyelesaian tepat waktu (%). | **Wajib** |
 
 ---
 
-## 12. PERSETUJUAN
+## 7. Persyaratan Non-Fungsional (Kualitatif)
 
-| Jabatan | Nama | Tanda Tangan | Tanggal |
-|---------|------|--------------|---------|
-| Product Owner | | | |
-| Tech Lead | | | |
+| Kode | Kualitas | Ekspektasi Bisnis |
+|------|----------|-------------------|
+| **N-01** | **Keamanan & Privasi** | Admin hanya memiliki hak **baca (read-only)** untuk tugas. Admin tidak boleh mengubah atau menghapus tugas. |
+| **N-02** | **Reliabilitas** | Uptime minimal 99%. |
+| **N-03** | **Kecepatan** | Halaman utama dan halaman admin (dengan data agregat) tampil < 3 detik. |
+| **N-04** | **Kemudahan** | Admin harus bisa melihat tugas terlambat di seluruh platform dalam < 2 kali klik. |
+
+---
+
+## 8. Arsitektur Tingkat Tinggi
+
+- **Pola Arsitektur:** Aplikasi Web Terintegrasi (Laravel Fullstack + Livewire).
+- **Database:** Satu basis data dengan tabel `users` (role: `pm`, `member`, `admin`), `workspaces`, `workspace_members`, dan `tasks`.
+- **Keamanan:** Middleware peran. Admin tidak memiliki akses ke route edit/delete tugas.
+
+---
+
+## 9. Model Data (Ringkas)
+
+- **users:** id, name, email, password, role (pm, member, admin), is_active.
+- **workspaces:** id, pm_id (user_id), name, description.
+- **workspace_members:** id, workspace_id, user_id.
+- **tasks:** id, workspace_id, created_by (user_id), assigned_to (user_id), title, description, status (todo, on_progress, done), priority (low, medium, high), deadline, created_at.
+
+> **Catatan:** Semua tugas wajib memiliki `assigned_to` dan `workspace_id`. Tidak ada tugas tanpa assignee.
+
+---
+
+## 10. Alur Proses Bisnis
+
+1. **Registrasi:** Pengguna mendaftar dan memilih peran (PM atau Member).
+2. **Aktivasi:** Admin mengaktifkan akun.
+3. **Project Manager:** Membuat workspace → Mengundang member → Membuat & Assign tugas → Memantau timnya.
+4. **Team Member:** Menerima undangan → Melihat tugas yang di-assign → Update status.
+5. **Super Admin:**
+   - Mengelola akun.
+   - **Membuka halaman "Pantau Tugas"** → Melihat semua tugas di semua tim → Menyaring berdasarkan status "Terlambat" untuk menemukan tim yang bermasalah.
+   - **Membuka halaman "Kinerja PM"** → Melihat daftar PM dan metrik kinerja mereka.
+
+---
+
+## 11. Teknologi
+
+- **Framework:** Laravel Fullstack (Blade + Livewire).
+- **Database:** MySQL / MariaDB.
+- **Frontend:** Tailwind CSS, Alpine.js.
+- **Autentikasi:** Session-based (Laravel Breeze).
+
+---
+
+## 12. Asumsi
+
+- Setiap PM hanya memiliki 1 Workspace.
+- Admin adalah pengguna internal yang dibuat melalui seeder.
+- Admin tidak akan menyalahgunakan hak baca untuk kepentingan di luar pekerjaan (dijaga oleh kebijakan internal).
+
+---
+
+## 13. Risiko & Mitigasi
+
+| Risiko | Mitigasi |
+|--------|----------|
+| Admin menyalahgunakan akses baca untuk mengintip data sensitif | Sistem mencatat log akses Admin (siapa, kapan, melihat tugas apa) untuk audit trail di V2. |
+| PM merasa diawasi berlebihan | Tampilan Admin tidak menampilkan percakapan internal atau data pribadi, hanya metrik tugas. |
+
+---
+
+## 14. Kriteria Penerimaan (Acceptance Criteria)
+
+| No | Kriteria | Status |
+|----|----------|--------|
+| 1 | PM dapat membuat workspace, mengundang member, dan membuat tugas. | ✅ Wajib |
+| 2 | Member hanya melihat tugas yang di-assign kepadanya dan dapat update status. | ✅ Wajib |
+| 3 | PM dapat melihat dashboard progres timnya sendiri. | ✅ Wajib |
+| 4 | **Admin dapat melihat daftar semua tugas di semua workspace.** | ✅ Wajib |
+| 5 | **Admin dapat memfilter tugas berdasarkan status (Belum Selesai / Selesai / Terlambat).** | ✅ Wajib |
+| 6 | **Admin dapat melihat detail tugas (read-only).** | ✅ Wajib |
+| 7 | **Admin dapat melihat dasbor kinerja per PM (total tugas, selesai, terlambat).** | ✅ Wajib |
+| 8 | Admin dapat mengaktifkan/menonaktifkan akun. | ✅ Wajib |
+| 9 | Admin tidak bisa mengedit atau menghapus tugas. | ✅ Wajib |
+
+---
+
+## 15. Use Case (Penjelasan untuk Digambar Manual)
+
+### 15.1 Daftar Aktor (FINAL)
+
+| No | Aktor | Peran |
+|----|-------|-------|
+| 1 | **Project Manager (Pimpinan Tim)** | Memimpin tim: membuat workspace, mengundang anggota, membuat & assign tugas, memantau progres timnya sendiri. |
+| 2 | **Team Member (Anggota Tim)** | Menerima tugas dari PM dan mengupdate status tugas yang ditugaskan kepadanya. |
+| 3 | **Super Admin** | Mengelola akun pengguna (aktivasi/suspend), **serta memantau seluruh tugas di platform dan mengevaluasi kinerja setiap PM**. |
+
+---
+
+### 15.2 Daftar Use Case & Narasi Skenario
+
+#### A. Use Case untuk SEMUA Pengguna (PM & Member)
+
+| Kode | Nama Use Case | Aktor | Deskripsi | Skenario Normal |
+|------|---------------|-------|-----------|-----------------|
+| UC-01 | Mendaftar Akun | PM & Member | Pengguna mengisi form dan memilih peran. | Isi data → pilih peran → daftar. |
+| UC-02 | Login | PM & Member | Masuk ke akun. | Isi email & password → masuk. |
+| UC-03 | Logout | PM & Member | Keluar dari akun. | Klik logout. |
+
+#### B. Use Case untuk Project Manager (Khusus)
+
+| Kode | Nama Use Case | Aktor | Deskripsi | Skenario Normal | Include/Extend |
+|------|---------------|-------|-----------|-----------------|----------------|
+| UC-04 | Membuat Workspace | PM | Membuat tim baru. | Isi nama & deskripsi → simpan. | - |
+| UC-05 | Mengundang Anggota | PM | Mengundang user lain ke tim. | Masukkan email → kirim undangan. | - |
+| UC-06 | Menghapus Anggota | PM | Mengeluarkan anggota dari tim. | Klik keluarkan → konfirmasi. | **<<include>>** Konfirmasi |
+| UC-07 | Membuat Tugas | PM | Membuat tugas untuk anggota. | Isi judul, pilih assignee → simpan. | **<<include>>** Validasi |
+| UC-08 | Mengedit Tugas | PM | Mengubah tugas. | Klik edit → ubah data → simpan. | - |
+| UC-09 | Menghapus Tugas | PM | Menghapus tugas. | Klik hapus → konfirmasi. | **<<include>>** Konfirmasi |
+| UC-10 | Melihat Progres Tim | PM | Melihat dashboard timnya. | Buka halaman utama → lihat statistik tim. | - |
+
+#### C. Use Case untuk Team Member (Khusus)
+
+| Kode | Nama Use Case | Aktor | Deskripsi | Skenario Normal |
+|------|---------------|-------|-----------|-----------------|
+| UC-11 | Melihat Tugas Saya | Member | Melihat daftar tugas yang di-assign. | Buka dashboard → lihat daftar tugas. |
+| UC-12 | Mengubah Status Tugas | Member | Update progres tugas. | Pilih status baru (To-Do/Progress/Done). |
+
+#### D. Use Case untuk Super Admin (Khusus - Diperluas)
+
+| Kode | Nama Use Case | Aktor | Deskripsi | Skenario Normal |
+|------|---------------|-------|-----------|-----------------|
+| UC-13 | Login Admin | Admin | Masuk ke panel admin. | Login dengan kredensial admin. |
+| UC-14 | Mengelola Akun Pengguna | Admin | Mengaktifkan/menonaktifkan akun. | Lihat daftar user → klik suspend/aktifkan. |
+| **UC-15** | **Memantau Seluruh Tugas Platform** | **Admin** | **Admin melihat daftar semua tugas dari semua workspace.** | Buka halaman "Semua Tugas" → lihat daftar tugas global. |
+| **UC-16** | **Menyaring Tugas Global** | **Admin** | **Admin memfilter tugas berdasarkan status (Belum Selesai / Selesai / Terlambat).** | Pilih filter "Terlambat" → sistem tampilkan hanya tugas yang melewati deadline. |
+| **UC-17** | **Melihat Detail Tugas (Read-Only)** | **Admin** | **Admin mengklik tugas untuk melihat detail lengkap, tanpa bisa mengedit.** | Klik judul tugas → muncul modal/detail read-only. |
+| **UC-18** | **Memantau Kinerja Project Manager** | **Admin** | **Admin melihat dasbor metrik kinerja setiap PM.** | Buka halaman "Kinerja PM" → lihat tabel berisi: Nama PM, Total Tugas, Selesai, Terlambat, dan % Tepat Waktu. |
+
+---
+
+### 15.3 Daftar Relasi (Include / Extend) untuk Diagram
+
+| Use Case Utama | Relasi | Use Case Terkait | Alasan |
+|----------------|--------|------------------|--------|
+| UC-07 (Membuat Tugas) | **<<include>>** | Validasi Data | Judul wajib diisi. |
+| UC-06 (Hapus Anggota) | **<<include>>** | Konfirmasi | Tindakan destruktif. |
+| UC-09 (Hapus Tugas) | **<<include>>** | Konfirmasi | Tindakan destruktif. |
+| *UC-16 (Menyaring Tugas)* | *Tidak ada* | - | Fitur mandiri. |
+

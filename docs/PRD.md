@@ -1,302 +1,343 @@
-# PRODUCT REQUIREMENTS DOCUMENT (PRD) - MVP
-## Daily Task Management System (Laravel 11 API + Vue 3 SPA + MariaDB)
+# 📄 PRODUCT REQUIREMENTS DOCUMENT (PRD)
+## Collaborative Task Management System — Pure Team Edition
 
-**Versi Dokumen:** 1.0 (Engineering Ready)
-**Tanggal Efektif:** 19 Juni 2026
-**Audience:** Backend Dev, Frontend Dev, QA Engineer
+---
+
+**Versi:** 1.0 (System Focus)
+**Tanggal:** 21 Juni 2026
+**Status:** Final untuk Tim Engineering
+**Arsitektur:** Laravel Fullstack (Blade + Livewire) + MariaDB
 
 ---
 
 ## 1. TUJUAN DOKUMEN
 
-Dokumen ini berisi spesifikasi teknis fungsional yang menjadi acuan tunggal (*Single Source of Truth*) bagi tim pengembang dalam membangun fitur MVP. Setiap fitur dijelaskan dalam bentuk **Skenario Uji (Acceptance Criteria)** dan **Kontrak API** agar pengembangan Backend (Laravel) dan Frontend (Vue) dapat berjalan secara paralel.
+Dokumen ini adalah **spesifikasi teknis mutlak** yang wajib diimplementasikan oleh tim engineering. Berisi arsitektur sistem, struktur database (skema SQL), routing, middleware, komponen Livewire, policy/authorization, validasi, dan standar keamanan untuk aplikasi kolaborasi tim murni.
+
+**Perbedaan Fundamental dengan PRD Sebelumnya:**
+
+- **Tidak ada** konsep "tugas pribadi". Semua tugas wajib memiliki `workspace_id` dan `assigned_to`.
+- **Admin** memiliki hak akses baca penuh ke semua data tugas (oversight), tetapi diblokir untuk aksi edit/delete.
 
 ---
 
-## 2. RUANG LINGKUP TEKNIS (IN-SCOPE)
+## 2. ARSITEKTUR SISTEM
 
-| Komponen | Spesifikasi |
-|----------|-------------|
-| **Backend** | RESTful API dengan Laravel 11, proteksi menggunakan Laravel Sanctum (Token-based). |
-| **Frontend** | SPA dengan Vue 3 (Composition API + `<script setup>`), Pinia, Vue Router, Axios. |
-| **Database** | MariaDB 10.6+ dengan 2 tabel: `users` dan `tasks`. |
-| **Fitur** | Hanya mencakup: Auth (Regis/Login/Logout), CRUD Task, Filter Status, Search, Sorting Deadline, Dashboard Ringkasan. |
+### 2.1. Arsitektur Umum
+Aplikasi menggunakan pola **Server-Side Rendering (SSR)** dengan komponen reaktif berbasis **Livewire 3**. Semua logika bisnis, autentikasi (session-based), dan rendering dilakukan di sisi server. JavaScript (Alpine.js) hanya digunakan untuk interaksi UI ringan (animasi, toggle dropdown).
 
----
+### 2.2. Alur Data
+```text
+[Browser] --(HTTP Request)--> [Router (web.php)]
+                                   |
+                    [Middleware: Auth, Role]
+                                   |
+         [Controller / Livewire Component (PM/Member/Admin)]
+                                   |
+                     [Eloquent ORM + Policy]
+                                   |
+                            [MariaDB]
+                                   |
+                          [Blade View]
+                                   |
+                         [Browser Render]
+```
 
-## 3. USER STORIES & ACCEPTANCE CRITERIA (FUNGSIONAL)
+### 2.3. Tech Stack (Wajib)
 
-Berikut adalah daftar lengkap *User Stories* yang harus diimplementasikan. Setiap story memiliki skenario **Given-When-Then** yang wajib lulus uji QA.
-
----
-
-### US-01: Registrasi Akun
-**Sebagai** pengguna baru, **Saya ingin** mendaftar menggunakan Nama, Email, dan Password, **Sehingga** saya memiliki akses ke sistem.
-
-| Skenario | Given | When | Then |
-|----------|-------|------|------|
-| **Positif (Berhasil)** | Halaman Register terbuka | User mengisi semua field valid dan klik Submit | Sistem menyimpan data, mengembalikan token, dan redirect ke Dashboard. |
-| **Negatif (Email duplikat)** | Email sudah terdaftar di database | User mendaftar dengan email yang sama | Sistem menolak dengan status 422 dan pesan "Email already taken". |
-| **Negatif (Validasi)** | Form kosong | User klik Submit tanpa mengisi apapun | Sistem menampilkan error "Name required", "Email required", "Password min 8 characters". |
-
-**Kontrak API (Endpoint):**
-- **Method:** `POST`
-- **URL:** `/api/register`
-- **Request Body (JSON):**
-  ```json
-  {
-    "name": "Andi Pratama",
-    "email": "andi@email.com",
-    "password": "rahasia123",
-    "password_confirmation": "rahasia123"
-  }
-  ```
-- **Success Response (201 Created):**
-  ```json
-  {
-    "status": "success",
-    "user": { "id": 1, "name": "Andi Pratama", "email": "andi@email.com" },
-    "token": "1|djhfgsdjkfghsdkjf..."
-  }
-  ```
+| Komponen | Teknologi | Versi / Spesifikasi |
+|----------|-----------|----------------------|
+| Backend Framework | Laravel | ^11.0 (PHP 8.2+) |
+| Komponen Reaktif | Livewire | ^3.0 |
+| Templating | Blade | - |
+| CSS | Tailwind CSS | ^3.4 |
+| JS Interaksi | Alpine.js | ^3.0 |
+| Database | MariaDB | ^10.6 (InnoDB) |
+| Autentikasi | Laravel Breeze (Session) | - |
 
 ---
 
-### US-02: Login & Logout
-**Sebagai** pengguna terdaftar, **Saya ingin** login dan logout, **Sehingga** data tugas saya aman secara pribadi.
+## 3. DATABASE DESIGN (SCHEMA & MIGRATION)
 
-| Skenario | Given | When | Then |
-|----------|-------|------|------|
-| **Positif (Login)** | User sudah terdaftar | User memasukkan kredensial benar | Sistem mengembalikan token dan data user. |
-| **Negatif (Login)** | Kredensial salah | User memasukkan password salah | Sistem menolak dengan status 401 dan pesan "Invalid credentials". |
-| **Positif (Logout)** | User dalam keadaan login | User klik tombol Logout | Sistem menghapus token di database dan Frontend menghapus state lokal. |
+### 3.1. Tabel `users` (Default Laravel + Kolom Tambahan)
+| Kolom | Tipe | Null | Keterangan |
+|-------|------|------|------------|
+| id | BIGINT UNSIGNED | NO | Primary Key, Auto Increment |
+| name | VARCHAR(255) | NO | - |
+| email | VARCHAR(255) | NO | Unique |
+| password | VARCHAR(255) | NO | Hash bcrypt |
+| **role** | **ENUM('pm', 'member', 'admin')** | **NO** | **Default: 'member'** (Penentu akses fitur) |
+| **is_active** | **BOOLEAN** | **NO** | **Default: true** (Jika false, middleware tolak akses) |
+| created_at | TIMESTAMP | YES | - |
+| updated_at | TIMESTAMP | YES | - |
 
-**Kontrak API (Login):**
-- **Method:** `POST`
-- **URL:** `/api/login`
-- **Request Body:** `{ "email": "andi@email.com", "password": "rahasia123" }`
-- **Success Response (200 OK):** Sama seperti Register (mengembalikan token & user).
+### 3.2. Tabel `workspaces` (Hanya untuk PM)
+| Kolom | Tipe | Null | Keterangan |
+|-------|------|------|------------|
+| id | BIGINT UNSIGNED | NO | Primary Key, Auto Increment |
+| pm_id | BIGINT UNSIGNED | NO | Foreign Key ke `users.id` (Pemilik/PM) |
+| name | VARCHAR(100) | NO | Nama tim |
+| description | TEXT | YES | Deskripsi tim |
+| created_at | TIMESTAMP | YES | - |
 
-**Kontrak API (Logout):**
-- **Method:** `POST`
-- **URL:** `/api/logout`
-- **Header:** `Authorization: Bearer {token}`
-- **Success Response (200 OK):** `{ "status": "success", "message": "Logged out" }`
+*Relasi:* Satu PM hanya boleh memiliki 1 Workspace di MVP (dipaksakan di level aplikasi).
 
----
+### 3.3. Tabel `workspace_members` (Relasi Many-to-Many)
+| Kolom | Tipe | Null | Keterangan |
+|-------|------|------|------------|
+| id | BIGINT UNSIGNED | NO | Primary Key, Auto Increment |
+| workspace_id | BIGINT UNSIGNED | NO | FK ke `workspaces.id` (ON DELETE CASCADE) |
+| user_id | BIGINT UNSIGNED | NO | FK ke `users.id` (ON DELETE CASCADE) |
+| joined_at | TIMESTAMP | YES | Default: CURRENT_TIMESTAMP |
 
-### US-03: Membuat Tugas Baru (Create)
-**Sebagai** pengguna, **Saya ingin** membuat tugas baru, **Sehingga** saya bisa mencatat apa yang harus saya kerjakan.
+### 3.4. Tabel `tasks` (Inti Aplikasi - WAJIB ADA ASSIGNEE & WORKSPACE)
+| Kolom | Tipe | Null | Keterangan |
+|-------|------|------|------------|
+| id | BIGINT UNSIGNED | NO | Primary Key, Auto Increment |
+| workspace_id | BIGINT UNSIGNED | NO | FK ke `workspaces.id` (ON DELETE CASCADE) |
+| created_by | BIGINT UNSIGNED | NO | FK ke `users.id` (PM yang membuat) |
+| **assigned_to** | **BIGINT UNSIGNED** | **NO** | **FK ke `users.id` (WAJIB diisi, tidak boleh NULL)** |
+| title | VARCHAR(255) | NO | Judul tugas |
+| description | TEXT | YES | Deskripsi detail |
+| status | ENUM('todo', 'on_progress', 'done') | NO | Default: 'todo' |
+| priority | ENUM('low', 'medium', 'high') | NO | Default: 'medium' |
+| deadline | DATE | YES | Nullable |
+| created_at | TIMESTAMP | YES | - |
+| updated_at | TIMESTAMP | YES | - |
+| *Index* | - | - | **Wajib** index pada `workspace_id`, `assigned_to`, `status` |
 
-| Skenario | Given | When | Then |
-|----------|-------|------|------|
-| **Positif (Minimal)** | User login, halaman Dashboard terbuka | User mengisi **Judul** saja (wajib), lalu submit | Tugas baru muncul di daftar dengan status default `todo` dan prioritas `medium`. |
-| **Positif (Lengkap)** | User login | User mengisi Judul, Deskripsi, Deadline, dan Prioritas | Tugas tersimpan sesuai data yang diisi. |
-| **Negatif (Validasi)** | Form modal terbuka | User tidak mengisi Judul (kosong) lalu submit | Sistem menolak, menampilkan pesan error "The title field is required" di dekat field. |
-
-**Kontrak API (Create):**
-- **Method:** `POST`
-- **URL:** `/api/tasks`
-- **Request Body (JSON):**
-  ```json
-  {
-    "title": "Mengerjakan Laporan Keuangan",
-    "description": "Rekap data penjualan Q2",
-    "status": "todo",         // enum: todo, on_progress, done
-    "priority": "high",       // enum: low, medium, high
-    "deadline": "2026-07-01"  // format YYYY-MM-DD (nullable)
-  }
-  ```
-- **Success Response (201 Created):** Mengembalikan object Task lengkap dengan ID dan timestamps.
-
----
-
-### US-04: Melihat Daftar & Detail Tugas (Read)
-**Sebagai** pengguna, **Saya ingin** melihat daftar tugas saya yang diurutkan berdasarkan deadline terdekat, **Sehingga** saya tahu prioritas yang harus dikerjakan duluan.
-
-| Skenario | Given | When | Then |
-|----------|-------|------|------|
-| **Positif (List)** | User memiliki 5 tugas | User membuka halaman Dashboard | Tampil semua tugas, diurutkan ascending berdasarkan `deadline` (null di paling bawah). |
-| **Positif (Detail)** | User melihat daftar | User mengklik salah satu tugas | Muncul Modal/Page detail berisi semua field tugas. |
-
-**Kontrak API (Get All Tasks):**
-- **Method:** `GET`
-- **URL:** `/api/tasks`
-- **Query Params (Opsional):** `?status=todo` atau `?search=laporan`
-- **Success Response (200 OK):**
-  ```json
-  {
-    "status": "success",
-    "data": [
-      {
-        "id": 1,
-        "title": "Mengerjakan Laporan",
-        "description": "...",
-        "status": "todo",
-        "priority": "high",
-        "deadline": "2026-07-01",
-        "created_at": "2026-06-19T10:00:00Z",
-        "updated_at": "2026-06-19T10:00:00Z"
-      }
-    ]
-  }
-  ```
+**Catatan Penting untuk Developer:**
+- **Tidak ada** kolom `user_id` sebagai pemilik. Kepemilikan diatur melalui `workspace_id`.
+- **Tidak boleh** ada tugas yang `assigned_to`-nya NULL. Validasi di backend harus memastikan ini.
 
 ---
 
-### US-05: Filter, Sorting, dan Pencarian (Search)
-**Sebagai** pengguna dengan banyak tugas, **Saya ingin** memfilter dan mencari tugas, **Sehingga** saya tidak kewalahan melihat daftar yang panjang.
+## 4. ROUTING (web.php) & MIDDLEWARE
 
-| Skenario | Given | When | Then |
-|----------|-------|------|------|
-| **Filter Status** | Daftar ada 10 tugas (3 todo, 4 progress, 3 done) | User mengklik tab/filter "On Progress" | Hanya 4 tugas berstatus `on_progress` yang tampil. |
-| **Pencarian (Search)** | Ada tugas berjudul "Beli Alat Tulis" | User mengetik "Alat" di kolom search | Hanya tugas yang mengandung kata "Alat" yang tampil. |
-| **Kombinasi** | User sedang filter "todo" | User mengetik kata kunci di search | Data yang tampil adalah irisan antara `status=todo` DAN `search=kata`. |
+### 4.1. Konfigurasi Middleware Kustom
+Buat middleware **`CheckRole`** dan **`CheckActive`** di `app/Http/Kernel.php`.
 
-> **Catatan untuk Backend:** Query Builder harus menangani `where('user_id', auth()->id())->when($request->status, ...)->when($request->search, ...)->orderBy('deadline')`.
+```php
+// app/Http/Middleware/CheckRole.php
+public function handle($request, Closure $next, ...$roles) {
+    if (!auth()->check()) return redirect('login');
+    if (!in_array(auth()->user()->role, $roles)) abort(403);
+    return $next($request);
+}
 
----
+// app/Http/Middleware/CheckActive.php
+public function handle($request, Closure $next) {
+    if (auth()->check() && !auth()->user()->is_active) {
+        auth()->logout();
+        return redirect('login')->with('error', 'Akun Anda dinonaktifkan.');
+    }
+    return $next($request);
+}
+```
 
-### US-06: Mengubah Status (Update)
-**Sebagai** pengguna, **Saya ingin** mengubah status tugas (misal dari "To-Do" menjadi "Done"), **Sehingga** saya bisa melacak progres saya.
+### 4.2. Daftar Route (web.php)
+```php
+<?php
 
-| Skenario | Given | When | Then |
-|----------|-------|------|------|
-| **Positif (Dropdown)** | Tugas berstatus `todo` | User memilih opsi `done` pada dropdown status | Status berubah menjadi `done`, data terupdate di database dan tampilan. |
-| **Positif (Edit Lengkap)** | Halaman Edit terbuka | User mengubah Judul, Deadline, dan Prioritas lalu simpan | Semua field berubah sesuai input. |
+use App\Livewire\Admin\AdminDashboard;
+use App\Livewire\Admin\TaskOversight;
+use App\Livewire\Admin\PmPerformance;
+use App\Livewire\PM\PMDashboard;
+use App\Livewire\Member\MemberDashboard;
 
-**Kontrak API (Update):**
-- **Method:** `PUT` atau `PATCH`
-- **URL:** `/api/tasks/{id}`
-- **Request Body:** Mengandung field yang ingin diubah (semua field opsional saat update, kecuali title jika dikirim harus diisi).
-- **Success Response (200 OK):** Mengembalikan object Task yang sudah di-update.
+Route::middleware(['auth', 'check.active'])->group(function () {
 
----
+    // ===== ROUTE UNTUK PROJECT MANAGER =====
+    Route::middleware(['role:pm'])->prefix('pm')->name('pm.')->group(function () {
+        Route::get('/dashboard', PMDashboard::class)->name('dashboard');
+        // Route lainnya untuk PM (kelola workspace, anggota, tugas) 
+        // sudah tertampung di dalam komponen PMDashboard (Livewire).
+    });
 
-### US-07: Menghapus Tugas (Delete)
-**Sebagai** pengguna, **Saya ingin** menghapus tugas yang sudah tidak relevan, **Sehingga** daftar saya tetap bersih.
+    // ===== ROUTE UNTUK TEAM MEMBER =====
+    Route::middleware(['role:member'])->prefix('member')->name('member.')->group(function () {
+        Route::get('/dashboard', MemberDashboard::class)->name('dashboard');
+    });
 
-| Skenario | Given | When | Then |
-|----------|-------|------|------|
-| **Positif** | Tugas dengan ID 5 ada | User klik tombol "Hapus" dan konfirmasi "Ya" | Tugas hilang dari database dan daftar (tidak bisa dikembalikan). |
-| **Negatif (OTP)** | User mencoba menghapus tugas milik orang lain | User menyisipkan ID tugas orang lain di URL | Sistem mengembalikan status 403 Forbidden (karena ada policy/authorization). |
+    // ===== ROUTE UNTUK SUPER ADMIN =====
+    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
+        Route::get('/tasks', TaskOversight::class)->name('tasks.oversight'); // Fitur UC-15,16,17
+        Route::get('/pm-performance', PmPerformance::class)->name('pm.performance'); // Fitur UC-18
+    });
 
-**Kontrak API (Delete):**
-- **Method:** `DELETE`
-- **URL:** `/api/tasks/{id}`
-- **Success Response (200 OK):** `{ "status": "success", "message": "Task deleted" }`
+});
 
----
+// Route Auth (Login, Register, Logout) - Default dari Breeze
+require __DIR__.'/auth.php';
 
-### US-08: Dashboard Ringkasan (Summary)
-**Sebagai** pengguna, **Saya ingin** melihat angka-angka ringkasan di halaman utama, **Sehingga** saya langsung tahu beban kerja saya hari ini.
-
-| Skenario | Given | When | Then |
-|----------|-------|------|------|
-| **Positif** | User memiliki 5 To-Do, 3 On-Progress, 2 Done | User membuka Dashboard | Di bagian atas tampil kartu: `To-Do: 5`, `On-Progress: 3`, `Done: 2`, `Total: 10`. |
-
-> **Catatan Teknis:** Ringkasan ini bisa didapat dari 1 endpoint `GET /api/tasks` lalu Frontend menghitung `filter()` di Pinia, ATAU buat endpoint terpisah `GET /api/tasks/summary`. Untuk MVP, saya sarankan hitung di Frontend (Pinia getter) agar tidak perlu buat endpoint baru.
-
----
-
-## 4. SPESIFIKASI TEKNIS WAJIB (HARD REQUIREMENTS)
-
-### 4.1 Backend (Laravel)
-- **Model & Migration:** Buat migration untuk `tasks` dengan foreign key `user_id` yang *constrained* (`onDelete('cascade')`).
-- **Authorization:** Gunakan **Policy** Laravel (`TaskPolicy`) untuk memastikan user hanya bisa mengakses `tasks` miliknya sendiri (method `view`, `update`, `delete`).
-- **Validation:** Gunakan Form Request Laravel (misal: `StoreTaskRequest`) untuk validasi. Pesan error harus dalam format JSON.
-
-### 4.2 Frontend (Vue 3)
-- **State Management (Pinia):**
-  - `authStore`: menyimpan `user`, `token`, dan method `login/register/logout`.
-  - `taskStore`: menyimpan `tasks[]`, method `fetchTasks`, `addTask`, `updateTask`, `deleteTask`.
-- **Axios Interceptor:** Wajib ada `request.use()` untuk menyisipkan `Authorization: Bearer {token}` ke setiap request. Wajib ada `response.use()` untuk menangani error 401 (auto logout jika token expired).
-- **Reaktifitas:** Gunakan `computed` untuk menghitung ringkasan status (To-Do, On-Progress, Done) agar otomatis berubah saat data berubah.
-
-### 4.3 Database Schema (Final ERD)
-```sql
--- Tabel users (menggunakan migration default Laravel + tambahan)
--- Tidak perlu tambahan kolom, biarkan name, email, password.
-
--- Tabel tasks
-CREATE TABLE tasks (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT UNSIGNED NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NULL,
-    status ENUM('todo', 'on_progress', 'done') DEFAULT 'todo',
-    priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
-    deadline DATE NULL,
-    created_at TIMESTAMP NULL,
-    updated_at TIMESTAMP NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+// Route Register dengan tambahan pilihan role (PM/Member) di view.
 ```
 
 ---
 
-## 5. EDGE CASES & PENANGANAN ERROR (QA FOKUS DI SINI)
+## 5. LIVEWIRE COMPONENTS (STRUKTUR & LOGIKA WAJIB)
 
-Tim QA wajib menguji skenario berikut agar aplikasi tidak crash:
+### 5.1. Komponen `PMDashboard` (app/Livewire/PM/PMDashboard.php)
+- **Fungsi:** Mengelola Workspace, Anggota, dan Tugas Tim.
+- **Method Wajib:**
+  - `createWorkspace()`: Hanya bisa dijalankan jika user belum punya workspace.
+  - `inviteMember($email)`: Mencari user dengan role 'member', menambah ke `workspace_members`.
+  - `removeMember($userId)`: Menghapus dari `workspace_members`.
+  - `createTask($data)`: Validasi `assigned_to` harus ada di `workspace_members`.
+  - `updateTask($id, $data)`: Hanya bisa ubah tugas milik workspace-nya.
+  - `deleteTask($id)`: Hanya bisa hapus tugas milik workspace-nya.
+- **Render View:** `resources/views/livewire/pm/pm-dashboard.blade.php` (Menampilkan form + daftar tugas tim).
 
-| Skenario Edge | Ekspektasi Sistem |
-|---------------|-------------------|
-| **Token Expired / Invalid** | Backend mengembalikan 401 Unauthorized. Frontend harus langsung hapus token di Pinia dan redirect ke halaman Login. |
-| **Deadline di masa lalu** | Boleh disimpan (tidak ada validasi minimal), tapi Frontend wajib memberi highlight/peringatan visual (misal teks merah "Overdue"). |
-| **Judul tugas sangat panjang (>255)** | Validasi backend harus menolak dengan pesan "Title may not be greater than 255 characters". |
-| **Mengirimkan status yang tidak ada (misal: "canceled")** | Backend harus menolak dengan 422 Unprocessable Entity karena enum tidak mengizinkan. |
-| **Klik Tombol Simpan 2x berturut-turut** | Tombol harus *disabled* setelah diklik pertama (loading state) untuk mencegah duplikasi data. |
-| **Koneksi Internet mati saat submit** | Axios akan timeout/catch error. Frontend harus menampilkan notifikasi "Gagal terhubung ke server" tanpa menghilangkan data yang sudah diinput user. |
+### 5.2. Komponen `MemberDashboard` (app/Livewire/Member/MemberDashboard.php)
+- **Fungsi:** Melihat dan mengupdate status tugas yang di-assign.
+- **Method Wajib:**
+  - `mount()`: Ambil tugas `Task::where('assigned_to', auth()->id())->get()`.
+  - `updateStatus($taskId, $newStatus)`: Validasi apakah tugas tersebut di-assign ke user ini. Jika ya, update status.
+- **Render View:** Menampilkan daftar kartu tugas (tanpa tombol edit/delete).
+
+### 5.3. Komponen `AdminDashboard` (app/Livewire/Admin/AdminDashboard.php)
+- **Fungsi:** Statistik platform global (Total User, Total Workspace, Total Tugas).
+- **Render View:** Halaman landing admin sederhana.
+
+### 5.4. Komponen `TaskOversight` (app/Livewire/Admin/TaskOversight.php) - **FITUR UTAMA ADMIN**
+- **Fungsi:** Melihat semua tugas dari semua workspace dengan filter.
+- **Properti:** `$statusFilter` (null, 'done', 'overdue', 'pending'), `$search`.
+- **Logic Query:**
+  ```php
+  $query = Task::with(['workspace', 'assignedTo', 'createdBy']);
+  
+  if ($this->statusFilter == 'overdue') {
+      $query->where('deadline', '<', now())->where('status', '!=', 'done');
+  } elseif ($this->statusFilter == 'done') {
+      $query->where('status', 'done');
+  } else { // pending
+      $query->where('status', '!=', 'done');
+  }
+  // Di view, tombol "Detail" akan memunculkan modal read-only (tanpa form edit).
+  ```
+- **Policy:** `viewAny` untuk Admin selalu true. `update` dan `delete` secara tegas **ditolak** (tidak ada tombolnya di view, dan jika ada request manual via POST, Policy akan menolak).
+
+### 5.5. Komponen `PmPerformance` (app/Livewire/Admin/PmPerformance.php) - **FITUR EVALUASI PM**
+- **Fungsi:** Menampilkan metrik kinerja setiap Project Manager.
+- **Logic Query (Aggregate):**
+  ```php
+  $pms = User::where('role', 'pm')->with('workspace')->get();
+  foreach ($pms as $pm) {
+      $tasks = Task::whereHas('workspace', function($q) use ($pm) {
+          $q->where('pm_id', $pm->id);
+      })->get();
+      
+      $pm->total_tasks = $tasks->count();
+      $pm->done_tasks = $tasks->where('status', 'done')->count();
+      $pm->overdue_tasks = $tasks->filter(function($t) {
+          return $t->deadline < now() && $t->status != 'done';
+      })->count();
+      $pm->on_time_rate = $pm->total_tasks > 0 ? round(($pm->done_tasks / $pm->total_tasks) * 100, 2) : 0;
+  }
+  ```
 
 ---
 
-## 6. UI/UX PEGANGAN UNTUK FRONTEND (DESIGN TOKEN)
+## 6. AUTORIZATION (POLICIES)
 
-Untuk menjaga konsistensi, gunakan standar berikut (implementasikan dengan Tailwind CSS):
+Buat `TaskPolicy` untuk mengatur hak akses secara ketat.
 
-| Elemen | Warna / Style |
-|--------|---------------|
-| **Status To-Do** | 🔵 Biru (Blue-500) / Badge: `bg-blue-100 text-blue-800` |
-| **Status On-Progress** | 🟡 Kuning (Yellow-500) / Badge: `bg-yellow-100 text-yellow-800` |
-| **Status Done** | 🟢 Hijau (Green-500) / Badge: `bg-green-100 text-green-800` |
-| **Prioritas Rendah** | ⚪ Abu-abu (Gray-400) |
-| **Prioritas Sedang** | 🔶 Oren (Orange-400) |
-| **Prioritas Tinggi** | 🔴 Merah (Red-600) |
-| **Task Overdue** | Tanda seru merah di samping deadline |
+```php
+// app/Policies/TaskPolicy.php
+class TaskPolicy {
+    // Semua orang bisa melihat tugas sendiri (untuk member) atau tim (untuk PM)
+    public function view(User $user, Task $task) {
+        // Admin bisa melihat semua
+        if ($user->role === 'admin') return true;
+        // PM bisa melihat tugas di workspacenya
+        if ($user->role === 'pm') {
+            return $task->workspace->pm_id === $user->id;
+        }
+        // Member hanya bisa melihat tugas yang di-assign ke dirinya
+        return $task->assigned_to === $user->id;
+    }
+
+    // CREATE: Hanya PM yang bisa membuat, dan hanya untuk workspace miliknya
+    public function create(User $user) {
+        return $user->role === 'pm' && $user->workspace; // Pastikan punya workspace
+    }
+
+    // UPDATE: PM bisa update tugas di workspacenya. ADMIN DIBLOKIR!
+    public function update(User $user, Task $task) {
+        if ($user->role === 'admin') return false; // EKSPLISIT DIBLOKIR
+        if ($user->role === 'pm') {
+            return $task->workspace->pm_id === $user->id;
+        }
+        return false; // Member tidak boleh update (hanya boleh ganti status via method terpisah)
+    }
+
+    // DELETE: Sama seperti update, Admin & Member diblokir
+    public function delete(User $user, Task $task) {
+        if ($user->role === 'admin') return false;
+        if ($user->role === 'pm') {
+            return $task->workspace->pm_id === $user->id;
+        }
+        return false;
+    }
+    
+    // Khusus untuk Member mengubah status (bukan edit penuh)
+    public function changeStatus(User $user, Task $task) {
+        return $task->assigned_to === $user->id && $user->role === 'member';
+    }
+}
+```
 
 ---
 
-## 7. METRIK KEBERHASILAN TEKNIS (UNTUK TIM)
+## 7. VALIDASI TEKNIS (FORM REQUEST / LIVEWIRE RULES)
 
-| Metrik | Target |
-|--------|--------|
-| **Test Coverage (Backend)** | Minimal 70% (Unit Test untuk Model, Controller, dan Policy) |
-| **API Response Time** | < 200ms untuk `GET /api/tasks` dengan 100 data dummy |
-| **Lighthouse Score (Frontend)** | Performance ≥ 80, Accessibility ≥ 90, SEO ≥ 80 |
-| **Zero Critical Bugs** | Tidak ada error 500 saat mengikuti semua skenario positif di atas |
+### 7.1. Validasi Tugas (Create / Edit oleh PM)
+| Field | Aturan | Pesan Error |
+|-------|--------|-------------|
+| `title` | Required, string, max:255 | "Judul wajib diisi" |
+| `description` | Nullable, string | - |
+| `assigned_to` | Required, exists:users,id, **dan harus menjadi anggota workspace** (validasi custom) | "Pilih anggota tim" |
+| `priority` | In: low, medium, high | - |
+| `deadline` | Nullable, date, after_or_equal:today | "Deadline tidak boleh kurang dari hari ini" |
 
----
-
-## 8. DAFTAR ENDPOINT LENGKAP (CHEAT SHEET UNTUK TIM)
-
-| Method | Endpoint | Fungsi | Auth |
-|--------|----------|--------|------|
-| POST | `/api/register` | Register | ❌ |
-| POST | `/api/login` | Login | ❌ |
-| POST | `/api/logout` | Logout | ✅ |
-| GET | `/api/user` | Ambil profil | ✅ |
-| GET | `/api/tasks` | List tugas + filter/search | ✅ |
-| POST | `/api/tasks` | Buat tugas | ✅ |
-| GET | `/api/tasks/{id}` | Detail tugas | ✅ |
-| PUT | `/api/tasks/{id}` | Update tugas | ✅ |
-| DELETE | `/api/tasks/{id}` | Hapus tugas | ✅ |
+### 7.2. Validasi Registrasi (Pilihan Role)
+| Field | Aturan | Pesan Error |
+|-------|--------|-------------|
+| `role` | Required, in:pm,member | "Pilih peran" |
+| (Email, Password tetap standar) | - | - |
 
 ---
 
-## 9. GLOSARIUM
+## 8. KEAMANAN SISTEM (IMPLEMENTASI)
 
-- **MVP:** Minimum Viable Product (Produk dengan fitur paling dasar namun sudah layak pakai).
-- **SPA:** Single Page Application (Aplikasi halaman tunggal tanpa reload).
-- **Pinia:** Library State Management untuk Vue 3 (pengganti Vuex).
-- **Sanctum:** Package Laravel untuk autentikasi API ringan (token-based).
+| Ancaman | Solusi Teknis (Laravel Fullstack) |
+|---------|-----------------------------------|
+| **SQL Injection** | Eloquent ORM / Query Builder (binding otomatis). |
+| **XSS** | Blade `{{ }}` otomatis escape; Livewire juga melakukan sanitasi output. |
+| **CSRF** | **Aktif** di semua form (`@csrf`). |
+| **Mass Assignment** | Model `Task` set `$fillable = ['workspace_id', 'created_by', 'assigned_to', 'title', 'description', 'priority', 'deadline']`. |
+| **Autorisasi (IDOR)** | **Wajib** gunakan `$this->authorize()` di setiap method Livewire sebelum aksi (update/delete/view). |
+| **Brute Force Login** | Aktifkan `throttle:5,1` pada route login. |
+| **Akses Admin ke Edit** | Selain Policy, di view Blade Admin untuk `TaskOversight`, **jangan render** tombol Edit/Delete sama sekali. |
 
+---
+
+## 9. PERFORMANCE & OPTIMASI
+
+| Area | Optimasi |
+|------|----------|
+| **Query** | Gunakan `with()` (Eager Loading) untuk relasi `workspace`, `assignedTo`, `createdBy` pada halaman Admin dan PM untuk menghindari N+1. |
+| **Index Database** | Wajib tambahkan index pada kolom `workspace_id`, `assigned_to`, `status` di tabel `tasks`. |
+| **Livewire** | Gunakan `#[On]` untuk event antar komponen. Gunakan `wire:key` pada loop `@foreach` untuk efisiensi DOM diffing. |
+| **Caching** | Untuk halaman `PmPerformance` (Admin), cache hasil query selama 5 menit untuk mengurangi beban agregasi jika data besar. |
+
+---
+
+## 10. DEPLOYMENT CHECKLIST
+
+- [ ] Set `APP_ENV=production` dan `APP_DEBUG=false`.
+- [ ] Jalankan `php artisan migrate --force`.
+- [ ] Jalankan `php artisan config:cache`, `route:cache`, `view:cache`.
+- [ ] Pastikan `storage/` dan `bootstrap/cache` memiliki permission yang benar.
+- [ ] Buat akun Admin pertama via seeder (`php artisan db:seed --class=AdminSeeder`).
