@@ -12,94 +12,118 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Admin
-        User::create([
-            'name' => 'Super Admin',
-            'email' => 'admin@admin.com',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
+        $this->call([
+            RoleSeeder::class,
+            UserSeeder::class,
         ]);
 
-        // 2. Create PM 1
-        $pm1 = User::create([
-            'name' => 'Project Manager 1',
-            'email' => 'pm1@test.com',
-            'password' => Hash::make('password'),
-            'role' => 'pm',
-        ]);
+        // --- PRD Data (Workspaces, Members, Tasks) ---
 
-        $workspace1 = Workspace::create([
-            'pm_id' => $pm1->id,
-            'name' => 'Alpha Team',
-            'description' => 'First testing team',
-        ]);
+        $pm1 = User::where('email', 'pm1@test.com')->first();
+        if (!$pm1) {
+            $pm1 = User::create([
+                'name' => 'Project Manager 1',
+                'email' => 'pm1@test.com',
+                'password' => Hash::make('password'),
+                'role' => 'pm',
+            ]);
+        }
 
-        // 3. Create Members for PM 1
-        $member1 = User::create([
-            'name' => 'Member One',
-            'email' => 'member1@test.com',
-            'password' => Hash::make('password'),
-            'role' => 'member',
-        ]);
-        
-        $member2 = User::create([
-            'name' => 'Member Two',
-            'email' => 'member2@test.com',
-            'password' => Hash::make('password'),
-            'role' => 'member',
-        ]);
+        $workspace1 = Workspace::firstOrCreate(
+            ['pm_id' => $pm1->id],
+            ['name' => 'Alpha Team', 'description' => 'First testing team']
+        );
 
-        $workspace1->members()->attach([$member1->id, $member2->id]);
+        $member1 = User::firstOrCreate(
+            ['email' => 'member1@test.com'],
+            ['name' => 'Member One', 'password' => Hash::make('password'), 'role' => 'member']
+        );
+        $member2 = User::firstOrCreate(
+            ['email' => 'member2@test.com'],
+            ['name' => 'Member Two', 'password' => Hash::make('password'), 'role' => 'member']
+        );
 
-        // 4. Create Tasks for PM 1
-        Task::create([
-            'workspace_id' => $workspace1->id,
-            'created_by' => $pm1->id,
-            'assigned_to' => $member1->id,
-            'title' => 'Setup Frontend',
-            'description' => 'Install React and Tailwind',
-            'status' => 'done',
-            'priority' => 'high',
-            'deadline' => now()->subDays(1),
-        ]);
+        if (!$workspace1->members()->where('user_id', $member1->id)->exists()) {
+            $workspace1->members()->attach($member1->id);
+        }
+        if (!$workspace1->members()->where('user_id', $member2->id)->exists()) {
+            $workspace1->members()->attach($member2->id);
+        }
 
-        Task::create([
-            'workspace_id' => $workspace1->id,
-            'created_by' => $pm1->id,
-            'assigned_to' => $member1->id,
-            'title' => 'API Integration',
-            'description' => 'Connect frontend to Laravel API',
-            'status' => 'on_progress',
-            'priority' => 'medium',
-            'deadline' => now()->addDays(2),
-        ]);
+        Task::firstOrCreate(
+            ['title' => 'Setup Frontend', 'workspace_id' => $workspace1->id],
+            [
+                'created_by' => $pm1->id, 'assigned_to' => $member1->id,
+                'description' => 'Install React and Tailwind',
+                'status' => 'done', 'priority' => 'high',
+                'deadline' => now()->subDays(1),
+            ]
+        );
+        Task::firstOrCreate(
+            ['title' => 'API Integration', 'workspace_id' => $workspace1->id],
+            [
+                'created_by' => $pm1->id, 'assigned_to' => $member1->id,
+                'description' => 'Connect frontend to Laravel API',
+                'status' => 'on_progress', 'priority' => 'medium',
+                'deadline' => now()->addDays(2),
+            ]
+        );
+        Task::firstOrCreate(
+            ['title' => 'Write Documentation', 'workspace_id' => $workspace1->id],
+            [
+                'created_by' => $pm1->id, 'assigned_to' => $member2->id,
+                'description' => 'Update README',
+                'status' => 'todo', 'priority' => 'low',
+                'deadline' => now()->subDays(2),
+            ]
+        );
 
-        Task::create([
-            'workspace_id' => $workspace1->id,
-            'created_by' => $pm1->id,
-            'assigned_to' => $member2->id,
-            'title' => 'Write Documentation',
-            'description' => 'Update README',
-            'status' => 'todo',
-            'priority' => 'low',
-            'deadline' => now()->subDays(2), // Overdue
-        ]);
+        User::firstOrCreate(
+            ['email' => 'pm2@test.com'],
+            ['name' => 'Project Manager 2', 'password' => Hash::make('password'), 'role' => 'pm']
+        );
 
-        // 5. Create PM 2 (No workspace yet)
-        User::create([
-            'name' => 'Project Manager 2',
-            'email' => 'pm2@test.com',
-            'password' => Hash::make('password'),
-            'role' => 'pm',
-        ]);
-        
-        // 6. Create Suspended User
-        User::create([
-            'name' => 'Bad User',
-            'email' => 'bad@test.com',
-            'password' => Hash::make('password'),
-            'role' => 'member',
-            'is_active' => false,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'bad@test.com'],
+            ['name' => 'Bad User', 'password' => Hash::make('password'), 'role' => 'member', 'is_active' => false]
+        );
+
+        // --- More PRD Tasks for visual density ---
+        Task::firstOrCreate(
+            ['title' => 'Penjadwalan Sprint', 'workspace_id' => $workspace1->id],
+            [
+                'created_by' => $pm1->id, 'assigned_to' => $member1->id,
+                'description' => 'Jadwalkan sprint review dan retrospective',
+                'status' => 'todo', 'priority' => 'medium',
+                'deadline' => now()->addDays(5),
+            ]
+        );
+        Task::firstOrCreate(
+            ['title' => 'Bug Report Dashboard', 'workspace_id' => $workspace1->id],
+            [
+                'created_by' => $pm1->id, 'assigned_to' => $member2->id,
+                'description' => 'Filter tanggal di dashboard tidak berfungsi',
+                'status' => 'on_progress', 'priority' => 'high',
+                'deadline' => now()->addDays(1),
+            ]
+        );
+        Task::firstOrCreate(
+            ['title' => 'Code Review', 'workspace_id' => $workspace1->id],
+            [
+                'created_by' => $pm1->id, 'assigned_to' => $member1->id,
+                'description' => 'Review PR dari member untuk modul auth',
+                'status' => 'todo', 'priority' => 'low',
+                'deadline' => now()->addDays(3),
+            ]
+        );
+        Task::firstOrCreate(
+            ['title' => 'Deployment Staging', 'workspace_id' => $workspace1->id],
+            [
+                'created_by' => $pm1->id, 'assigned_to' => $member2->id,
+                'description' => 'Deploy latest build ke server staging',
+                'status' => 'done', 'priority' => 'high',
+                'deadline' => now()->subDays(1),
+            ]
+        );
     }
 }

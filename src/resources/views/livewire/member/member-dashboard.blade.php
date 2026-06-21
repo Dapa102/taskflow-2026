@@ -7,7 +7,34 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            
+
+            @if($pm)
+            <div class="bg-white shadow sm:rounded-lg p-4 flex items-center justify-between">
+                <div class="text-sm text-gray-600">
+                    Project Manager: <span class="font-semibold">{{ $pm->name }}</span>
+                    @if($pm->phone) &middot; <span class="text-gray-400">{{ $pm->phone }}</span> @endif
+                </div>
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        Hubungi PM
+                    </button>
+                    <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border z-10" x-transition>
+                        <a href="mailto:{{ $pm->email }}?subject=Task%20Question"
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Kirim Email
+                        </a>
+                        @if($pm->phone)
+                            <a href="https://wa.me/{{ $pm->phone }}" target="_blank"
+                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                WhatsApp
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endif
+
             @if (session()->has('message'))
                 <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50">{{ session('message') }}</div>
             @endif

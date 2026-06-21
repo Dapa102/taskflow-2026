@@ -15,6 +15,13 @@ class ComposeEmail extends Component
     public string $subject = '';
     public string $body = '';
 
+    public function mount(): void
+    {
+        if ($recipientId = request('recipient')) {
+            $this->recipientId = $recipientId;
+        }
+    }
+
     protected function rules(): array
     {
         return [

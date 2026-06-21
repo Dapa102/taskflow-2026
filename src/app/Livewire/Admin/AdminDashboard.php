@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Models\Task;
+use App\Models\Team;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.app')]
@@ -33,11 +34,15 @@ class AdminDashboard extends Component
             'tasks' => Task::count(),
         ];
 
-        $users = User::where('role', '!=', 'admin')->latest()->get();
+        $users = User::latest()->get();
+        $workspaces = Workspace::with('pm')->latest()->get();
+        $teams = Team::with('owner')->latest()->get();
 
         return view('livewire.admin.admin-dashboard', [
             'stats' => $stats,
-            'users' => $users
+            'users' => $users,
+            'workspaces' => $workspaces,
+            'teams' => $teams,
         ]);
     }
 }

@@ -65,8 +65,32 @@
                             <ul class="space-y-2">
                                 @forelse($members as $member)
                                     <li class="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
-                                        <span>{{ $member->name }}</span>
-                                        <button wire:click="removeMember({{ $member->id }})" wire:confirm="Remove member?" class="text-red-500 hover:text-red-700">Remove</button>
+                                        <div>
+                                            <span>{{ $member->name }}</span>
+                                            @if($member->phone)
+                                                <span class="text-gray-400 text-xs ml-2">{{ $member->phone }}</span>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div x-data="{ open: false }" class="relative">
+                                                <button @click="open = !open" class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                                                    Hubungi
+                                                </button>
+                                                <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg border z-10" x-transition>
+                                                    <a href="{{ route('pm.compose.email') }}?recipient={{ $member->id }}"
+                                                       class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100">
+                                                        Kirim Email
+                                                    </a>
+                                                    @if($member->phone)
+                                                        <a href="https://wa.me/{{ $member->phone }}" target="_blank"
+                                                           class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100">
+                                                            WhatsApp
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <button wire:click="removeMember({{ $member->id }})" wire:confirm="Remove member?" class="text-red-500 hover:text-red-700">Remove</button>
+                                        </div>
                                     </li>
                                 @empty
                                     <li class="text-sm text-gray-500">No members yet.</li>

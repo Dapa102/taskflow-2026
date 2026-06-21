@@ -4,6 +4,7 @@ namespace App\Livewire\Member;
 
 use Livewire\Component;
 use App\Models\Task;
+use App\Models\User;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.app')]
@@ -34,8 +35,15 @@ class MemberDashboard extends Component
             ->latest()
             ->get();
 
+        $pm = User::where('role', 'pm')
+            ->whereHas('workspace', function ($q) {
+                $q->whereHas('members', fn ($q2) => $q2->where('user_id', auth()->id()));
+            })
+            ->first();
+
         return view('livewire.member.member-dashboard', [
-            'tasks' => $tasks
+            'tasks' => $tasks,
+            'pm' => $pm,
         ]);
     }
 }
