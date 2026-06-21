@@ -20,7 +20,7 @@ class FonnteChannel
             return;
         }
 
-        $token = config("services.fonnte.token");
+        $token = config("fonnte.token");
         if (!$token) {
             Log::warning("Fonnte token not configured");
             return;

@@ -23,6 +23,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
 
     Route::middleware(['role:pm'])->prefix('pm')->name('pm.')->group(function () {
         Route::get('/dashboard', PmDashboard::class)->name('dashboard');
+        Route::get('/compose-email', \App\Livewire\Pm\ComposeEmail::class)->name('compose.email');
     });
 
     Route::middleware(['role:member'])->prefix('member')->name('member.')->group(function () {
@@ -33,6 +34,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
         Route::get('/tasks', TaskOversight::class)->name('tasks.oversight');
         Route::get('/pm-performance', PmPerformance::class)->name('pm.performance');
+        Route::get('/compose-email', \App\Livewire\Admin\ComposeEmail::class)->name('compose.email');
     });
 });
 

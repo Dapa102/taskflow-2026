@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Workspace;
 use App\Models\User;
 use App\Models\Task;
+use App\Notifications\TaskAssignedNotification;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.app')]
@@ -100,7 +101,7 @@ class PmDashboard extends Component
             return;
         }
 
-        Task::create([
+        $task = Task::create([
             'workspace_id' => $workspace->id,
             'created_by' => auth()->id(),
             'assigned_to' => $this->taskAssignee,
@@ -109,6 +110,9 @@ class PmDashboard extends Component
             'priority' => $this->taskPriority,
             'deadline' => $this->taskDeadline,
         ]);
+
+        $assignee = User::find($this->taskAssignee);
+        $assignee->notify(new TaskAssignedNotification($task, auth()->user()));
 
         session()->flash('message', 'Task created.');
         $this->reset(['taskTitle', 'taskDesc', 'taskAssignee', 'taskPriority', 'taskDeadline']);
