@@ -67,5 +67,24 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('sidebarTasks', $sidebarTasks);
         });
+
+        View::composer('layouts.pm', function ($view) {
+            $workspace = auth()->user()->workspace;
+            $sidebarTasks = $workspace
+                ? Task::with('assignee')->where('workspace_id', $workspace->id)->latest()->take(50)->get()
+                : collect();
+
+            $view->with('sidebarTasks', $sidebarTasks);
+        });
+
+        View::composer('layouts.member', function ($view) {
+            $sidebarTasks = Task::with('assignee')
+                ->where('assigned_to', auth()->id())
+                ->latest()
+                ->take(50)
+                ->get();
+
+            $view->with('sidebarTasks', $sidebarTasks);
+        });
     }
 }

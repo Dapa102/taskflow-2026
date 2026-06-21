@@ -4,64 +4,41 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Laravel') }} - Member</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased">
     <div class="min-h-screen flex bg-gray-100">
-        <!-- Sidebar -->
         <aside class="w-72 bg-white border-r border-gray-200 flex flex-col shrink-0">
             <div class="h-16 flex items-center px-6 border-b border-gray-200">
-                <a href="{{ route('admin.dashboard') }}" class="text-lg font-bold text-gray-800">TaskFlow Admin</a>
+                <a href="{{ route('member.dashboard') }}" class="text-lg font-bold text-gray-800">TaskFlow</a>
             </div>
 
-            <!-- Nav Links -->
             <nav class="px-4 pt-4 pb-2 space-y-1 border-b border-gray-100">
-                <a href="{{ route('admin.dashboard') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
+                <a href="{{ route('member.dashboard') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('member.dashboard') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                    Dashboard
+                    My Tasks
                 </a>
-                <a href="{{ route('admin.tasks.list') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.tasks.list*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
+                <a href="{{ route('member.dashboard') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('member.dashboard') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                     Daftar Tugas
                 </a>
-                <a href="{{ route('admin.assign.task') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.assign.task') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    Assign Task
-                </a>
-                <a href="{{ route('admin.tasks.oversight') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.tasks.oversight*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                    Global Tasks
-                </a>
-                <a href="{{ route('admin.pm.performance') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.pm.performance') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                    PM Performance
-                </a>
-                <a href="{{ route('admin.compose.email') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.compose.email') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    Compose Email
-                </a>
             </nav>
 
-            <!-- Task List in Sidebar -->
             <div class="flex-1 overflow-y-auto px-4 py-3">
                 <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Daftar Tugas</h3>
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tugas Saya</h3>
                     <span class="text-xs text-gray-400">{{ $sidebarTasks->count() }} tugas</span>
                 </div>
                 <div class="space-y-1">
                     @foreach($sidebarTasks as $task)
-                    <a href="{{ route('admin.tasks.oversight', $task->id) }}" class="flex items-start gap-2 px-2 py-1.5 rounded-md hover:bg-gray-50 group">
+                    <a href="{{ route('member.dashboard') }}" class="flex items-start gap-2 px-2 py-1.5 rounded-md hover:bg-gray-50 group">
                         <span class="mt-1 w-2 h-2 rounded-full shrink-0
-                            {{ $task->status === 'done' ? 'bg-green-500' : ($task->status === 'on_progress' ? 'bg-blue-500' : 'bg-gray-400') }}">
+                            {{ $task->status === 'done' ? 'bg-green-500' : ($task->status === 'on_progress' ? 'bg-blue-500' : ($task->status === 'revision' ? 'bg-orange-500' : ($task->status === 'pending_pm' ? 'bg-yellow-500' : 'bg-gray-400'))) }}">
                         </span>
                         <div class="flex-1 min-w-0">
                             <div class="text-xs font-medium text-gray-700 truncate group-hover:text-indigo-600">{{ $task->title }}</div>
@@ -82,23 +59,22 @@
                 </div>
             </div>
 
-            <!-- User Footer -->
             <div class="border-t border-gray-200 p-4">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </div>
                     <div class="flex-1 min-w-0">
-                    <div class="text-sm font-medium text-gray-900 truncate">{{ Auth::user()->name }}</div>
-                    <div class="text-xs text-gray-500">
-                        Super Admin
-                        @php
-                            $adminTeams = \App\Models\Team::where('owner_id', Auth::id())->get();
-                        @endphp
-                        @foreach($adminTeams as $t)
-                            <span class="ml-1 text-[10px] px-1 py-0.5 rounded-full bg-purple-50 text-purple-600">{{ $t->name }}</span>
-                        @endforeach
-                    </div>
+                        <div class="text-sm font-medium text-gray-900 truncate">{{ Auth::user()->name }}</div>
+                        <div class="text-xs text-gray-500">
+                            Anggota
+                            @php
+                                $memberTeams = \App\Models\TeamMember::where('user_id', Auth::id())->with('team')->get();
+                            @endphp
+                            @foreach($memberTeams as $mt)
+                                <span class="ml-1 text-[10px] px-1 py-0.5 rounded-full bg-indigo-50 text-indigo-600">{{ $mt->team->name }}</span>
+                            @endforeach
+                        </div>
                     </div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -110,7 +86,6 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <div class="flex-1 flex flex-col min-w-0">
             <header class="bg-white border-b border-gray-200 h-16 flex items-center px-6">
                 <div class="flex-1">

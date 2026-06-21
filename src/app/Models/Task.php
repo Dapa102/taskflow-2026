@@ -15,9 +15,11 @@ class Task extends Model
         'workspace_id',
         'created_by',
         'assigned_to',
+        'reviewed_by',
         'team_id',
         'title',
         'description',
+        'review_note',
         'status',
         'priority',
         'deadline',
@@ -52,8 +54,13 @@ class Task extends Model
         return $this->hasMany(Attachment::class);
     }
 
+    public function reviewedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
     public function isOverdue(): bool
     {
-        return $this->deadline && $this->deadline->isPast() && $this->status !== 'done';
+        return $this->deadline && $this->deadline->isPast() && !in_array($this->status, ['done', 'pending_admin']);
     }
 }

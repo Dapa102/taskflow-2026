@@ -52,7 +52,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 \App\Filament\Admin\Widgets\TaskSummaryWidget::class,
                 \App\Filament\Admin\Widgets\TeamTasksWidget::class,
-                \App\Filament\Admin\Widgets\LatestAccessLogs::class,
+                // \App\Filament\Admin\Widgets\LatestAccessLogs::class,
                 \Awcodes\Overlook\Widgets\OverlookWidget::class,
             ])
             ->navigationGroups([

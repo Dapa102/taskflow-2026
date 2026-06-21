@@ -8,6 +8,13 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            @if (session()->has('message'))
+                <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50">{{ session('message') }}</div>
+            @endif
+            @if (session()->has('error'))
+                <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50">{{ session('error') }}</div>
+            @endif
+
             @if($pm)
             <div class="bg-white shadow sm:rounded-lg p-4 flex items-center justify-between">
                 <div class="text-sm text-gray-600">
@@ -38,47 +45,91 @@
             </div>
             @endif
 
-            @if (session()->has('message'))
-                <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50">{{ session('message') }}</div>
-            @endif
-            @if (session()->has('error'))
-                <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50">{{ session('error') }}</div>
+            @if($myTeams->isNotEmpty())
+            <div class="bg-white shadow sm:rounded-lg p-4">
+                <h3 class="text-sm font-medium text-gray-700 mb-2">Team Saya</h3>
+                <div class="flex flex-wrap gap-2">
+                    @foreach($myTeams as $tm)
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                        {{ $tm->team->name }}
+                        <span class="text-indigo-400">
+                            ({{ $tm->team->owner?->name ?? '-' }} - Project Manager)
+                        </span>
+                    </span>
+                    @endforeach
+                </div>
+            </div>
             @endif
 
             <div class="bg-white shadow sm:rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Tugas Saya</h3>
                 <div class="space-y-4">
                     @forelse($tasks as $task)
-                        <div class="p-4 border rounded-lg flex justify-between items-center {{ $task->status === 'done' ? 'bg-gray-50' : 'bg-white' }}">
-                            <div>
-                                <div class="font-medium {{ $task->status === 'done' ? 'line-through text-gray-500' : '' }}">
-                                    {{ $task->title }}
-                                </div>
-                                <div class="text-sm text-gray-500 mt-1">
-                                    Workspace: {{ $task->workspace->name ?? 'Unknown' }} | 
-                                    Priority: {{ ucfirst($task->priority) }}
-                                </div>
-                                @if($task->deadline)
-                                    <div class="text-sm {{ $task->deadline < now() && $task->status != 'done' ? 'text-red-500 font-bold' : 'text-gray-500' }}">
-                                        Deadline: {{ $task->deadline->format('Y-m-d') }}
+                        <div class="p-4 border rounded-lg {{ $task->status === 'revision' ? 'border-orange-300 bg-orange-50' : ($task->status === 'done' ? 'bg-gray-50' : 'bg-white') }}">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="font-medium {{ $task->status === 'done' ? 'line-through text-gray-500' : '' }}">
+                                        {{ $task->title }}
+                                        @if($task->status === 'revision')
+                                            <span class="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">Perlu Revisi</span>
+                                        @endif
                                     </div>
-                                @endif
-                            </div>
-                            
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm font-medium text-gray-500 mr-2">Status:</span>
-                                <select 
-                                    wire:change="updateStatus({{ $task->id }}, $event.target.value)"
-                                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
-                                >
-                                    <option value="todo" {{ $task->status === 'todo' ? 'selected' : '' }}>To-Do</option>
-                                    <option value="on_progress" {{ $task->status === 'on_progress' ? 'selected' : '' }}>On Progress</option>
-                                    <option value="done" {{ $task->status === 'done' ? 'selected' : '' }}>Done</option>
-                                </select>
+                                    <div class="text-sm text-gray-500 mt-1">
+                                        Workspace: {{ $task->workspace->name ?? 'Unknown' }} |
+                                        Priority: {{ ucfirst($task->priority) }} |
+                                        Status:
+                                        <span class="font-semibold
+                                            {{ $task->status === 'done' ? 'text-green-600' : '' }}
+                                            {{ $task->status === 'pending_pm' ? 'text-yellow-600' : '' }}
+                                            {{ $task->status === 'revision' ? 'text-orange-600' : '' }}>
+                                            {{ $task->status === 'done' ? 'Selesai' : ($task->status === 'pending_pm' ? 'Menunggu Review PM' : ($task->status === 'revision' ? 'Revisi' : ucfirst($task->status))) }}
+                                        </span>
+                                    </div>
+                                    @if($task->deadline)
+                                        <div class="text-sm {{ $task->isOverdue() ? 'text-red-500 font-bold' : 'text-gray-500' }}">
+                                            Deadline: {{ $task->deadline->format('Y-m-d') }}
+                                        </div>
+                                    @endif
+                                    @if($task->review_note)
+                                        <div class="mt-2 text-xs text-orange-700 bg-orange-100 p-2 rounded">
+                                            <strong>Catatan Revisi:</strong> {{ $task->review_note }}
+                                        </div>
+                                    @endif
+                                    @if($task->attachments->count() > 0)
+                                        <div class="mt-1 text-xs text-gray-500">
+                                            @foreach($task->attachments as $att)
+                                            <div class="flex items-center gap-1">
+                                                <span>📎 {{ $att->filename }}</span>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="shrink-0 ml-4">
+                                    @if($task->status === 'on_progress' || $task->status === 'revision')
+                                        <div class="space-y-2">
+                                            <input type="file" wire:model="upload.{{ $task->id }}" class="text-xs w-40">
+                                            @error("upload.{$task->id}") <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
+                                            <button wire:click="submitTask({{ $task->id }})"
+                                                wire:loading.attr="disabled"
+                                                class="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 w-full">
+                                                Selesai & Upload
+                                            </button>
+                                        </div>
+                                    @endif
+                                    @if($task->status === 'pending_pm')
+                                        <span class="text-xs text-yellow-600 font-medium">Menunggu persetujuan PM</span>
+                                    @endif
+                                    @if($task->status === 'done')
+                                        <span class="text-xs text-green-600 font-medium">✓ Selesai</span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     @empty
                         <div class="text-center text-gray-500 py-8">
-                            You don't have any tasks assigned yet.
+                            Tidak ada tugas.
                         </div>
                     @endforelse
                 </div>

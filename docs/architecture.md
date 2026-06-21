@@ -1,47 +1,82 @@
 # TaskFlow Architecture
 
 ## Overview
-Laravel 11 Fullstack application utilizing Livewire 3 for reactivity and Blade for templating.
+Laravel 11 Fullstack + Livewire 3 + Sidebar Layout per Role. MariaDB 10.6.
 
 ## Tech Stack
 - **Backend:** PHP 8.2+, Laravel 11.
 - **Frontend:** Blade, Tailwind CSS 3.4, Alpine.js 3.0, Livewire 3.
-- **Database:** MariaDB 10.6.
+- **Database:** MariaDB 10.6 (InnoDB).
 - **Auth:** Laravel Breeze (Session-based).
 
-## System Components
+## Directory Structure (Key)
+```
+app/
+├── Livewire/
+│   ├── Admin/
+│   │   ├── Dashboard.php         # Super admin stats + user management
+│   │   ├── TaskList.php          # CRUD tasks + final approve
+│   │   ├── TaskOversight.php     # Global task detail
+│   │   ├── PmPerformance.php     # PM KPI metrics
+│   │   ├── AssignTask.php        # Assign task to PM
+│   │   └── ComposeEmail.php      # Email SA → PM
+│   ├── Pm/
+│   │   ├── PmDashboard.php       # Manage team tasks + review
+│   │   └── ComposeEmail.php      # Email PM → Member
+│   ├── Member/
+│   │   └── MemberDashboard.php   # View tasks + upload + submit
+│   └── AllTasks.php              # Read-only task list all roles
+├── Models/
+│   ├── User.php
+│   ├── Task.php                  # BelongsTo: workspace, creator, assignee, reviewedBy
+│   ├── Workspace.php
+│   ├── Team.php
+│   ├── TeamMember.php
+│   └── Attachment.php
+├── Providers/
+│   └── AppServiceProvider.php    # View Composers for sidebar layouts
+resources/views/
+├── layouts/
+│   ├── admin.blade.php           # Sidebar admin
+│   ├── pm.blade.php              # Sidebar PM
+│   ├── member.blade.php          # Sidebar member
+│   └── app.blade.php             # Default top-nav (for AllTasks)
+├── livewire/
+│   ├── admin/
+│   │   ├── admin-dashboard.blade.php
+│   │   └── task-list.blade.php
+│   ├── pm/
+│   │   └── pm-dashboard.blade.php
+│   ├── member/
+│   │   └── member-dashboard.blade.php
+│   └── all-tasks.blade.php
+```
 
-### 1. Routing & Middleware
-- `web.php` handles all routes.
-- Middleware:
-  - `auth`: Native Laravel session auth.
-  - `check.active`: Custom. Logs out inactive users.
-  - `role:{role}`: Custom. Restricts access based on user role (`pm`, `member`, `admin`).
+## Models & Relationships
+- **User:** HasOne Workspace (if PM), HasMany Tasks (assigned_to), HasMany Teams (owner).
+- **Workspace:** BelongsTo User (PM), BelongsToMany Users (members), HasMany Tasks.
+- **Team:** BelongsTo User (owner), HasMany TeamMembers.
+- **Task:** BelongsTo Workspace, BelongsTo User (created_by), BelongsTo User (assigned_to), BelongsTo User (reviewed_by), HasMany Attachments.
+- **TeamMember:** BelongsTo Team, BelongsTo User.
 
-### 2. Livewire Components
-Handles business logic and UI state.
-- **PM:** `PMDashboard` (manages workspace, members, tasks).
-- **Member:** `MemberDashboard` (views assigned tasks, updates status).
-- **Admin:** `AdminDashboard` (stats, user management), `TaskOversight` (global task view), `PmPerformance` (KPI aggregation).
+## Layout System
+Each role gets a dedicated sidebar layout injected with `$sidebarTasks` via View Composer:
+- `layouts.admin`: `Task::latest()->take(50)` — all tasks.
+- `layouts.pm`: `Task::where('workspace_id', $workspace->id)` — workspace tasks.
+- `layouts.member`: `Task::where('assigned_to', auth()->id())` — assigned tasks.
 
-### 3. Eloquent Models & Relationships
-- **User:** Has One Workspace (if PM), Belongs To Many Workspaces (if member), Has Many Tasks (assigned_to).
-- **Workspace:** Belongs To User (PM), Belongs To Many Users (members), Has Many Tasks.
-- **Task:** Belongs To Workspace, Belongs To User (created_by), Belongs To User (assigned_to).
+## Task Status Flow
+```
+todo → on_progress (PM assigns)
+on_progress → pending_pm (Member submits + upload)
+pending_pm → pending_admin (PM approves)
+pending_pm → revision (PM rejects + note)
+revision → pending_pm (Member re-submits)
+pending_admin → done (Super Admin final approve)
+```
 
-### 4. Authorization (Policies)
-- `TaskPolicy` is the core security mechanism preventing unauthorized access/edits.
-  - `view`: Admin (all), PM (workspace tasks), Member (assigned tasks).
-  - `update/delete`: PM (workspace tasks only). Admin strictly denied.
-  - `changeStatus`: Member (assigned tasks only).
-
-### 5. Database Schema
-Defined in migrations. Key tables: `users`, `workspaces`, `workspace_members`, `tasks`.
-Critical constraints: `tasks.assigned_to` cannot be null.
-
-## Data Flow Example (Member Updates Status)
-1. Member clicks status dropdown in `MemberDashboard` Livewire component.
-2. Component calls `updateStatus($taskId, $newStatus)`.
-3. `TaskPolicy@changeStatus` checks if member owns the task assignment.
-4. If authorized, task status updated in DB.
-5. Livewire re-renders the task card.
+## Authorization
+TaskPolicy:
+- Admin: view all, final approve only (no edit/delete).
+- PM: manage workspace tasks (assign, approve, reject).
+- Member: only assigned tasks (submit + upload).

@@ -32,6 +32,9 @@ class AdminDashboard extends Component
             'total' => Task::count(),
             'todo' => Task::where('status', 'todo')->count(),
             'on_progress' => Task::where('status', 'on_progress')->count(),
+            'pending_pm' => Task::where('status', 'pending_pm')->count(),
+            'pending_admin' => Task::where('status', 'pending_admin')->count(),
+            'revision' => Task::where('status', 'revision')->count(),
             'done' => Task::where('status', 'done')->count(),
         ];
 

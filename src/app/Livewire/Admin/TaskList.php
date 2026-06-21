@@ -62,6 +62,17 @@ class TaskList extends Component
         session()->flash('message', 'Tugas dihapus.');
     }
 
+    public function finalApproveTask($id)
+    {
+        $task = Task::findOrFail($id);
+        if ($task->status !== 'pending_admin') {
+            session()->flash('error', 'Task is not pending admin review.');
+            return;
+        }
+        $task->update(['status' => 'done']);
+        session()->flash('message', 'Tugas selesai dikonfirmasi.');
+    }
+
     public function render()
     {
         $query = Task::with(['workspace', 'assignee', 'creator']);

@@ -6,22 +6,20 @@ use Livewire\Component;
 use App\Models\Workspace;
 use App\Models\User;
 use App\Models\Task;
-use App\Notifications\TaskAssignedNotification;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.pm')]
 class PmDashboard extends Component
 {
     public $workspaceName;
     public $workspaceDesc;
-    
+
     public $inviteEmail;
-    
-    public $taskTitle;
-    public $taskDesc;
-    public $taskAssignee;
-    public $taskPriority = 'medium';
-    public $taskDeadline;
+
+    public $reviewNote;
+    public $rejectTaskId;
+    public $assignTaskId;
+    public $assignMemberId;
 
     public function createWorkspace()
     {
@@ -82,69 +80,82 @@ class PmDashboard extends Component
         }
     }
 
-    public function createTask()
+    public function assignToMember($taskId)
+    {
+        $this->validate(['assignMemberId' => 'required|exists:users,id']);
+
+        $workspace = auth()->user()->workspace;
+        if (!$workspace) return;
+
+        $task = Task::where('workspace_id', $workspace->id)->findOrFail($taskId);
+
+        if (!$workspace->members()->where('user_id', $this->assignMemberId)->exists()) {
+            session()->flash('error', 'Member must be in your workspace.');
+            return;
+        }
+
+        $task->update([
+            'assigned_to' => $this->assignMemberId,
+            'status' => 'on_progress',
+        ]);
+
+        session()->flash('message', 'Task assigned to member.');
+        $this->reset(['assignTaskId', 'assignMemberId']);
+    }
+
+    public function approveTask($taskId)
     {
         $workspace = auth()->user()->workspace;
         if (!$workspace) return;
 
-        $this->validate([
-            'taskTitle' => 'required|string|max:255',
-            'taskDesc' => 'nullable|string',
-            'taskAssignee' => 'required|exists:users,id',
-            'taskPriority' => 'required|in:low,medium,high',
-            'taskDeadline' => 'nullable|date|after_or_equal:today',
+        $task = Task::where('workspace_id', $workspace->id)->findOrFail($taskId);
+        $task->update([
+            'status' => 'pending_admin',
+            'reviewed_by' => auth()->id(),
         ]);
 
-        // Verify assignee is in workspace
-        if (!$workspace->members()->where('user_id', $this->taskAssignee)->exists()) {
-            session()->flash('error', 'Assignee must be a workspace member.');
-            return;
-        }
-
-        $task = Task::create([
-            'workspace_id' => $workspace->id,
-            'created_by' => auth()->id(),
-            'assigned_to' => $this->taskAssignee,
-            'title' => $this->taskTitle,
-            'description' => $this->taskDesc,
-            'priority' => $this->taskPriority,
-            'deadline' => $this->taskDeadline,
-        ]);
-
-        $assignee = User::find($this->taskAssignee);
-        $assignee->notify(new TaskAssignedNotification($task, auth()->user()));
-
-        session()->flash('message', 'Task created.');
-        $this->reset(['taskTitle', 'taskDesc', 'taskAssignee', 'taskPriority', 'taskDeadline']);
+        session()->flash('message', 'Task approved and sent to admin.');
     }
 
-    public function deleteTask($taskId)
+    public function rejectTask($taskId)
     {
-        $task = Task::find($taskId);
-        if ($task) {
-            $this->authorize('delete', $task);
-            $task->delete();
-            session()->flash('message', 'Task deleted.');
-        }
+        $this->validate(['reviewNote' => 'required|string|min:3|max:1000']);
+
+        $workspace = auth()->user()->workspace;
+        if (!$workspace) return;
+
+        $task = Task::where('workspace_id', $workspace->id)->findOrFail($taskId);
+        $task->update([
+            'status' => 'revision',
+            'review_note' => $this->reviewNote,
+            'reviewed_by' => auth()->id(),
+        ]);
+
+        session()->flash('message', 'Task returned for revision.');
+        $this->reset(['reviewNote', 'rejectTaskId']);
     }
 
     public function render()
     {
         $workspace = auth()->user()->workspace;
-        $members = $workspace ? $workspace->members : [];
-        $tasks = $workspace ? $workspace->tasks()->with('assignee')->latest()->get() : [];
-        
+        $members = $workspace ? $workspace->members : collect();
+        $tasks = $workspace ? $workspace->tasks()->with('assignee', 'creator', 'reviewedBy')->latest()->get() : collect();
+
+        $pendingReview = $tasks->where('status', 'pending_pm');
+
         $stats = [
             'total' => $tasks->count(),
             'done' => $tasks->where('status', 'done')->count(),
-            'overdue' => $tasks->filter(fn($t) => $t->deadline && $t->deadline < now() && $t->status !== 'done')->count()
+            'pending_review' => $pendingReview->count(),
+            'revision' => $tasks->where('status', 'revision')->count(),
         ];
 
         return view('livewire.pm.pm-dashboard', [
             'workspace' => $workspace,
             'members' => $members,
             'tasks' => $tasks,
-            'stats' => $stats
+            'stats' => $stats,
+            'pendingReview' => $pendingReview,
         ]);
     }
 }

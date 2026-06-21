@@ -1,85 +1,36 @@
 # TaskFlow Implementation Plan
 
-## Phase 1: Foundation & Setup
-**Goal:** Setup environment, database schema, and authentication basics.
+## Phase 1: Foundation
+1. Laravel 11 + Breeze + Livewire install.
+2. DB migrations: users (+role/+is_active), workspaces, workspace_members, teams, team_members, tasks, attachments.
+3. Models: User, Workspace, Team, TeamMember, Task, Attachment.
+4. Middleware: CheckRole, CheckActive.
+5. Seeders: RoleSeeder, UserSeeder, TeamSeeder, DatabaseSeeder, TaskSeeder.
 
-1. **Project Initialization:**
-   - Install Laravel 11.
-   - Configure `.env` for MariaDB.
-   - Install Laravel Breeze (Blade stack).
-   - Install Livewire 3.
+## Phase 2: Super Admin
+1. `layouts.admin` sidebar: nav links, task list, user footer.
+2. `AdminDashboard`: stats, user management, workspace table, teams table.
+3. `TaskList`: create task (PM selector → show teams), table, filter, final approve, delete.
+4. View Composer inject `$sidebarTasks` into `layouts.admin`.
 
-2. **Database Migrations:**
-   - Update `users` table (`role`, `is_active`).
-   - Create `workspaces` table.
-   - Create `workspace_members` table.
-   - Create `tasks` table (`workspace_id`, `created_by`, `assigned_to`, `status`, `priority`, `deadline`).
+## Phase 3: Project Manager
+1. `layouts.pm` sidebar: nav links, workspace task list, user footer.
+2. `PmDashboard`: stats, members list (with labels), task list, assign/approve/reject.
+3. View Composer for `layouts.pm`.
 
-3. **Models & Relationships:**
-   - Define Eloquent models (`User`, `Workspace`, `Task`).
-   - Setup relationships (HasOne, HasMany, BelongsToMany, BelongsTo).
+## Phase 4: Member
+1. `layouts.member` sidebar: nav links, assigned task list, user footer.
+2. `MemberDashboard`: PM info, team badges, task list with upload + submit.
+3. View Composer for `layouts.member`.
 
-4. **Middleware:**
-   - Create `CheckRole` middleware.
-   - Create `CheckActive` middleware.
-   - Register in `bootstrap/app.php` or kernel.
+## Phase 5: Review Workflow
+1. Migration: `review_note`, `reviewed_by`, new status enum.
+2. `approveTask` / `rejectTask` in PmDashboard.
+3. `finalApproveTask` in TaskList.
+4. Member upload logic + file validation.
 
-## Phase 2: Core Features (PM & Member)
-**Goal:** Enable team creation, task assignment, and progress tracking.
-
-1. **Project Manager (PM) Features:**
-   - Build `PMDashboard` Livewire component.
-   - Implement workspace creation logic.
-   - Implement member invitation/removal logic.
-   - Implement task CRUD (Create, Read, Update, Delete) for PM.
-   - Setup `TaskPolicy` (PM permissions).
-
-2. **Team Member Features:**
-   - Build `MemberDashboard` Livewire component.
-   - Display tasks assigned to member.
-   - Implement status update logic (To-Do -> On-Progress -> Done).
-   - Update `TaskPolicy` (Member permissions).
-
-3. **Routing & Views:**
-   - Setup `pm/*` and `member/*` routes in `web.php`.
-   - Build UI for dashboards using Tailwind CSS.
-
-## Phase 3: Admin Oversight & Analytics
-**Goal:** Implement Super Admin monitoring capabilities.
-
-1. **Admin Dashboard:**
-   - Build `AdminDashboard` component (global stats).
-   - Implement user management (activate/suspend).
-
-2. **Global Task Oversight:**
-   - Build `TaskOversight` Livewire component.
-   - Implement global task list with filters (status, overdue).
-   - Build read-only task detail modal.
-   - Enforce `TaskPolicy` (Admin read-only rules).
-
-3. **PM Performance Metrics:**
-   - Build `PmPerformance` Livewire component.
-   - Implement aggregation logic (total tasks, done, overdue, completion rate).
-   - Build performance table UI.
-
-4. **Routing & Views:**
-   - Setup `admin/*` routes in `web.php`.
-   - Build UI for admin panels.
-
-## Phase 4: Refinement & Testing
-**Goal:** Polish UI, fix bugs, and prepare for deployment.
-
-1. **UI/UX Polish:**
-   - Ensure responsive design across all dashboards.
-   - Add loading states and feedback notifications (Livewire/Alpine).
-
-2. **Security & Validation:**
-   - Verify all form requests and Livewire validation rules.
-   - Test middleware and policy enforcement (e.g., attempt unauthorized actions).
-
-3. **Seeding & Demo Data:**
-   - Create seeders for Admin, sample PMs, Members, and Tasks to facilitate testing.
-
-4. **Final Review:**
-   - Code cleanup.
-   - Verify alignment with BRD/PRD.
+## Phase 6: Polish
+1. Role + team labels across all views.
+2. Remove redundant dashboard sections (task list, activity log).
+3. Clear view cache, verify all routes.
+4. Seeder refresh with complete demo data.

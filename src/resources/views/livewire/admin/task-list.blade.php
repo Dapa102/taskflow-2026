@@ -94,6 +94,7 @@
                 <select wire:model.live="statusFilter" class="border-gray-300 rounded-md shadow-sm text-sm">
                     <option value="all">Semua</option>
                     <option value="pending">Pending</option>
+                    <option value="pending_admin">Menunggu Admin</option>
                     <option value="done">Selesai</option>
                     <option value="overdue">Terlambat</option>
                 </select>
@@ -124,8 +125,14 @@
                                 <td class="px-4 py-3 text-sm text-gray-500">{{ $task->workspace->name ?? '-' }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-500">{{ $task->assignee->name ?? 'Unassigned' }}</td>
                                 <td class="px-4 py-3">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $task->status === 'done' ? 'bg-green-100 text-green-800' : ($task->status === 'on_progress' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800') }}">
-                                        {{ $task->status === 'done' ? 'Selesai' : ($task->status === 'on_progress' ? 'Dikerjakan' : 'Menunggu') }}
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                        {{ $task->status === 'done' ? 'bg-green-100 text-green-800' : '' }}
+                                        {{ $task->status === 'on_progress' ? 'bg-blue-100 text-blue-800' : '' }}
+                                        {{ $task->status === 'pending_pm' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                                        {{ $task->status === 'pending_admin' ? 'bg-purple-100 text-purple-800' : '' }}
+                                        {{ $task->status === 'revision' ? 'bg-orange-100 text-orange-800' : '' }}
+                                        {{ $task->status === 'todo' ? 'bg-gray-100 text-gray-800' : '' }}">
+                                        {{ $task->status === 'done' ? 'Selesai' : ($task->status === 'on_progress' ? 'Dikerjakan' : ($task->status === 'pending_pm' ? 'Review PM' : ($task->status === 'pending_admin' ? 'Review Admin' : ($task->status === 'revision' ? 'Revisi' : 'Menunggu')))) }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3">
@@ -136,7 +143,10 @@
                                 <td class="px-4 py-3 text-sm {{ $task->isOverdue() ? 'text-red-600 font-bold' : 'text-gray-500' }}">
                                     {{ $task->deadline?->format('Y-m-d') ?? '-' }}
                                 </td>
-                                <td class="px-4 py-3">
+                                <td class="px-4 py-3 space-x-1">
+                                    @if($task->status === 'pending_admin')
+                                    <button wire:click="finalApproveTask({{ $task->id }})" wire:confirm="Konfirmasi tugas ini sebagai selesai?" class="text-green-600 hover:text-green-900 text-xs font-medium">Selesai</button>
+                                    @endif
                                     <button wire:click="deleteTask({{ $task->id }})" wire:confirm="Hapus tugas ini?" class="text-red-600 hover:text-red-900 text-xs font-medium">Hapus</button>
                                 </td>
                             </tr>

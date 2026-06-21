@@ -5,33 +5,47 @@ namespace App\Livewire\Member;
 use Livewire\Component;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Attachment;
 use Livewire\Attributes\Layout;
+use Livewire\WithFileUploads;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.member')]
 class MemberDashboard extends Component
 {
-    public function updateStatus($taskId, $newStatus)
+    use WithFileUploads;
+
+    public $upload = [];
+    public $uploadingTaskId;
+
+    public function submitTask($taskId)
     {
-        $task = Task::find($taskId);
-        
-        if (!$task) return;
+        $this->validate([
+            "upload.{$taskId}" => 'required|file|max:10240|mimes:pdf,doc,docx,zip,xlsx,xls,jpg,jpeg,png',
+        ]);
 
-        // Policy check
-        if (!auth()->user()->can('changeStatus', $task)) {
-            session()->flash('error', 'Unauthorized to update this task.');
-            return;
-        }
+        $task = Task::where('assigned_to', auth()->id())->findOrFail($taskId);
 
-        if (in_array($newStatus, ['todo', 'on_progress', 'done'])) {
-            $task->update(['status' => $newStatus]);
-            session()->flash('message', 'Task status updated.');
-        }
+        $file = $this->upload[$taskId];
+        $path = $file->store('task-submissions', 'public');
+
+        $task->attachments()->create([
+            'user_id' => auth()->id(),
+            'filename' => $file->getClientOriginalName(),
+            'file_path' => $path,
+            'file_size' => $file->getSize(),
+            'mime_type' => $file->getMimeType(),
+        ]);
+
+        $task->update(['status' => 'pending_pm']);
+
+        session()->flash('message', 'Tugas selesai dikerjakan. Menunggu review PM.');
+        $this->reset('upload');
     }
 
     public function render()
     {
         $tasks = Task::where('assigned_to', auth()->id())
-            ->with('workspace')
+            ->with('workspace', 'attachments', 'creator')
             ->latest()
             ->get();
 
@@ -41,9 +55,14 @@ class MemberDashboard extends Component
             })
             ->first();
 
+        $myTeams = \App\Models\TeamMember::where('user_id', auth()->id())
+            ->with('team.owner')
+            ->get();
+
         return view('livewire.member.member-dashboard', [
             'tasks' => $tasks,
             'pm' => $pm,
+            'myTeams' => $myTeams,
         ]);
     }
 }

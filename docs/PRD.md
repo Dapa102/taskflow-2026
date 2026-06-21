@@ -1,343 +1,238 @@
-# 📄 PRODUCT REQUIREMENTS DOCUMENT (PRD)
-## Collaborative Task Management System — Pure Team Edition
+# PRODUCT REQUIREMENTS DOCUMENT (PRD)
+## Collaborative Task Management System — Review Workflow Edition
 
 ---
 
-**Versi:** 1.0 (System Focus)
+**Versi:** 2.0
 **Tanggal:** 21 Juni 2026
 **Status:** Final untuk Tim Engineering
-**Arsitektur:** Laravel Fullstack (Blade + Livewire) + MariaDB
 
 ---
 
-## 1. TUJUAN DOKUMEN
+## 1. ARSITEKTUR SISTEM
 
-Dokumen ini adalah **spesifikasi teknis mutlak** yang wajib diimplementasikan oleh tim engineering. Berisi arsitektur sistem, struktur database (skema SQL), routing, middleware, komponen Livewire, policy/authorization, validasi, dan standar keamanan untuk aplikasi kolaborasi tim murni.
+### 1.1. Arsitektur Umum
+Laravel Fullstack (Blade + Livewire) + MariaDB. Sidebar layout per role.
 
-**Perbedaan Fundamental dengan PRD Sebelumnya:**
-
-- **Tidak ada** konsep "tugas pribadi". Semua tugas wajib memiliki `workspace_id` dan `assigned_to`.
-- **Admin** memiliki hak akses baca penuh ke semua data tugas (oversight), tetapi diblokir untuk aksi edit/delete.
-
----
-
-## 2. ARSITEKTUR SISTEM
-
-### 2.1. Arsitektur Umum
-Aplikasi menggunakan pola **Server-Side Rendering (SSR)** dengan komponen reaktif berbasis **Livewire 3**. Semua logika bisnis, autentikasi (session-based), dan rendering dilakukan di sisi server. JavaScript (Alpine.js) hanya digunakan untuk interaksi UI ringan (animasi, toggle dropdown).
-
-### 2.2. Alur Data
-```text
-[Browser] --(HTTP Request)--> [Router (web.php)]
-                                   |
-                    [Middleware: Auth, Role]
-                                   |
-         [Controller / Livewire Component (PM/Member/Admin)]
-                                   |
-                     [Eloquent ORM + Policy]
-                                   |
-                            [MariaDB]
-                                   |
-                          [Blade View]
-                                   |
-                         [Browser Render]
+### 1.2. Alur Data
+```
+[Browser] → [Router (web.php)] → [Auth + Role Middleware] → [Livewire Component]
+    → [Eloquent ORM] → [MariaDB] → [Blade View + Sidebar Layout] → [Browser]
 ```
 
-### 2.3. Tech Stack (Wajib)
+### 1.3. Layer Layout
+| Role | Layout | Sidebar |
+|------|--------|---------|
+| admin | `layouts.admin` | Daftar Tugas + Links Admin |
+| pm | `layouts.pm` | Daftar Tugas + Links PM |
+| member | `layouts.member` | Tugas Saya + Links Member |
 
-| Komponen | Teknologi | Versi / Spesifikasi |
-|----------|-----------|----------------------|
-| Backend Framework | Laravel | ^11.0 (PHP 8.2+) |
-| Komponen Reaktif | Livewire | ^3.0 |
-| Templating | Blade | - |
-| CSS | Tailwind CSS | ^3.4 |
-| JS Interaksi | Alpine.js | ^3.0 |
-| Database | MariaDB | ^10.6 (InnoDB) |
-| Autentikasi | Laravel Breeze (Session) | - |
+### 1.4. Tech Stack
+- Laravel ^11.0, Livewire ^3.0, Tailwind ^3.4, Alpine.js ^3.0, MariaDB ^10.6
 
 ---
 
-## 3. DATABASE DESIGN (SCHEMA & MIGRATION)
+## 2. DATABASE DESIGN
 
-### 3.1. Tabel `users` (Default Laravel + Kolom Tambahan)
-| Kolom | Tipe | Null | Keterangan |
-|-------|------|------|------------|
-| id | BIGINT UNSIGNED | NO | Primary Key, Auto Increment |
-| name | VARCHAR(255) | NO | - |
-| email | VARCHAR(255) | NO | Unique |
-| password | VARCHAR(255) | NO | Hash bcrypt |
-| **role** | **ENUM('pm', 'member', 'admin')** | **NO** | **Default: 'member'** (Penentu akses fitur) |
-| **is_active** | **BOOLEAN** | **NO** | **Default: true** (Jika false, middleware tolak akses) |
-| created_at | TIMESTAMP | YES | - |
-| updated_at | TIMESTAMP | YES | - |
+### 2.1. Tabel `users`
+| Kolom | Tipe | Ket |
+|-------|------|-----|
+| id | BIGINT UNSIGNED PK | - |
+| name | VARCHAR(255) | - |
+| email | VARCHAR(255) | Unique |
+| password | VARCHAR(255) | Hash bcrypt |
+| phone | VARCHAR(20) | Nullable |
+| role | ENUM('admin','pm','member') | Default: 'member' |
+| is_active | BOOLEAN | Default: true |
 
-### 3.2. Tabel `workspaces` (Hanya untuk PM)
-| Kolom | Tipe | Null | Keterangan |
-|-------|------|------|------------|
-| id | BIGINT UNSIGNED | NO | Primary Key, Auto Increment |
-| pm_id | BIGINT UNSIGNED | NO | Foreign Key ke `users.id` (Pemilik/PM) |
-| name | VARCHAR(100) | NO | Nama tim |
-| description | TEXT | YES | Deskripsi tim |
-| created_at | TIMESTAMP | YES | - |
+### 2.2. Tabel `workspaces`
+| Kolom | Tipe | Ket |
+|-------|------|-----|
+| id | BIGINT UNSIGNED PK | - |
+| pm_id | BIGINT UNSIGNED | FK → users.id |
+| name | VARCHAR(100) | - |
+| description | TEXT | Nullable |
 
-*Relasi:* Satu PM hanya boleh memiliki 1 Workspace di MVP (dipaksakan di level aplikasi).
+### 2.3. Tabel `workspace_members`
+| Kolom | Tipe | Ket |
+|-------|------|-----|
+| id | BIGINT UNSIGNED PK | - |
+| workspace_id | BIGINT UNSIGNED | FK → workspaces.id |
+| user_id | BIGINT UNSIGNED | FK → users.id |
 
-### 3.3. Tabel `workspace_members` (Relasi Many-to-Many)
-| Kolom | Tipe | Null | Keterangan |
-|-------|------|------|------------|
-| id | BIGINT UNSIGNED | NO | Primary Key, Auto Increment |
-| workspace_id | BIGINT UNSIGNED | NO | FK ke `workspaces.id` (ON DELETE CASCADE) |
-| user_id | BIGINT UNSIGNED | NO | FK ke `users.id` (ON DELETE CASCADE) |
-| joined_at | TIMESTAMP | YES | Default: CURRENT_TIMESTAMP |
+### 2.4. Tabel `teams`
+| Kolom | Tipe | Ket |
+|-------|------|-----|
+| id | BIGINT UNSIGNED PK | - |
+| owner_id | BIGINT UNSIGNED | FK → users.id (PM) |
+| name | VARCHAR(100) | - |
+| invite_code | VARCHAR(20) | Nullable |
 
-### 3.4. Tabel `tasks` (Inti Aplikasi - WAJIB ADA ASSIGNEE & WORKSPACE)
-| Kolom | Tipe | Null | Keterangan |
-|-------|------|------|------------|
-| id | BIGINT UNSIGNED | NO | Primary Key, Auto Increment |
-| workspace_id | BIGINT UNSIGNED | NO | FK ke `workspaces.id` (ON DELETE CASCADE) |
-| created_by | BIGINT UNSIGNED | NO | FK ke `users.id` (PM yang membuat) |
-| **assigned_to** | **BIGINT UNSIGNED** | **NO** | **FK ke `users.id` (WAJIB diisi, tidak boleh NULL)** |
-| title | VARCHAR(255) | NO | Judul tugas |
-| description | TEXT | YES | Deskripsi detail |
-| status | ENUM('todo', 'on_progress', 'done') | NO | Default: 'todo' |
-| priority | ENUM('low', 'medium', 'high') | NO | Default: 'medium' |
-| deadline | DATE | YES | Nullable |
-| created_at | TIMESTAMP | YES | - |
-| updated_at | TIMESTAMP | YES | - |
-| *Index* | - | - | **Wajib** index pada `workspace_id`, `assigned_to`, `status` |
+### 2.5. Tabel `team_members`
+| Kolom | Tipe | Ket |
+|-------|------|-----|
+| id | BIGINT UNSIGNED PK | - |
+| team_id | BIGINT UNSIGNED | FK → teams.id |
+| user_id | BIGINT UNSIGNED | FK → users.id |
+| role | ENUM('admin','member') | Team role |
+| joined_at | TIMESTAMP | - |
 
-**Catatan Penting untuk Developer:**
-- **Tidak ada** kolom `user_id` sebagai pemilik. Kepemilikan diatur melalui `workspace_id`.
-- **Tidak boleh** ada tugas yang `assigned_to`-nya NULL. Validasi di backend harus memastikan ini.
+### 2.6. Tabel `tasks`
+| Kolom | Tipe | Ket |
+|-------|------|-----|
+| id | BIGINT UNSIGNED PK | - |
+| workspace_id | BIGINT UNSIGNED | FK → workspaces.id |
+| created_by | BIGINT UNSIGNED | FK → users.id |
+| assigned_to | BIGINT UNSIGNED | FK → users.id |
+| reviewed_by | BIGINT UNSIGNED | Nullable, FK → users.id |
+| team_id | BIGINT UNSIGNED | Nullable, index |
+| title | VARCHAR(255) | - |
+| description | TEXT | Nullable |
+| review_note | TEXT | Nullable, catatan revisi |
+| status | ENUM('todo','on_progress','pending_pm','pending_admin','revision','done') | Default: 'todo' |
+| priority | ENUM('low','medium','high') | Default: 'medium' |
+| deadline | DATE | Nullable |
+
+### 2.7. Tabel `attachments`
+| Kolom | Tipe | Ket |
+|-------|------|-----|
+| id | BIGINT UNSIGNED PK | - |
+| task_id | BIGINT UNSIGNED | FK → tasks.id |
+| user_id | BIGINT UNSIGNED | FK → users.id |
+| filename | VARCHAR(255) | - |
+| file_path | VARCHAR(255) | - |
+| file_size | BIGINT | - |
+| mime_type | VARCHAR(100) | - |
 
 ---
 
-## 4. ROUTING (web.php) & MIDDLEWARE
+## 3. ROUTING & MIDDLEWARE
 
-### 4.1. Konfigurasi Middleware Kustom
-Buat middleware **`CheckRole`** dan **`CheckActive`** di `app/Http/Kernel.php`.
+### 3.1. Middleware
+- `CheckRole`: Memfilter akses berdasarkan role.
+- `CheckActive`: Tolak akses jika akun nonaktif.
 
+### 3.2. Routes
 ```php
-// app/Http/Middleware/CheckRole.php
-public function handle($request, Closure $next, ...$roles) {
-    if (!auth()->check()) return redirect('login');
-    if (!in_array(auth()->user()->role, $roles)) abort(403);
-    return $next($request);
-}
+// Auth + check.active
+Route::get('/dashboard', [role redirect])->name('dashboard');
+Route::get('/tasks', AllTasks::class)->name('tasks.all'); // Semua role
 
-// app/Http/Middleware/CheckActive.php
-public function handle($request, Closure $next) {
-    if (auth()->check() && !auth()->user()->is_active) {
-        auth()->logout();
-        return redirect('login')->with('error', 'Akun Anda dinonaktifkan.');
-    }
-    return $next($request);
-}
-```
-
-### 4.2. Daftar Route (web.php)
-```php
-<?php
-
-use App\Livewire\Admin\AdminDashboard;
-use App\Livewire\Admin\TaskOversight;
-use App\Livewire\Admin\PmPerformance;
-use App\Livewire\PM\PMDashboard;
-use App\Livewire\Member\MemberDashboard;
-
-Route::middleware(['auth', 'check.active'])->group(function () {
-
-    // ===== ROUTE UNTUK PROJECT MANAGER =====
-    Route::middleware(['role:pm'])->prefix('pm')->name('pm.')->group(function () {
-        Route::get('/dashboard', PMDashboard::class)->name('dashboard');
-        // Route lainnya untuk PM (kelola workspace, anggota, tugas) 
-        // sudah tertampung di dalam komponen PMDashboard (Livewire).
-    });
-
-    // ===== ROUTE UNTUK TEAM MEMBER =====
-    Route::middleware(['role:member'])->prefix('member')->name('member.')->group(function () {
-        Route::get('/dashboard', MemberDashboard::class)->name('dashboard');
-    });
-
-    // ===== ROUTE UNTUK SUPER ADMIN =====
-    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
-        Route::get('/tasks', TaskOversight::class)->name('tasks.oversight'); // Fitur UC-15,16,17
-        Route::get('/pm-performance', PmPerformance::class)->name('pm.performance'); // Fitur UC-18
-    });
-
+// PM
+Route::prefix('pm')->name('pm.')->middleware('role:pm')->group(function () {
+    Route::get('/dashboard', PmDashboard::class)->name('dashboard');
+    Route::get('/compose-email', ComposeEmail::class)->name('compose.email');
 });
 
-// Route Auth (Login, Register, Logout) - Default dari Breeze
-require __DIR__.'/auth.php';
+// Member
+Route::prefix('member')->name('member.')->middleware('role:member')->group(function () {
+    Route::get('/dashboard', MemberDashboard::class)->name('dashboard');
+});
 
-// Route Register dengan tambahan pilihan role (PM/Member) di view.
+// Admin
+Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
+    Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
+    Route::get('/tasks', TaskList::class)->name('tasks.list');
+    Route::get('/tasks/oversight/{taskId?}', TaskOversight::class)->name('tasks.oversight');
+    Route::get('/assign-task', AssignTask::class)->name('assign.task');
+    Route::get('/pm-performance', PmPerformance::class)->name('pm.performance');
+    Route::get('/compose-email', ComposeEmail::class)->name('compose.email');
+});
 ```
 
 ---
 
-## 5. LIVEWIRE COMPONENTS (STRUKTUR & LOGIKA WAJIB)
+## 4. LIVEWIRE COMPONENTS
 
-### 5.1. Komponen `PMDashboard` (app/Livewire/PM/PMDashboard.php)
-- **Fungsi:** Mengelola Workspace, Anggota, dan Tugas Tim.
-- **Method Wajib:**
-  - `createWorkspace()`: Hanya bisa dijalankan jika user belum punya workspace.
-  - `inviteMember($email)`: Mencari user dengan role 'member', menambah ke `workspace_members`.
-  - `removeMember($userId)`: Menghapus dari `workspace_members`.
-  - `createTask($data)`: Validasi `assigned_to` harus ada di `workspace_members`.
-  - `updateTask($id, $data)`: Hanya bisa ubah tugas milik workspace-nya.
-  - `deleteTask($id)`: Hanya bisa hapus tugas milik workspace-nya.
-- **Render View:** `resources/views/livewire/pm/pm-dashboard.blade.php` (Menampilkan form + daftar tugas tim).
+### 4.1. Admin\TaskList (`layouts.admin`)
+- Buat tugas baru → pilih PM → tampil tim yang dipimpin.
+- Filter status (Semua/Pending/Menunggu Admin/Selesai/Terlambat).
+- Tombol "Selesai" untuk tugas `pending_admin` (final approve).
+- Tombol "Hapus".
 
-### 5.2. Komponen `MemberDashboard` (app/Livewire/Member/MemberDashboard.php)
-- **Fungsi:** Melihat dan mengupdate status tugas yang di-assign.
-- **Method Wajib:**
-  - `mount()`: Ambil tugas `Task::where('assigned_to', auth()->id())->get()`.
-  - `updateStatus($taskId, $newStatus)`: Validasi apakah tugas tersebut di-assign ke user ini. Jika ya, update status.
-- **Render View:** Menampilkan daftar kartu tugas (tanpa tombol edit/delete).
+### 4.2. Admin\AdminDashboard (`layouts.admin`)
+- Statistik global + breakdown status.
+- Manajemen user (aktif/suspend) + label tim.
+- Tabel workspaces + label PM + tim.
+- Tabel teams dengan label (Project Manager) / (Anggota).
 
-### 5.3. Komponen `AdminDashboard` (app/Livewire/Admin/AdminDashboard.php)
-- **Fungsi:** Statistik platform global (Total User, Total Workspace, Total Tugas).
-- **Render View:** Halaman landing admin sederhana.
+### 4.3. Pm\PmDashboard (`layouts.pm`)
+- Statistik: Total, Done, Menunggu Review, Revisi.
+- Team Members list dengan label (Project Manager) / (Anggota) + nama tim.
+- Daftar Tugas Team: Assign ke anggota, Approve, Revisi + catatan.
+- **Tidak ada** tombol "Buat Tugas Baru".
 
-### 5.4. Komponen `TaskOversight` (app/Livewire/Admin/TaskOversight.php) - **FITUR UTAMA ADMIN**
-- **Fungsi:** Melihat semua tugas dari semua workspace dengan filter.
-- **Properti:** `$statusFilter` (null, 'done', 'overdue', 'pending'), `$search`.
-- **Logic Query:**
-  ```php
-  $query = Task::with(['workspace', 'assignedTo', 'createdBy']);
-  
-  if ($this->statusFilter == 'overdue') {
-      $query->where('deadline', '<', now())->where('status', '!=', 'done');
-  } elseif ($this->statusFilter == 'done') {
-      $query->where('status', 'done');
-  } else { // pending
-      $query->where('status', '!=', 'done');
-  }
-  // Di view, tombol "Detail" akan memunculkan modal read-only (tanpa form edit).
-  ```
-- **Policy:** `viewAny` untuk Admin selalu true. `update` dan `delete` secara tegas **ditolak** (tidak ada tombolnya di view, dan jika ada request manual via POST, Policy akan menolak).
+### 4.4. Member\MemberDashboard (`layouts.member`)
+- Info PM dengan label (Project Manager).
+- Team Saya card (nama tim + PM).
+- Daftar Tugas Saya: upload file + submit (→ pending_pm).
+- Status revision tampilkan catatan revisi.
 
-### 5.5. Komponen `PmPerformance` (app/Livewire/Admin/PmPerformance.php) - **FITUR EVALUASI PM**
-- **Fungsi:** Menampilkan metrik kinerja setiap Project Manager.
-- **Logic Query (Aggregate):**
-  ```php
-  $pms = User::where('role', 'pm')->with('workspace')->get();
-  foreach ($pms as $pm) {
-      $tasks = Task::whereHas('workspace', function($q) use ($pm) {
-          $q->where('pm_id', $pm->id);
-      })->get();
-      
-      $pm->total_tasks = $tasks->count();
-      $pm->done_tasks = $tasks->where('status', 'done')->count();
-      $pm->overdue_tasks = $tasks->filter(function($t) {
-          return $t->deadline < now() && $t->status != 'done';
-      })->count();
-      $pm->on_time_rate = $pm->total_tasks > 0 ? round(($pm->done_tasks / $pm->total_tasks) * 100, 2) : 0;
-  }
-  ```
+### 4.5. AllTasks (`layouts.app`)
+- Read-only daftar semua tugas untuk semua role.
 
 ---
 
-## 6. AUTORIZATION (POLICIES)
+## 5. ALUR STATUS TUGAS
 
-Buat `TaskPolicy` untuk mengatur hak akses secara ketat.
-
-```php
-// app/Policies/TaskPolicy.php
-class TaskPolicy {
-    // Semua orang bisa melihat tugas sendiri (untuk member) atau tim (untuk PM)
-    public function view(User $user, Task $task) {
-        // Admin bisa melihat semua
-        if ($user->role === 'admin') return true;
-        // PM bisa melihat tugas di workspacenya
-        if ($user->role === 'pm') {
-            return $task->workspace->pm_id === $user->id;
-        }
-        // Member hanya bisa melihat tugas yang di-assign ke dirinya
-        return $task->assigned_to === $user->id;
-    }
-
-    // CREATE: Hanya PM yang bisa membuat, dan hanya untuk workspace miliknya
-    public function create(User $user) {
-        return $user->role === 'pm' && $user->workspace; // Pastikan punya workspace
-    }
-
-    // UPDATE: PM bisa update tugas di workspacenya. ADMIN DIBLOKIR!
-    public function update(User $user, Task $task) {
-        if ($user->role === 'admin') return false; // EKSPLISIT DIBLOKIR
-        if ($user->role === 'pm') {
-            return $task->workspace->pm_id === $user->id;
-        }
-        return false; // Member tidak boleh update (hanya boleh ganti status via method terpisah)
-    }
-
-    // DELETE: Sama seperti update, Admin & Member diblokir
-    public function delete(User $user, Task $task) {
-        if ($user->role === 'admin') return false;
-        if ($user->role === 'pm') {
-            return $task->workspace->pm_id === $user->id;
-        }
-        return false;
-    }
-    
-    // Khusus untuk Member mengubah status (bukan edit penuh)
-    public function changeStatus(User $user, Task $task) {
-        return $task->assigned_to === $user->id && $user->role === 'member';
-    }
-}
+```
+SuperAdmin buat → todo
+  ↓
+PM assign → on_progress
+  ↓
+Anggota selesai + upload → pending_pm
+  ↓
+PM approve → pending_admin  |  PM reject + note → revision
+  ↓                              ↓
+SuperAdmin final → done     Anggota perbaiki + upload ulang → pending_pm
 ```
 
 ---
 
-## 7. VALIDASI TEKNIS (FORM REQUEST / LIVEWIRE RULES)
+## 6. SIDEBAR LAYOUTS
 
-### 7.1. Validasi Tugas (Create / Edit oleh PM)
-| Field | Aturan | Pesan Error |
-|-------|--------|-------------|
-| `title` | Required, string, max:255 | "Judul wajib diisi" |
-| `description` | Nullable, string | - |
-| `assigned_to` | Required, exists:users,id, **dan harus menjadi anggota workspace** (validasi custom) | "Pilih anggota tim" |
-| `priority` | In: low, medium, high | - |
-| `deadline` | Nullable, date, after_or_equal:today | "Deadline tidak boleh kurang dari hari ini" |
+### 6.1. `layouts.admin`
+- Logo + Nav (Dashboard, Daftar Tugas, Assign Task, Global Tasks, PM Performance, Compose Email).
+- Sidebar task list (50 tugas terbaru).
+- User footer (nama, "Super Admin", tim).
 
-### 7.2. Validasi Registrasi (Pilihan Role)
-| Field | Aturan | Pesan Error |
-|-------|--------|-------------|
-| `role` | Required, in:pm,member | "Pilih peran" |
-| (Email, Password tetap standar) | - | - |
+### 6.2. `layouts.pm`
+- Logo + Nav (Dashboard, Daftar Tugas).
+- Sidebar task list (tugas workspace PM).
+- User footer (nama, "Project Manager", tim).
 
----
+### 6.3. `layouts.member`
+- Logo + Nav (My Tasks, Daftar Tugas).
+- Sidebar task list (tugas di-assign ke member).
+- User footer (nama, "Anggota", tim).
 
-## 8. KEAMANAN SISTEM (IMPLEMENTASI)
-
-| Ancaman | Solusi Teknis (Laravel Fullstack) |
-|---------|-----------------------------------|
-| **SQL Injection** | Eloquent ORM / Query Builder (binding otomatis). |
-| **XSS** | Blade `{{ }}` otomatis escape; Livewire juga melakukan sanitasi output. |
-| **CSRF** | **Aktif** di semua form (`@csrf`). |
-| **Mass Assignment** | Model `Task` set `$fillable = ['workspace_id', 'created_by', 'assigned_to', 'title', 'description', 'priority', 'deadline']`. |
-| **Autorisasi (IDOR)** | **Wajib** gunakan `$this->authorize()` di setiap method Livewire sebelum aksi (update/delete/view). |
-| **Brute Force Login** | Aktifkan `throttle:5,1` pada route login. |
-| **Akses Admin ke Edit** | Selain Policy, di view Blade Admin untuk `TaskOversight`, **jangan render** tombol Edit/Delete sama sekali. |
+View Composer di `AppServiceProvider` inject `$sidebarTasks` ke tiap layout.
 
 ---
 
-## 9. PERFORMANCE & OPTIMASI
+## 7. SEEDER DATA
 
-| Area | Optimasi |
-|------|----------|
-| **Query** | Gunakan `with()` (Eager Loading) untuk relasi `workspace`, `assignedTo`, `createdBy` pada halaman Admin dan PM untuk menghindari N+1. |
-| **Index Database** | Wajib tambahkan index pada kolom `workspace_id`, `assigned_to`, `status` di tabel `tasks`. |
-| **Livewire** | Gunakan `#[On]` untuk event antar komponen. Gunakan `wire:key` pada loop `@foreach` untuk efisiensi DOM diffing. |
-| **Caching** | Untuk halaman `PmPerformance` (Admin), cache hasil query selama 5 menit untuk mengurangi beban agregasi jika data besar. |
+| Seeder | Data |
+|--------|------|
+| RoleSeeder | Roles default |
+| UserSeeder | 1 admin, 2 PM (Budi/Siti), 4 member (Ahmad/Dewi/Rudi/Fitri), user@admin.com |
+| TeamSeeder | Tim Developer (PM Budi), Tim Desain (PM Siti), masing-masing 3 anggota |
+| DatabaseSeeder | 3 workspaces, 7 tasks |
+| TaskSeeder | 6 personal tasks for user@admin.com |
 
 ---
 
-## 10. DEPLOYMENT CHECKLIST
+## 8. KEAMANAN
 
-- [ ] Set `APP_ENV=production` dan `APP_DEBUG=false`.
-- [ ] Jalankan `php artisan migrate --force`.
-- [ ] Jalankan `php artisan config:cache`, `route:cache`, `view:cache`.
-- [ ] Pastikan `storage/` dan `bootstrap/cache` memiliki permission yang benar.
-- [ ] Buat akun Admin pertama via seeder (`php artisan db:seed --class=AdminSeeder`).
+- Policy `TaskPolicy`: Admin final approve only. PM manage workspace tasks. Member only assigned tasks.
+- Middleware `CheckRole` dan `CheckActive` di setiap group route.
+- Session auth, Blade escaping, CSRF aktif.
+
+---
+
+## 9. FILE UPLOAD
+
+- Anggota upload file (pdf, doc, docx, zip, xlsx, jpg, png, max 10MB).
+- File disimpan di `storage/app/public/task-submissions/`.
+- Attachment tercatat di tabel `attachments`.
+- Storage link: `php artisan storage:link`.
