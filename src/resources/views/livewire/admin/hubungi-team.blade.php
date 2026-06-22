@@ -55,14 +55,14 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Metode Kirim</label>
                         <div class="flex gap-4">
-                            <label class="flex items-center gap-2 px-4 py-2 border rounded-md cursor-pointer {{ $sendType === 'email' ? 'border-blue-500 bg-blue-50' : 'border-gray-300' }}">
-                                <input type="radio" wire:model="sendType" value="email" class="text-blue-600">
+                            <button type="button" wire:click="$set('sendType', 'email')"
+                                    class="flex items-center gap-2 px-4 py-2 border rounded-md {{ $sendType === 'email' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 text-gray-700' }}">
                                 <span class="text-sm font-medium">Email</span>
-                            </label>
-                            <label class="flex items-center gap-2 px-4 py-2 border rounded-md cursor-pointer {{ $sendType === 'whatsapp' ? 'border-green-500 bg-green-50' : 'border-gray-300' }}">
-                                <input type="radio" wire:model="sendType" value="whatsapp" class="text-green-600">
+                            </button>
+                            <button type="button" wire:click="$set('sendType', 'whatsapp')"
+                                    class="flex items-center gap-2 px-4 py-2 border rounded-md {{ $sendType === 'whatsapp' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-300 text-gray-700' }}">
                                 <span class="text-sm font-medium">WhatsApp</span>
-                            </label>
+                            </button>
                         </div>
                     </div>
 
