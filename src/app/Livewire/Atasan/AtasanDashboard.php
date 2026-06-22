@@ -4,11 +4,21 @@ namespace App\Livewire\Atasan;
 
 use Livewire\Component;
 use App\Models\Task;
+use App\Models\User;
+use App\Models\Team;
+use App\Models\Workspace;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.atasan')]
 class AtasanDashboard extends Component
 {
+    public $selectedPmId = null;
+
+    public function selectPm($pmId)
+    {
+        $this->selectedPmId = $pmId;
+    }
+
     public function render()
     {
         $userId = auth()->id();
@@ -29,6 +39,31 @@ class AtasanDashboard extends Component
             ['label' => 'Deadline', 'count' => $deadlineCount, 'bg' => '#f43f5e'],
         ];
 
+        $pms = User::where('role', 'pm')
+            ->with(['workspace', 'teams.members.user'])
+            ->get()
+            ->map(fn($pm) => [
+                'id' => $pm->id,
+                'name' => $pm->name,
+                'email' => $pm->email,
+                'phone' => $pm->phone,
+                'workspace' => $pm->workspace,
+                'teams' => $pm->teams->map(fn($team) => [
+                    'id' => $team->id,
+                    'name' => $team->name,
+                    'member_count' => $team->members->count(),
+                    'members' => $team->members->map(fn($m) => [
+                        'name' => $m->user?->name ?? 'Unknown',
+                        'role' => $m->role,
+                    ]),
+                ]),
+            ]);
+
+        $selectedPm = null;
+        if ($this->selectedPmId) {
+            $selectedPm = $pms->firstWhere('id', $this->selectedPmId);
+        }
+
         return view('livewire.atasan.atasan-dashboard', [
             'total' => $total,
             'given' => $given,
@@ -36,6 +71,8 @@ class AtasanDashboard extends Component
             'done' => $done,
             'deadlineCount' => $deadlineCount,
             'chartData' => $chartData,
+            'pms' => $pms,
+            'selectedPm' => $selectedPm,
         ]);
     }
 }

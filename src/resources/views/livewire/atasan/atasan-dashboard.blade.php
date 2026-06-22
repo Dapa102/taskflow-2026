@@ -46,29 +46,82 @@
             </div>
 
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Aksi Cepat</h3>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <a href="{{ route('atasan.create.task') }}" class="flex items-center gap-4 p-4 bg-indigo-50 rounded-xl border border-indigo-200 hover:bg-indigo-100 transition-colors group">
-                        <div class="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Project Manager</h3>
+                @if($pms->isEmpty())
+                    <p class="text-sm text-gray-500">Belum ada Project Manager.</p>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach($pms as $pm)
+                            <button wire:click="selectPm({{ $pm['id'] }})"
+                                class="text-left p-4 rounded-xl border transition-all duration-200 {{ $selectedPmId === $pm['id'] ? 'border-indigo-400 bg-indigo-50 ring-2 ring-indigo-200' : 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300' }}">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                                        {{ strtoupper(substr($pm['name'], 0, 1)) }}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-medium text-gray-900 truncate">{{ $pm['name'] }}</p>
+                                        <p class="text-xs text-gray-500 truncate">{{ $pm['email'] }}</p>
+                                    </div>
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                            </button>
+                        @endforeach
+                    </div>
+
+                    @if($selectedPm)
+                        <div class="mt-6 p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                                        {{ strtoupper(substr($selectedPm['name'], 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">{{ $selectedPm['name'] }}</h4>
+                                        <p class="text-sm text-gray-600">{{ $selectedPm['email'] }} @if($selectedPm['phone']) &middot; {{ $selectedPm['phone'] }} @endif</p>
+                                    </div>
+                                </div>
+                                <button wire:click="selectPm(null)" class="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-white/50">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+
+                            @if($selectedPm['workspace'])
+                                <div class="mb-4 p-3 bg-white/70 rounded-lg border border-indigo-100">
+                                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Workspace</p>
+                                    <p class="text-sm font-semibold text-gray-900">{{ $selectedPm['workspace']['name'] }}</p>
+                                    @if($selectedPm['workspace']['description'])
+                                        <p class="text-xs text-gray-500 mt-0.5">{{ $selectedPm['workspace']['description'] }}</p>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @foreach($selectedPm['teams'] as $team)
+                                <div class="mb-3 last:mb-0 p-3 bg-white/70 rounded-lg border border-indigo-100">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <p class="text-sm font-semibold text-gray-900">{{ $team['name'] }}</p>
+                                        <span class="text-xs text-gray-500">{{ $team['member_count'] }} anggota</span>
+                                    </div>
+                                    @if($team['members']->isNotEmpty())
+                                        <div class="flex flex-wrap gap-1.5">
+                                            @foreach($team['members'] as $member)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium {{ $member['role'] === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700' }}">
+                                                    {{ $member['name'] }}
+                                                    @if($member['role'] === 'admin')
+                                                        <span class="text-purple-400">(PM)</span>
+                                                    @endif
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+
+                            @if(!$selectedPm['workspace'] && $selectedPm['teams']->isEmpty())
+                                <p class="text-sm text-gray-500 italic">Belum memiliki workspace atau tim.</p>
+                            @endif
                         </div>
-                        <div>
-                            <p class="font-medium text-gray-900">Buat Tugas Baru</p>
-                            <p class="text-sm text-gray-500">Kirim tugas ke Super Admin</p>
-                        </div>
-                    </a>
-                    <a href="{{ route('atasan.tasks') }}" class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors group">
-                        <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
-                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                        </div>
-                        <div>
-                            <p class="font-medium text-gray-900">Lihat Tugas Saya</p>
-                            <p class="text-sm text-gray-500">Pantau status tugas yang sudah dibuat</p>
-                        </div>
-                    </a>
-                </div>
+                    @endif
+                @endif
             </div>
         </div>
     </div>
