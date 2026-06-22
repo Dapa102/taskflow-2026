@@ -129,24 +129,38 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div x-data="{ open: false }" class="relative">
-                                        <button @click="open = !open" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                            Hubungi
-                                        </button>
-                                        <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border z-10" x-transition>
-                                            <a href="{{ route('admin.hubungi.team') }}?recipient={{ $user->id }}"
-                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                Kirim Email
-                                            </a>
-                                            @if($user->phone)
-                                                <a href="https://wa.me/{{ $user->phone }}" target="_blank"
-                                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                    WhatsApp
+                                    <button x-data @click="$dispatch('open-modal', 'contact-user-{{ $user->id }}')"
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                        Hubungi
+                                    </button>
+
+                                    <x-modal name="contact-user-{{ $user->id }}" maxWidth="md">
+                                        <div class="p-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <h3 class="text-lg font-semibold text-gray-900">Hubungi {{ $user->name }}</h3>
+                                                <button @click="$dispatch('close-modal', 'contact-user-{{ $user->id }}')" class="text-gray-400 hover:text-gray-600">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </button>
+                                            </div>
+                                            <div class="space-y-3">
+                                                <p class="text-sm text-gray-600">
+                                                    {{ $user->email }}
+                                                    @if($user->phone) &middot; {{ $user->phone }} @endif
+                                                </p>
+                                                <a href="{{ route('admin.hubungi.team') }}?recipient={{ $user->id }}"
+                                                   class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
+                                                    Kirim Email
                                                 </a>
-                                            @endif
+                                                @if($user->phone)
+                                                    <a href="https://wa.me/{{ $user->phone }}" target="_blank"
+                                                       class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
+                                                        WhatsApp
+                                                    </a>
+                                                @endif
+                                            </div>
                                         </div>
-                                    </div>
+                                    </x-modal>
                                 </td>
                             </tr>
                             @endforeach
