@@ -2,24 +2,16 @@
 
 namespace App\Livewire\Admin;
 
-use App\Mail\ComposeMessage;
 use Livewire\Component;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Models\Task;
 use App\Models\Team;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.admin')]
 class AdminDashboard extends Component
 {
-    public ?int $contactUserId = null;
-    public string $contactSendType = 'email';
-    public string $contactSubject = '';
-    public string $contactMessage = '';
-
     public function toggleUserStatus($userId)
     {
         if (auth()->id() == $userId) {
@@ -31,64 +23,6 @@ class AdminDashboard extends Component
         if ($user && $user->role !== 'admin') {
             $user->update(['is_active' => !$user->is_active]);
             session()->flash('message', 'User status updated.');
-        }
-    }
-
-    public function sendContactMessage(): void
-    {
-        $this->validate([
-            'contactUserId' => 'required|exists:users,id',
-            'contactMessage' => 'required|string|max:5000',
-        ]);
-
-        if ($this->contactSendType === 'email') {
-            $this->validate(['contactSubject' => 'required|string|max:255']);
-            $this->sendContactEmail();
-        } else {
-            $this->sendContactWhatsApp();
-        }
-
-        $this->reset(['contactUserId', 'contactSubject', 'contactMessage']);
-        session()->flash('message', 'Pesan berhasil dikirim.');
-    }
-
-    private function sendContactEmail(): void
-    {
-        $user = User::find($this->contactUserId);
-        $sender = auth()->user();
-
-        Mail::to($user->email)
-            ->send(new ComposeMessage($this->contactSubject, $this->contactMessage, $sender->name));
-    }
-
-    private function sendContactWhatsApp(): void
-    {
-        $user = User::find($this->contactUserId);
-        $sender = auth()->user();
-
-        if (!$user->phone) {
-            session()->flash('error', $user->name . ' belum memiliki nomor telepon.');
-            return;
-        }
-
-        $token = config('fonnte.token');
-        if (!$token) {
-            session()->flash('error', 'Token Fonnte belum dikonfigurasi.');
-            return;
-        }
-
-        $message = "*Pesan dari {$sender->name} (Super Admin)*\n\n{$this->contactMessage}";
-
-        $response = Http::withHeaders([
-            'Authorization' => $token,
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $user->phone,
-            'message' => $message,
-            'countryCode' => '62',
-        ]);
-
-        if (!$response->successful()) {
-            session()->flash('error', 'Gagal mengirim WhatsApp: ' . $response->body());
         }
     }
 
