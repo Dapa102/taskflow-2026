@@ -61,7 +61,7 @@
                                         Hubungi
                                     </button>
 
-                                    <x-modal name="contact-pm-{{ $pm->id }}" maxWidth="md">
+                                    <x-modal name="contact-pm-{{ $pm->id }}" maxWidth="lg">
                                         <div class="p-6">
                                             <div class="flex items-center justify-between mb-4">
                                                 <h3 class="text-lg font-semibold text-gray-900">Hubungi {{ $pm->name }}</h3>
@@ -69,21 +69,53 @@
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                                 </button>
                                             </div>
-                                            <div class="space-y-3">
-                                                <p class="text-sm text-gray-600">
-                                                    {{ $pm->email }}
-                                                    @if($pm->phone) &middot; {{ $pm->phone }} @endif
-                                                </p>
-                                                <a href="{{ route('admin.hubungi.team') }}?recipient={{ $pm->id }}"
-                                                   class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
-                                                    Kirim Email
-                                                </a>
-                                                @if($pm->phone)
-                                                    <a href="{{ route('admin.hubungi.team') }}?recipient={{ $pm->id }}&sendType=whatsapp"
-                                                       class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
-                                                        WhatsApp
-                                                    </a>
+                                            <p class="text-sm text-gray-600 mb-4">
+                                                {{ $pm->email }}
+                                                @if($pm->phone) &middot; {{ $pm->phone }} @endif
+                                            </p>
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Metode Kirim</label>
+                                                    <div class="flex gap-4">
+                                                        <button type="button" wire:click="$set('contactSendType', 'email')"
+                                                                class="flex items-center gap-2 px-4 py-2 border rounded-md {{ $contactSendType === 'email' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 text-gray-700' }}">
+                                                            <span class="text-sm font-medium">Email</span>
+                                                        </button>
+                                                        @if($pm->phone)
+                                                        <button type="button" wire:click="$set('contactSendType', 'whatsapp')"
+                                                                class="flex items-center gap-2 px-4 py-2 border rounded-md {{ $contactSendType === 'whatsapp' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-300 text-gray-700' }}">
+                                                            <span class="text-sm font-medium">WhatsApp</span>
+                                                        </button>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                @if($contactSendType === 'email')
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700">Subjek</label>
+                                                    <input type="text" wire:model="contactSubject"
+                                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                    @error('contactSubject') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                                </div>
                                                 @endif
+
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700">Pesan</label>
+                                                    <textarea wire:model="contactMessage" rows="4"
+                                                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                                                    @error('contactMessage') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                                </div>
+
+                                                <div class="flex justify-end gap-2">
+                                                    <button type="button" @click="$dispatch('close-modal', 'contact-pm-{{ $pm->id }}')"
+                                                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-sm">
+                                                        Batal
+                                                    </button>
+                                                    <button type="button" wire:click="sendContactMessage"
+                                                            class="px-4 py-2 {{ $contactSendType === 'whatsapp' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700' }} text-white rounded-md text-sm">
+                                                        {{ $contactSendType === 'whatsapp' ? 'Kirim WhatsApp' : 'Kirim Email' }}
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </x-modal>
