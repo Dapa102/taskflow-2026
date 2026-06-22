@@ -33,6 +33,11 @@ Atasan (buat tugas) → Super Admin (Global Tasks) → PM (Daftar Tugas) → Mem
 | pm | `layouts.pm` | Dashboard |
 | member | `layouts.member` | My Tasks |
 
+### 1.6. Profile & Pengaturan
+- Semua role (atasan, admin, pm, member) bisa edit profil sendiri via `/profile`
+- Field: name, email, phone (no. telepon untuk notifikasi WhatsApp)
+- Sidebar footer tiap layout: icon profile → route `profile.edit`
+
 ### 1.5. Tech Stack
 - Laravel ^11.0, Livewire ^3.0, Tailwind ^3.4, Alpine.js ^3.0, MariaDB ^10.6
 
@@ -124,6 +129,11 @@ Atasan (buat tugas) → Super Admin (Global Tasks) → PM (Daftar Tugas) → Mem
 Route::get('/dashboard', [role redirect])->name('dashboard');
 Route::get('/tasks', AllTasks::class)->name('tasks.all');
 
+// Profile (semua role)
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
 // Atasan
 Route::middleware(['role:atasan'])->prefix('atasan')->name('atasan.')->group(function () {
     Route::get('/dashboard', AtasanDashboard::class)->name('dashboard');
@@ -193,7 +203,17 @@ Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(functi
 - Tugas Saya: upload file + submit (→ pending_pm).
 - Status revision tampilkan catatan revisi.
 
-### 4.9. AllTasks (`layouts.app`)
+### 4.9. Admin\PmPerformance (`layouts.admin`)
+- Menampilkan tabel metrik kinerja PM (total tugas, done, overdue, completion rate).
+- Data di-cache 5 menit.
+- Per PM ada tombol "Hubungi" → modal popup (email / WhatsApp).
+
+### 4.10. Admin\HubungiTeam (`layouts.admin`)
+- Form compose email ke PM.
+- Pilih PM dari dropdown → tampilkan tim yang dipimpin.
+- Kirim email via SMTP.
+
+### 4.11. AllTasks (`layouts.app`)
 - Read-only daftar semua tugas untuk semua role.
 
 ---
@@ -218,22 +238,22 @@ pending_admin → done (Super Admin final)   revision → pending_pm (Member re-
 
 ### 6.1. `layouts.atasan`
 - Nav: Dashboard, Buat Tugas, Tugas Saya.
-- User footer (nama, "Atasan").
+- User footer (nama, "Atasan", icon Profile → `/profile`, Logout).
 
 ### 6.2. `layouts.admin`
 - Nav: Dashboard, Global Tasks, Daftar Tugas, PM Performance, Hubungi Team.
 - Sidebar task list.
-- User footer (nama, "Super Admin", tim).
+- User footer (nama, "Super Admin", tim, icon Profile → `/profile`, Logout).
 
 ### 6.3. `layouts.pm`
 - Nav: Dashboard.
 - Sidebar task list (tugas workspace PM).
-- User footer (nama, "Project Manager", tim).
+- User footer (nama, "Project Manager", tim, icon Profile → `/profile`, Logout).
 
 ### 6.4. `layouts.member`
 - Nav: My Tasks.
 - Sidebar task list (tugas di-assign ke member).
-- User footer (nama, "Anggota", tim).
+- User footer (nama, "Anggota", tim, icon Profile → `/profile`, Logout).
 
 ---
 
