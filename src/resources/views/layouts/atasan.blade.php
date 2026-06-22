@@ -48,13 +48,13 @@
                         <div class="text-sm font-medium text-gray-900 truncate">{{ Auth::user()->name }}</div>
                         <div class="text-xs text-gray-500">Atasan</div>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <a href="{{ route('profile.edit') }}" class="text-gray-400 hover:text-indigo-600" title="Profile">
+                    <div class="flex items-center">
+                        <a href="{{ route('profile.edit') }}" class="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-gray-100" title="Profile">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                         </a>
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ route('logout') }}" class="m-0">
                             @csrf
-                            <button type="submit" class="text-gray-400 hover:text-gray-600">
+                            <button type="submit" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                             </button>
                         </form>
