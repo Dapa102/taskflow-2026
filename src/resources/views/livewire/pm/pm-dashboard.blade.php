@@ -33,7 +33,7 @@
                     </form>
                 </div>
             @else
-                <div class="grid grid-cols-4 gap-4">
+                <div class="grid grid-cols-5 gap-4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                         <div class="text-gray-500">Total Tasks</div>
                         <div class="text-2xl font-bold">{{ $stats['total'] }}</div>
@@ -49,6 +49,27 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                         <div class="text-gray-500">Revisi</div>
                         <div class="text-2xl font-bold text-orange-600">{{ $stats['revision'] }}</div>
+                    </div>
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <div class="text-gray-500">Overdue</div>
+                        <div class="text-2xl font-bold text-rose-600">{{ $stats['overdue'] }}</div>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-white shadow sm:rounded-lg">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Overview Tugas</h3>
+                    <div x-data="{ chart: @js($chartData) }">
+                        <div class="flex items-end gap-6 h-40 px-4">
+                            <template x-for="item in chart" :key="item.label">
+                                <div class="flex-1 flex flex-col items-center justify-end h-full">
+                                    <div class="text-xs font-semibold mb-1" :style="'color: ' + item.bg" x-text="item.count"></div>
+                                    <div class="w-full rounded-t transition-all duration-300 min-h-[4px]"
+                                         :style="'height: ' + (item.count / Math.max(...chart.map(d => d.count), 1) * 100) + '%; background-color: ' + item.bg">
+                                    </div>
+                                    <span class="text-xs text-gray-500 mt-2" x-text="item.label"></span>
+                                </div>
+                            </template>
+                        </div>
                     </div>
                 </div>
 

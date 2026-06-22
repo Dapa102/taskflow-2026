@@ -14,10 +14,9 @@
 
     <!-- Animated background -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 0s"></div>
-        <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" style="animation-delay: 4s"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/50 via-transparent to-transparent"></div>
+        <div class="absolute -top-40 -left-40 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 0s"></div>
+        <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-indigo-500/5 rounded-full blur-3xl animate-pulse" style="animation-delay: 4s"></div>
     </div>
 
     <!-- Floating shapes -->
@@ -33,12 +32,14 @@
         <div id="login-card" class="bg-zinc-900/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-zinc-800/60 p-8 md:p-10 animate-fadeIn">
 
             <!-- Logo / Brand -->
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg shadow-indigo-500/25 mb-4">
-                    <span class="text-white font-bold text-2xl">K</span>
+            <div class="flex items-center justify-center gap-3 mb-8">
+                <div class="w-12 h-12 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center flex-shrink-0">
+                    <span class="text-white font-bold text-lg">K</span>
                 </div>
-                <h1 class="text-2xl font-bold text-zinc-100">Welcome Back</h1>
-                <p class="text-zinc-400 text-sm mt-1.5">Sign in to your KerjaanKu account</p>
+                <div class="text-left">
+                    <h1 class="text-xl font-bold text-zinc-100">KerjaanKu</h1>
+                    <p class="text-sm text-zinc-400">Sign in to your account</p>
+                </div>
             </div>
 
             <!-- Error Alert -->
@@ -54,51 +55,45 @@
                 <!-- Email -->
                 <div class="flex flex-col gap-1.5">
                     <label for="email" class="text-sm font-medium text-zinc-300">Email</label>
-                    <div class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
-                        <div class="relative flex items-center gap-2.5 bg-zinc-800/80 border border-zinc-700 rounded-xl px-3.5 h-12 focus-within:border-blue-500/50 transition-all duration-300">
-                            <svg class="w-5 h-5 text-zinc-500 flex-shrink-0 group-focus-within:text-blue-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                            </svg>
-                            <input
-                                id="email"
-                                type="email"
-                                placeholder="Enter your email"
-                                required
-                                autocomplete="email"
-                                class="flex-1 bg-transparent border-0 outline-none text-zinc-100 placeholder-zinc-500 h-full text-base p-0 focus:ring-0"
-                            />
-                        </div>
+                    <div class="flex items-center gap-2.5 bg-zinc-800/80 border border-zinc-700 rounded-xl px-3.5 h-12 focus-within:ring-2 focus-within:ring-indigo-500/30 focus-within:border-indigo-500/50 transition-all duration-300">
+                        <svg class="w-5 h-5 text-zinc-500 flex-shrink-0 group-focus-within:text-indigo-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
+                        <input
+                            id="email"
+                            type="email"
+                            placeholder="Enter your email"
+                            required
+                            autocomplete="email"
+                            class="flex-1 bg-transparent border-0 outline-none text-zinc-100 placeholder-zinc-500 h-full text-base p-0 focus:ring-0"
+                        />
                     </div>
                 </div>
 
                 <!-- Password -->
                 <div class="flex flex-col gap-1.5">
                     <label for="password" class="text-sm font-medium text-zinc-300">Password</label>
-                    <div class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
-                        <div class="relative flex items-center gap-2.5 bg-zinc-800/80 border border-zinc-700 rounded-xl px-3.5 h-12 focus-within:border-blue-500/50 transition-all duration-300">
-                            <svg class="w-5 h-5 text-zinc-500 flex-shrink-0 group-focus-within:text-blue-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    <div class="flex items-center gap-2.5 bg-zinc-800/80 border border-zinc-700 rounded-xl px-3.5 h-12 focus-within:ring-2 focus-within:ring-indigo-500/30 focus-within:border-indigo-500/50 transition-all duration-300">
+                        <svg class="w-5 h-5 text-zinc-500 flex-shrink-0 group-focus-within:text-indigo-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                        </svg>
+                        <input
+                            id="password"
+                            type="password"
+                            placeholder="Enter your password"
+                            required
+                            autocomplete="current-password"
+                            class="flex-1 bg-transparent border-0 outline-none text-zinc-100 placeholder-zinc-500 h-full text-base p-0 focus:ring-0"
+                        />
+                        <button type="button" id="toggle-password" class="text-zinc-500 hover:text-zinc-300 transition-colors p-1" tabindex="-1">
+                            <svg id="eye-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
                             </svg>
-                            <input
-                                id="password"
-                                type="password"
-                                placeholder="Enter your password"
-                                required
-                                autocomplete="current-password"
-                                class="flex-1 bg-transparent border-0 outline-none text-zinc-100 placeholder-zinc-500 h-full text-base p-0 focus:ring-0"
-                            />
-                            <button type="button" id="toggle-password" class="text-zinc-500 hover:text-zinc-300 transition-colors p-1" tabindex="-1">
-                                <svg id="eye-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                                </svg>
-                                <svg id="eye-off-icon" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                            </button>
-                        </div>
+                            <svg id="eye-off-icon" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -111,7 +106,7 @@
                                 type="checkbox"
                                 class="peer sr-only"
                             />
-                            <div class="w-4 h-4 border border-zinc-600 rounded bg-zinc-800 peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-all duration-200 peer-checked:[&>*]:opacity-100">
+                            <div class="w-4 h-4 border border-zinc-600 rounded bg-zinc-800 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all duration-200 peer-checked:[&>*]:opacity-100">
                                 <svg class="w-4 h-4 text-white opacity-0 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                 </svg>
@@ -119,7 +114,7 @@
                         </div>
                         <span class="text-sm text-zinc-400 group-hover:text-zinc-300 transition-colors">Remember me</span>
                     </label>
-                    <button type="button" class="text-sm text-zinc-500 hover:text-blue-400 transition-colors">
+                    <button type="button" class="text-sm text-zinc-500 hover:text-indigo-400 transition-colors">
                         Forgot password?
                     </button>
                 </div>
@@ -128,9 +123,8 @@
                 <button
                     type="submit"
                     id="submit-btn"
-                    class="relative w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:from-zinc-700 disabled:to-zinc-700 disabled:text-zinc-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 disabled:shadow-none flex items-center justify-center gap-2.5 group overflow-hidden"
+                    class="relative w-full h-12 bg-indigo-600 hover:bg-indigo-700 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-indigo-500/25 disabled:shadow-none flex items-center justify-center gap-2.5"
                 >
-                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_rgba(255,255,255,0.1)_0%,_transparent_60%)] pointer-events-none"></div>
                     <span id="btn-text">Sign In</span>
                     <svg id="btn-spinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -171,7 +165,7 @@
             <!-- Sign up link -->
             <p class="text-center text-sm text-zinc-500 mt-6">
                 Don&apos;t have an account?
-                <button type="button" class="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                <button type="button" class="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
                     Sign Up
                 </button>
             </p>

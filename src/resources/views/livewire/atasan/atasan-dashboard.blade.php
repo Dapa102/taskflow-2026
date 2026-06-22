@@ -5,7 +5,7 @@
 
     <div class="py-6 px-6">
         <div class="max-w-7xl mx-auto space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
                     <p class="text-sm text-gray-500 font-medium">Total Tugas</p>
                     <p class="text-3xl font-bold text-gray-900 mt-1">{{ $total }}</p>
@@ -21,6 +21,27 @@
                 <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
                     <p class="text-sm text-gray-500 font-medium">Selesai</p>
                     <p class="text-3xl font-bold text-green-600 mt-1">{{ $done }}</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                    <p class="text-sm text-gray-500 font-medium">Jumlah Deadline</p>
+                    <p class="text-3xl font-bold text-rose-600 mt-1">{{ $deadlineCount }}</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Overview Tugas</h3>
+                <div x-data="{ chart: @js($chartData) }">
+                    <div class="flex items-end gap-6 h-40 px-4">
+                        <template x-for="item in chart" :key="item.label">
+                            <div class="flex-1 flex flex-col items-center justify-end h-full">
+                                <div class="text-xs font-semibold mb-1" :style="'color: ' + item.bg" x-text="item.count"></div>
+                                <div class="w-full rounded-t transition-all duration-300 min-h-[4px]"
+                                     :style="'height: ' + (item.count / Math.max(...chart.map(d => d.count), 1) * 100) + '%; background-color: ' + item.bg">
+                                </div>
+                                <span class="text-xs text-gray-500 mt-2" x-text="item.label"></span>
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </div>
 

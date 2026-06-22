@@ -9,6 +9,7 @@ use App\Livewire\Admin\TaskOversight;
 use App\Livewire\Admin\PmPerformance;
 use App\Livewire\Admin\AssignTask;
 use App\Livewire\Admin\TaskList;
+use App\Livewire\Admin\UserManagement;
 use App\Livewire\Atasan\AtasanDashboard;
 use App\Livewire\Atasan\CreateTask;
 use App\Livewire\Atasan\AtasanTaskList;
@@ -52,6 +53,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/tasks', TaskList::class)->name('tasks.list');
         Route::get('/tasks/oversight/{taskId?}', TaskOversight::class)->name('tasks.oversight');
         Route::get('/assign-task', AssignTask::class)->name('assign.task');
+        Route::get('/users', UserManagement::class)->name('users');
         Route::get('/pm-performance', PmPerformance::class)->name('pm.performance');
         Route::get('/hubungi-team', \App\Livewire\Admin\HubungiTeam::class)->name('hubungi.team');
     });

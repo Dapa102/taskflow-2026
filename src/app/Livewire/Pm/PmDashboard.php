@@ -143,11 +143,25 @@ class PmDashboard extends Component
 
         $pendingReview = $tasks->where('status', 'pending_pm');
 
+        $overdue = $tasks->filter(fn($t) => $t->isOverdue())->count();
+
+        $total = $tasks->count();
+        $done = $tasks->where('status', 'done')->count();
+        $belumSelesai = $total - $done;
+        $deadlineCount = $tasks->filter(fn($t) => $t->deadline && $t->status !== 'done')->count();
+
         $stats = [
-            'total' => $tasks->count(),
-            'done' => $tasks->where('status', 'done')->count(),
+            'total' => $total,
+            'done' => $done,
             'pending_review' => $pendingReview->count(),
             'revision' => $tasks->where('status', 'revision')->count(),
+            'overdue' => $overdue,
+        ];
+
+        $chartData = [
+            ['label' => 'Belum Selesai', 'count' => $belumSelesai, 'bg' => '#6366f1'],
+            ['label' => 'Selesai', 'count' => $done, 'bg' => '#22c55e'],
+            ['label' => 'Deadline', 'count' => $deadlineCount, 'bg' => '#f43f5e'],
         ];
 
         return view('livewire.pm.pm-dashboard', [
@@ -156,6 +170,7 @@ class PmDashboard extends Component
             'tasks' => $tasks,
             'stats' => $stats,
             'pendingReview' => $pendingReview,
+            'chartData' => $chartData,
         ]);
     }
 }

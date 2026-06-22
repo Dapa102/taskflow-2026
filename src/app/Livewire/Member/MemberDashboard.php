@@ -59,10 +59,25 @@ class MemberDashboard extends Component
             ->with('team.owner')
             ->get();
 
+        $total = $tasks->count();
+        $done = $tasks->where('status', 'done')->count();
+        $belumSelesai = $total - $done;
+        $deadlineCount = $tasks->filter(fn($t) => $t->deadline && $t->status !== 'done')->count();
+
+        $chartData = [
+            ['label' => 'Belum Selesai', 'count' => $belumSelesai, 'bg' => '#6366f1'],
+            ['label' => 'Selesai', 'count' => $done, 'bg' => '#22c55e'],
+            ['label' => 'Deadline', 'count' => $deadlineCount, 'bg' => '#f43f5e'],
+        ];
+
         return view('livewire.member.member-dashboard', [
             'tasks' => $tasks,
             'pm' => $pm,
             'myTeams' => $myTeams,
+            'total' => $total,
+            'done' => $done,
+            'deadlineCount' => $deadlineCount,
+            'chartData' => $chartData,
         ]);
     }
 }

@@ -77,6 +77,38 @@
             </div>
             @endif
 
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-white shadow sm:rounded-lg p-4">
+                    <div class="text-sm text-gray-500">Total Tugas</div>
+                    <div class="text-2xl font-bold">{{ $total }}</div>
+                </div>
+                <div class="bg-white shadow sm:rounded-lg p-4">
+                    <div class="text-sm text-gray-500">Selesai</div>
+                    <div class="text-2xl font-bold text-green-600">{{ $done }}</div>
+                </div>
+                <div class="bg-white shadow sm:rounded-lg p-4">
+                    <div class="text-sm text-gray-500">Jumlah Deadline</div>
+                    <div class="text-2xl font-bold text-rose-600">{{ $deadlineCount }}</div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow sm:rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Overview Tugas</h3>
+                <div x-data="{ chart: @js($chartData) }">
+                    <div class="flex items-end gap-6 h-40 px-4">
+                        <template x-for="item in chart" :key="item.label">
+                            <div class="flex-1 flex flex-col items-center justify-end h-full">
+                                <div class="text-xs font-semibold mb-1" :style="'color: ' + item.bg" x-text="item.count"></div>
+                                <div class="w-full rounded-t transition-all duration-300 min-h-[4px]"
+                                     :style="'height: ' + (item.count / Math.max(...chart.map(d => d.count), 1) * 100) + '%; background-color: ' + item.bg">
+                                </div>
+                                <span class="text-xs text-gray-500 mt-2" x-text="item.label"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white shadow sm:rounded-lg p-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Tugas Saya</h3>
                 <div class="space-y-4">
