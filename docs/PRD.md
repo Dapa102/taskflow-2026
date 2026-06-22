@@ -209,9 +209,9 @@ Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(functi
 - Per PM ada tombol "Hubungi" → modal popup (email / WhatsApp).
 
 ### 4.10. Admin\HubungiTeam (`layouts.admin`)
-- Form compose email ke PM.
 - Pilih PM dari dropdown → tampilkan tim yang dipimpin.
-- Kirim email via SMTP.
+- Pilih metode kirim: Email (via SMTP) atau WhatsApp (via Fonnte API).
+- Form compose pesan. Kirim email via SMTP atau WhatsApp via Fonnte.
 
 ### 4.11. AllTasks (`layouts.app`)
 - Read-only daftar semua tugas untuk semua role.

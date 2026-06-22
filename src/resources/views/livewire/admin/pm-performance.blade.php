@@ -79,7 +79,7 @@
                                                     Kirim Email
                                                 </a>
                                                 @if($pm->phone)
-                                                    <a href="https://wa.me/{{ $pm->phone }}" target="_blank"
+                                                    <a href="{{ route('admin.hubungi.team') }}?recipient={{ $pm->id }}&sendType=whatsapp"
                                                        class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
                                                         WhatsApp
                                                     </a>

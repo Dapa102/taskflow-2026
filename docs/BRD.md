@@ -93,35 +93,28 @@ Empat pilar utama:
 
 ## 7. Use Case Bisnis
 
-| ID | Use Case | Aktor | Deskripsi Bisnis | Trigger | Hasil Sukses |
-|----|----------|-------|------------------|---------|--------------|
-| UC-01 | Membuat Tugas Baru | Atasan | Atasan mengisi form tugas (judul, deskripsi, prioritas, deadline) dan mengirimnya ke Super Admin untuk didistribusikan. | Atasan memiliki pekerjaan yang perlu dikerjakan tim. | Tugas masuk ke antrian Global Tasks Super Admin. |
-| UC-02 | Mendistribusikan Tugas | Super Admin | Super Admin melihat tugas dari Atasan di Global Tasks, lalu menunjuk PM yang sesuai beserta timnya. | Ada tugas baru dari Atasan yang belum memiliki PM. | Tugas terdistribusi ke PM dan tim yang tepat. |
-| UC-03 | Menugaskan Anggota Tim | PM | PM menerima tugas dari Super Admin dan menugaskannya ke anggota tim tertentu untuk dikerjakan. | PM mendapat tugas baru dari Super Admin. | Anggota tim menerima tugas dan mulai mengerjakan. |
-| UC-04 | Mengerjakan & Menyerahkan Tugas | Anggota | Anggota mengerjakan tugas, mengunggah file hasil kerja, dan mengirimkannya ke PM untuk direview. | Anggota menyelesaikan pekerjaannya. | Hasil kerja masuk ke antrian review PM. |
-| UC-05 | Mereview Hasil Kerja | PM | PM memeriksa hasil kerja anggota. Jika sesuai, approve (lanjut ke Super Admin). Jika perlu perbaikan, reject dengan catatan revisi. | Ada hasil kerja yang menunggu review. | Tugas lanjut ke final approval Super Admin atau dikembalikan ke anggota untuk revisi. |
-| UC-06 | Finalisasi Tugas | Super Admin | Super Admin melakukan persetujuan akhir untuk tugas yang sudah di-review PM, menandai tugas sebagai selesai. | Ada tugas yang sudah di-approve PM. | Tugas resmi selesai dan tercatat dalam sistem. |
-| UC-07 | Memantau Kinerja PM | Super Admin | Super Admin melihat dashboard metrik kinerja PM (total tugas, selesai, overdue, completion rate) untuk evaluasi. | Super Admin perlu mengevaluasi performa PM. | Data kinerja PM tersaji dalam bentuk tabel/metrik. |
-| UC-08 | Menghubungi Tim | Super Admin | Super Admin mengirim pesan (email/WhatsApp) ke PM atau anggota tim untuk koordinasi. | Super Admin perlu berkomunikasi dengan tim. | Pesan terkirim ke penerima. |
+### Atasan
+- **Membuat Tugas Baru**: Atasan dapat mengisi form tugas (judul, deskripsi, prioritas, deadline) dan mengirimnya ke Super Admin. Tugas akan masuk ke Global Tasks dan menunggu ditunjuk PM.
+- **Melihat Status Tugas**: Atasan dapat melihat daftar tugas yang sudah dibuat, lengkap dengan status (Sudah Diberikan / Belum Diberikan / Selesai).
+
+### Super Admin
+- **Melihat & Mendistribusikan Tugas**: Super Admin dapat melihat semua tugas dari Atasan di Global Tasks, lalu menunjuk PM yang sesuai beserta timnya untuk mengerjakan tugas tersebut.
+- **Finalisasi Tugas**: Super Admin dapat melakukan persetujuan akhir untuk tugas yang sudah di-review PM, menandai tugas sebagai selesai.
+- **Manajemen Akun**: Super Admin dapat mengelola akun pengguna (aktif/nonaktifkan).
+- **Memantau Kinerja PM**: Super Admin dapat melihat dashboard metrik kinerja PM (total tugas, selesai, overdue, completion rate).
+- **Menghubungi Tim**: Super Admin dapat mengirim pesan (email/WhatsApp) ke PM atau anggota tim untuk koordinasi.
+
+### Project Manager
+- **Menugaskan Anggota Tim**: PM dapat menerima tugas dari Super Admin dan menugaskannya ke anggota tim tertentu.
+- **Mereview Hasil Kerja**: PM dapat memeriksa hasil kerja anggota. Jika sesuai, approve (lanjut ke Super Admin). Jika perlu perbaikan, reject dengan catatan revisi.
+
+### Anggota
+- **Mengerjakan & Menyerahkan Tugas**: Anggota dapat melihat tugas yang ditugaskan, mengerjakan, mengunggah file hasil kerja, dan mengirimkannya ke PM untuk direview.
+- **Menerima Revisi**: Anggota dapat melihat catatan revisi dari PM dan mengirim ulang hasil kerja yang sudah diperbaiki.
 
 ---
 
 ## 8. Alur Proses Bisnis
-
-```mermaid
-flowchart TD
-    A[Atasan buat tugas] --> B[Super Admin lihat Global Tasks]
-    B --> C[Super Admin pilih PM & Assign]
-    C --> D[PM lihat tugas di dashboard]
-    D --> E[PM assign ke anggota]
-    E --> F[Anggota kerja & upload file]
-    F --> G{PM review}
-    G -->|Approve| H[pending_admin]
-    G -->|Revisi + catatan| I[revision]
-    I --> F
-    H --> J[Super Admin final approve]
-    J --> K[done]
-```
 
 1. **Atasan** buka Buat Tugas → isi form → Kirim → tugas masuk ke Global Tasks Super Admin.
 2. **Super Admin** lihat Global Tasks → klik Detail → pilih PM → Assign.
@@ -160,4 +153,5 @@ flowchart TD
 | 9 | Hubungi Team via modal popup | ✅ |
 | 10 | PM Performance metrics dashboard | ⏳ |
 | 11 | Notifikasi WhatsApp otomatis + manual | ✅ |
-| 12 | Notifikasi Email via compose form | ✅ |
+| 12 | Hubungi Team via WhatsApp compose | ✅ |
+| 13 | Notifikasi Email via compose form | ✅ |

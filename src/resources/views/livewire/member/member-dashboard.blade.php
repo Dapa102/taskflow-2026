@@ -51,7 +51,7 @@
                                 @if($pm->phone)
                                     <a href="https://wa.me/{{ $pm->phone }}" target="_blank"
                                        class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
-                                        WhatsApp
+                                        WhatsApp (external)
                                     </a>
                                 @endif
                             </div>

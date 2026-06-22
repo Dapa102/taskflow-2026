@@ -21,7 +21,7 @@
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="">Pilih PM</option>
                             @foreach ($recipients as $pm)
-                                <option value="{{ $pm->id }}">{{ $pm->name }} ({{ $pm->email }})</option>
+                                <option value="{{ $pm->id }}">{{ $pm->name }} ({{ $pm->email }}{{ $pm->phone ? ' - ' . $pm->phone : '' }})</option>
                             @endforeach
                         </select>
                         @error('recipientId') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
@@ -53,11 +53,27 @@
                     @endif
 
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Metode Kirim</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 px-4 py-2 border rounded-md cursor-pointer {{ $sendType === 'email' ? 'border-blue-500 bg-blue-50' : 'border-gray-300' }}">
+                                <input type="radio" wire:model="sendType" value="email" class="text-blue-600">
+                                <span class="text-sm font-medium">Email</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-4 py-2 border rounded-md cursor-pointer {{ $sendType === 'whatsapp' ? 'border-green-500 bg-green-50' : 'border-gray-300' }}">
+                                <input type="radio" wire:model="sendType" value="whatsapp" class="text-green-600">
+                                <span class="text-sm font-medium">WhatsApp</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    @if($sendType === 'email')
+                    <div>
                         <label class="block text-sm font-medium text-gray-700">Subjek</label>
                         <input type="text" wire:model="subject"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         @error('subject') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
+                    @endif
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Pesan</label>
@@ -68,8 +84,8 @@
 
                     <div class="flex justify-end">
                         <button type="submit"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                            Kirim Pesan
+                                class="px-4 py-2 {{ $sendType === 'whatsapp' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700' }} text-white rounded-md">
+                            {{ $sendType === 'whatsapp' ? 'Kirim WhatsApp' : 'Kirim Email' }}
                         </button>
                     </div>
                 </form>
