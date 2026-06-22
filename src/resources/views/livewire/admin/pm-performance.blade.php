@@ -70,20 +70,17 @@
                                                 </button>
                                             </div>
                                             <p class="text-sm text-gray-600 mb-4">
-                                                {{ $pm->email }}
-                                                @if($pm->phone) &middot; {{ $pm->phone }} @endif
+                                                {{ $pm->email }} &middot; {{ $pm->phone ?? 'belum ada nomor telepon' }}
                                             </p>
                                             <div class="space-y-3">
                                                 <a href="{{ route('admin.hubungi.team') }}?recipient={{ $pm->id }}"
                                                    class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
                                                     Kirim Email
                                                 </a>
-                                                @if($pm->phone)
                                                 <a href="{{ route('admin.hubungi.team') }}?recipient={{ $pm->id }}&sendType=whatsapp"
                                                    class="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
                                                     Kirim WhatsApp
                                                 </a>
-                                                @endif
                                             </div>
                                         </div>
                                     </x-modal>

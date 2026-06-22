@@ -152,12 +152,10 @@
                                                    class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
                                                     Kirim Email
                                                 </a>
-                                                @if($user->phone)
                                                 <a href="{{ route('admin.hubungi.team') }}?recipient={{ $user->id }}&sendType=whatsapp"
                                                    class="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
                                                     Kirim WhatsApp
                                                 </a>
-                                                @endif
                                             </div>
                                         </div>
                                     </x-modal>
