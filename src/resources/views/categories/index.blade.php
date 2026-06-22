@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Categories - TaskFlow')
+@section('title', 'Kategori - KerjaanKu')
 
 @section('content')
 <div x-data="categoriesPage" class="max-w-4xl mx-auto px-4 py-6 pb-24">

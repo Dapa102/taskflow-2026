@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Laravel') }}</title>
+    <link rel="icon" href="{{ asset('images/logo.svg') }}" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -12,13 +13,13 @@
 <body class="font-sans antialiased">
     <div class="min-h-screen flex bg-gray-100">
         <!-- Sidebar -->
-        <aside class="w-72 bg-white border-r border-gray-200 flex flex-col shrink-0">
+        <aside class="w-72 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0">
             <div class="h-16 flex items-center px-6 border-b border-gray-200">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5">
                     <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <span class="text-white font-bold text-sm">T</span>
+                        <span class="text-white font-bold text-sm">K</span>
                     </div>
-                    <span class="font-bold text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">TaskFlow</span>
+                    <span class="font-bold text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">KerjaanKu</span>
                 </a>
             </div>
 
