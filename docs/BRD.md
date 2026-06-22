@@ -108,6 +108,21 @@ Empat pilar utama:
 
 ## 8. Alur Proses Bisnis
 
+```mermaid
+flowchart TD
+    A[Atasan buat tugas] --> B[Super Admin lihat Global Tasks]
+    B --> C[Super Admin pilih PM & Assign]
+    C --> D[PM lihat tugas di dashboard]
+    D --> E[PM assign ke anggota]
+    E --> F[Anggota kerja & upload file]
+    F --> G{PM review}
+    G -->|Approve| H[pending_admin]
+    G -->|Revisi + catatan| I[revision]
+    I --> F
+    H --> J[Super Admin final approve]
+    J --> K[done]
+```
+
 1. **Atasan** buka Buat Tugas → isi form → Kirim → tugas masuk ke Global Tasks Super Admin.
 2. **Super Admin** lihat Global Tasks → klik Detail → pilih PM → Assign.
 3. **PM** lihat tugas baru di dashboard → klik "Assign" → pilih anggota → anggota kerja.
