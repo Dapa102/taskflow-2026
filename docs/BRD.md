@@ -1,157 +1,347 @@
-# BUSINESS REQUIREMENT DOCUMENT (BRD) - REVISI FINAL
-## Collaborative Task Management System (3-Level Hierarchy)
+# BUSINESS REQUIREMENT DOCUMENT (BRD)
+## TaskFlow — Sistem Manajemen Tugas Kolaboratif 4-Level Hierarki
 
 ---
 
-**Versi:** 8.0 (Atasan → Super Admin → PM → Member)
-**Tanggal:** 21 Juni 2026
+**Versi:** 1.0
+**Tanggal:** 24 Juni 2026
 **Status:** Final untuk Stakeholder
 
 ---
 
 ## 1. Ringkasan Eksekutif
 
-Dokumen ini menguraikan persyaratan untuk pengembangan aplikasi kolaborasi tim untuk tim kecil (3-10 orang). Sistem memiliki hierarki 3-level: **Atasan → Super Admin → Project Manager → Anggota**.
+Dokumen ini menguraikan kebutuhan bisnis untuk pengembangan **TaskFlow**, yaitu sistem manajemen tugas kolaboratif berbasis web yang dirancang untuk organisasi dengan struktur hierarki 4-level: **Atasan, Super Admin, Project Manager, dan Anggota**.
 
-Empat pilar utama:
-1. **Atasan** — membuat tugas dan mengirim ke Super Admin.
-2. **Super Admin** — menerima tugas dari Atasan, menunjuk Project Manager, final approval.
-3. **Project Manager** — mengelola tugas tim, meninjau hasil kerja anggota.
-4. **Anggota** — mengerjakan tugas, mengunggah hasil, menerima revisi.
+Sistem ini memungkinkan alur distribusi tugas yang terstruktur—mulai dari pembuatan tugas oleh Atasan, distribusi melalui Super Admin, penugasan oleh Project Manager, pengerjaan oleh Anggota, hingga review dan finalisasi. Setiap perubahan status tugas tercatat dengan audit trail yang jelas, memastikan akuntabilitas dan transparansi di setiap tahap.
+
+Dengan TaskFlow, organisasi dapat mengelola tugas secara lebih teratur, memantau progres secara real-time, dan memastikan setiap tugas terselesaikan tepat waktu melalui mekanisme review dan revisi yang terdefinisi.
 
 ---
 
 ## 2. Latar Belakang dan Justifikasi Bisnis
 
-- **Konteks:** Organisasi dengan atasan yang memberi arahan ke super admin, lalu didistribusikan ke PM dan anggota.
-- **Permasalahan:** Tidak ada pemisahan antara pembuat tugas (Atasan) dan distributor tugas (Super Admin).
-- **Solusi:** Hierarki 3-level dengan alur Atasan → Super Admin → PM → Anggota.
+### 2.1 Konteks
+Dalam organisasi yang memiliki struktur hierarki, proses distribusi tugas sering kali melibatkan banyak pihak—dari pemberi arahan hingga pelaksana di lapangan. Namun, tanpa sistem yang terstruktur, tugas sering hilang, tidak jelas statusnya, atau tidak ada akuntabilitas yang jelas.
+
+### 2.2 Permasalahan
+- Tidak ada alur distribusi tugas yang baku—tugas sering berpindah secara informal via chat/email.
+- Sulit melacak status tugas: apakah sudah dikerjakan, sedang direview, atau masih menunggu.
+- Tidak ada catatan audit (siapa mengubah status, kapan, dan alasannya).
+- Atasan tidak memiliki visibilitas penuh terhadap tugas yang sudah diberikan.
+- Proses review dan revisi tidak terdokumentasi, sehingga terjadi pengulangan pekerjaan yang tidak perlu.
+
+### 2.3 Solusi yang Diusulkan
+Membangun sistem manajemen tugas berbasis web dengan fitur:
+- Alur distribusi 4-level: **Atasan → Super Admin → PM → Anggota**.
+- Status tugas yang jelas (8 status) dengan audit trail setiap perubahan.
+- Mekanisme review dan revisi antara PM dan Anggota.
+- Upload file hasil kerja oleh Anggota (max 10 MB).
+- Dashboard per role dengan navigasi sidebar khusus.
+- Notifikasi otomatis via WhatsApp dan Email.
+- Manajemen akun pengguna oleh Super Admin.
+- Dashboard kinerja PM untuk evaluasi oleh Super Admin.
 
 ---
 
 ## 3. Tujuan Bisnis
 
-- Alur tugas terstruktur 3-level (Atasan → Admin → PM → Anggota).
-- Visibilitas penuh bagi Atasan terhadap tugas yang sudah diberikan.
-- Akuntabilitas setiap role dalam siklus tugas.
-- Sidebar navigasi khusus per role.
+- Menyediakan alur distribusi tugas yang **terstruktur dan terdokumentasi**.
+- Memastikan **akuntabilitas** setiap peran (siapa bertanggung jawab atas apa).
+- Memberikan **visibilitas penuh** kepada Atasan terhadap status tugas di setiap tahap.
+- Memudahkan proses **review dan revisi** antara PM dan Anggota.
+- Menyediakan **audit trail** yang lengkap untuk setiap perubahan status tugas.
+- Membantu **evaluasi kinerja PM** melalui metrik yang terukur.
 
 ---
 
 ## 4. Ruang Lingkup
 
-**A. Modul Atasan:**
+### 4.1 Dashboard Atasan
 - Membuat tugas dan mengirim ke Super Admin.
-- Melihat status tugas (Sudah Diberikan/Belum Diberikan/Selesai).
+- Memantau status tugas (dari awal hingga selesai).
+- Melihat riwayat tugas yang pernah dibuat.
 
-**B. Modul Super Admin:**
-- Melihat tugas dari Atasan di Global Tasks.
-- Menunjuk PM untuk tugas dari Atasan.
-- Persetujuan final tugas yang sudah direview PM.
-- Manajemen akun pengguna.
+### 4.2 Dashboard Super Admin
+- Melihat **Global Tasks** (semua tugas dari Atasan).
+- Menunjuk **Project Manager** untuk setiap tugas.
+- Memberikan **persetujuan akhir** (final approval) untuk tugas yang sudah di-review PM.
+- Mengelola akun pengguna (aktivasi/suspend).
+- Memantau **kinerja PM** (total tugas, selesai, overdue, completion rate).
 
-**C. Modul Project Manager:**
+### 4.3 Dashboard Project Manager
 - Menerima tugas dari Super Admin.
-- Menugaskan tugas ke anggota tim.
-- Mereview hasil kerja anggota (approve/reject).
+- Menugaskan tugas ke Anggota tim.
+- **Mereview** hasil kerja anggota:
+  - **Approve** → lanjut ke Super Admin untuk final approval.
+  - **Reject** + catatan revisi → dikembalikan ke Anggota.
+- Memantau progres tugas timnya.
 
-**D. Modul Anggota:**
-- Melihat tugas yang ditugaskan.
-- Mengerjakan dan mengunggah hasil (file).
-- Menerima revisi dari PM.
+### 4.4 Dashboard Anggota
+- Melihat daftar tugas yang ditugaskan.
+- Mengerjakan tugas dan **mengunggah file** hasil kerja (PDF, DOC, DOCX, ZIP, XLSX, JPG, PNG).
+- Menerima catatan revisi dari PM dan mengunggah ulang hasil revisi.
+
+### 4.5 Manajemen Status Tugas (Alur Status)
+| Status | Deskripsi | Peran |
+|--------|-----------|-------|
+| `draft` | Tugas baru dibuat oleh Atasan | Atasan |
+| `assigned_pm` | Super Admin menunjuk PM | Super Admin |
+| `assigned_member` | PM menugaskan ke Anggota | PM |
+| `pending_pm` | Anggota selesai & menunggu review PM | PM |
+| `revision` | PM meminta revisi | PM → Anggota |
+| `pending_admin` | PM approve → menunggu final Super Admin | Super Admin |
+| `done` | Super Admin final approve — selesai | Super Admin |
+
+### 4.6 Ruang Lingkup yang Tidak Termasuk (Out of Scope)
+- Aplikasi mobile Android/iOS.
+- Integrasi pembayaran online.
+- Sistem notifikasi real-time (WebSocket).
+- Manajemen proyek multi-workspace (1 PM ↔ 1 workspace di MVP).
 
 ---
 
 ## 5. Stakeholders dan Pengguna
 
-| Stakeholder | Peran |
-|-------------|-------|
-| **Atasan** | Membuat tugas, memantau distribusi. |
-| **Super Admin** | Menerima tugas, menunjuk PM, final approval. |
-| **Project Manager** | Mengelola tim, menugaskan & mereview tugas anggota. |
-| **Anggota** | Mengerjakan tugas, upload hasil, menerima revisi. |
+| Stakeholder | Peran dan Tanggung Jawab |
+|-------------|---------------------------|
+| **Atasan** | Membuat tugas, memantau status tugas dari awal hingga selesai, dan memastikan tugas yang diberikan terselesaikan tepat waktu. |
+| **Super Admin** | Mendistribusikan tugas dari Atasan ke PM, memberikan final approval, mengelola akun pengguna, dan memantau kinerja PM. |
+| **Project Manager** | Menerima tugas dari Super Admin, menugaskan ke Anggota, melakukan review hasil kerja, dan menyetujui/menolak dengan catatan revisi. |
+| **Anggota** | Mengerjakan tugas, mengunggah file hasil kerja, dan merespons catatan revisi dari PM. |
 
 ---
 
 ## 6. Persyaratan Fungsional
 
+### 6.1 Manajemen Akun & Peran
 | Kode | Kebutuhan | Prioritas |
 |------|-----------|-----------|
-| F-01 | Atasan dapat membuat tugas dan mengirim ke Super Admin. | Wajib |
-| F-02 | Super Admin melihat tugas dari Atasan di Global Tasks. | Wajib |
-| F-03 | Super Admin dapat menunjuk PM untuk tugas dari Atasan. | Wajib |
-| F-04 | Saat memilih PM, muncul tim yang dipimpin. | Wajib |
-| F-05 | PM dapat menugaskan tugas ke anggota tim. | Wajib |
-| F-06 | Anggota dapat mengerjakan dan mengupload file. | Wajib |
-| F-07 | PM dapat approve tugas anggota → pending admin. | Wajib |
-| F-08 | PM dapat reject tugas anggota → revision. | Wajib |
-| F-09 | Super Admin dapat final approve → done. | Wajib |
-| F-10 | Setiap role memiliki sidebar dengan navigasi. | Wajib |
-| F-11 | Status Global Tasks: Sudah Diberikan / Belum Diberikan. | Wajib |
+| F-01 | Pengguna dapat mendaftar (role: Atasan, Super Admin, PM, Anggota). | Wajib |
+| F-02 | Pengguna dapat login dengan email dan password. | Wajib |
+| F-03 | Pengguna dapat logout. | Wajib |
+| F-04 | Sistem memiliki middleware `CheckRole` untuk membatasi akses peran. | Wajib |
+| F-05 | Sistem memiliki middleware `CheckActive` untuk menolak akses akun nonaktif. | Wajib |
+
+### 6.2 Manajemen Tugas
+| Kode | Kebutuhan | Prioritas |
+|------|-----------|-----------|
+| F-06 | **Atasan** dapat membuat tugas (judul, deskripsi, prioritas, deadline) dan mengirim ke Super Admin. | Wajib |
+| F-07 | **Super Admin** dapat melihat Global Tasks dan menunjuk PM. | Wajib |
+| F-08 | **Super Admin** dapat memberikan final approval (`done`). | Wajib |
+| F-09 | **PM** dapat menugaskan tugas ke Anggota. | Wajib |
+| F-10 | **PM** dapat mereview hasil kerja (approve → pending_admin / reject + catatan → revision). | Wajib |
+| F-11 | **Anggota** dapat melihat tugas yang ditugaskan. | Wajib |
+| F-12 | **Anggota** dapat mengunggah file hasil kerja dan submit. | Wajib |
+| F-13 | **Anggota** dapat merespons revisi dan mengunggah ulang. | Wajib |
+
+### 6.3 Sidebar Navigasi per Role
+| Kode | Kebutuhan | Prioritas |
+|------|-----------|-----------|
+| F-14 | Setiap peran memiliki sidebar navigasi yang berbeda sesuai tanggung jawabnya. | Wajib |
+| F-15 | Atasan: Dashboard, Buat Tugas, Riwayat Tugas. | Wajib |
+| F-16 | Super Admin: Dashboard, Global Tasks, Kelola Pengguna, PM Performance. | Wajib |
+| F-17 | PM: Dashboard, Tugas Tim, Review. | Wajib |
+| F-18 | Anggota: Dashboard, Tugas Saya. | Wajib |
+
+### 6.4 Dashboard Kinerja PM (Super Admin)
+| Kode | Kebutuhan | Prioritas |
+|------|-----------|-----------|
+| F-19 | Super Admin dapat melihat metrik kinerja setiap PM. | Wajib |
+| F-20 | Metrik mencakup: total tugas, selesai, overdue, completion rate (%). | Wajib |
+
+### 6.5 Notifikasi
+| Kode | Kebutuhan | Prioritas |
+|------|-----------|-----------|
+| F-21 | Sistem mengirim notifikasi WhatsApp otomatis saat status tugas berubah (asinkron). | Wajib |
+| F-22 | Sistem mengirim notifikasi Email otomatis saat status tugas berubah. | Wajib |
+
+### 6.6 Audit Trail
+| Kode | Kebutuhan | Prioritas |
+|------|-----------|-----------|
+| F-23 | Setiap perubahan status tugas tercatat (siapa, kapan, dari status apa ke status apa). | Wajib |
+
+### 6.7 Manajemen Pengguna (Super Admin)
+| Kode | Kebutuhan | Prioritas |
+|------|-----------|-----------|
+| F-24 | Super Admin dapat melihat daftar semua pengguna. | Wajib |
+| F-25 | Super Admin dapat mengaktifkan/menonaktifkan akun pengguna. | Wajib |
 
 ---
 
-## 7. Use Case Bisnis
+## 7. Persyaratan Non-Fungsional (Kualitatif)
 
-### Atasan
-- **Membuat Tugas Baru**: Atasan dapat mengisi form tugas (judul, deskripsi, prioritas, deadline) dan mengirimnya ke Super Admin. Tugas akan masuk ke Global Tasks dan menunggu ditunjuk PM.
-- **Melihat Status Tugas**: Atasan dapat melihat daftar tugas yang sudah dibuat, lengkap dengan status (Sudah Diberikan / Belum Diberikan / Selesai).
-
-### Super Admin
-- **Melihat & Mendistribusikan Tugas**: Super Admin dapat melihat semua tugas dari Atasan di Global Tasks, lalu menunjuk PM yang sesuai beserta timnya untuk mengerjakan tugas tersebut.
-- **Finalisasi Tugas**: Super Admin dapat melakukan persetujuan akhir untuk tugas yang sudah di-review PM, menandai tugas sebagai selesai.
-- **Manajemen Akun**: Super Admin dapat mengelola akun pengguna (aktif/nonaktifkan).
-- **Memantau Kinerja PM**: Super Admin dapat melihat dashboard metrik kinerja PM (total tugas, selesai, overdue, completion rate).
-- **Menghubungi Tim**: Super Admin dapat mengirim pesan (email/WhatsApp) ke PM atau anggota tim untuk koordinasi.
-
-### Project Manager
-- **Menugaskan Anggota Tim**: PM dapat menerima tugas dari Super Admin dan menugaskannya ke anggota tim tertentu.
-- **Mereview Hasil Kerja**: PM dapat memeriksa hasil kerja anggota. Jika sesuai, approve (lanjut ke Super Admin). Jika perlu perbaikan, reject dengan catatan revisi.
-
-### Anggota
-- **Mengerjakan & Menyerahkan Tugas**: Anggota dapat melihat tugas yang ditugaskan, mengerjakan, mengunggah file hasil kerja, dan mengirimkannya ke PM untuk direview.
-- **Menerima Revisi**: Anggota dapat melihat catatan revisi dari PM dan mengirim ulang hasil kerja yang sudah diperbaiki.
+| Kode | Kualitas | Ekspektasi Bisnis |
+|------|----------|-------------------|
+| N-01 | **Keamanan & Privasi** | Setiap peran hanya dapat mengakses data sesuai hak aksesnya (RBAC + Policy). |
+| N-02 | **Reliabilitas** | Uptime minimal 99% selama jam operasional (08.00–22.00). |
+| N-03 | **Kecepatan** | Halaman utama tampil < 3 detik di jaringan 4G. |
+| N-04 | **Kemudahan Penggunaan** | Antarmuka intuitif dengan navigasi yang jelas per role. |
+| N-05 | **Audit Trail** | Semua perubahan status tugas tercatat secara permanen. |
+| N-06 | **Kompatibilitas** | Dapat diakses melalui browser modern (Chrome, Firefox, Edge, Safari) di desktop dan smartphone. |
 
 ---
 
-## 8. Alur Proses Bisnis
+## 8. Arsitektur Tingkat Tinggi
 
-1. **Atasan** buka Buat Tugas → isi form → Kirim → tugas masuk ke Global Tasks Super Admin.
-2. **Super Admin** lihat Global Tasks → klik Detail → pilih PM → Assign.
-3. **PM** lihat tugas baru di dashboard → klik "Assign" → pilih anggota → anggota kerja.
-4. **Anggota** kerja → klik "Selesai & Upload" → upload file → status `pending_pm`.
-5. **PM** review → **Approve** (→ `pending_admin`) atau **Revisi** + catatan (→ `revision`).
-6. **Super Admin** lihat tugas `pending_admin` → klik "Selesai" → `done`.
-
----
-
-## 9. Teknologi
-
-- **Framework:** Laravel Fullstack (Blade + Livewire).
-- **Database:** MariaDB.
-- **Frontend:** Tailwind CSS, Alpine.js.
-- **Autentikasi:** Session-based (Laravel Breeze).
-- **Layout:** Sidebar per role (atasan, admin, pm, member).
-- **Notifikasi:** WhatsApp via Fonnte API (token di `.env`), Email via SMTP.
-- **Kolom `phone`:** Sudah ada di tabel `users` (nullable, max 20 char). User isi sendiri via halaman profil.
-
-> **Catatan:** `FONNTE_TOKEN` sudah diisi di `.env`. Config (`config/fonnte.php`) siap digunakan. User bisa isi nomor WA sendiri di halaman profil untuk mengaktifkan notifikasi WhatsApp.
+- **Back-end:** Laravel 11 (PHP 8.2+)
+- **Panel/Admin UI:** Filament (untuk Super Admin)
+- **Front-end:** Blade, Tailwind CSS 3.4, Alpine.js 3.0, Livewire 3
+- **Database:** MariaDB 10.6 (InnoDB)
+- **Autentikasi:** Laravel Breeze (session-based)
+- **Build Tool:** Vite
+- **Web Server:** Nginx
+- **Containerization:** Docker Compose (PHP-FPM + Nginx + MariaDB)
+- **Notifikasi:** WhatsApp via Fonnte API, Email via SMTP
 
 ---
 
-## 10. Kriteria Penerimaan
+## 9. Model Data (Ringkas)
+
+- **users:** id, name, email, password, role, is_active, phone, created_at, updated_at
+- **workspaces:** id, pm_id (user_id), name, description, created_at, updated_at
+- **workspace_members:** id, workspace_id, user_id, joined_at
+- **tasks:** id, created_by (user_id atasan), assigned_pm (user_id), assigned_member (user_id), workspace_id, title, description, priority (low/medium/high), deadline, status (draft/assigned_pm/assigned_member/pending_pm/revision/pending_admin/done), file_path, file_original_name, review_notes, created_at, updated_at
+- **task_status_histories:** id, task_id, status, from_status, to_status, changed_by (user_id), notes, created_at
+
+---
+
+## 10. Alur Proses Bisnis (Ringkas)
+
+1. **Atasan** membuat tugas → status `draft` → masuk ke Global Tasks Super Admin.
+2. **Super Admin** membuka Global Tasks → melihat detail → menunjuk PM → status `assigned_pm`.
+3. **PM** menerima tugas → menugaskan ke Anggota → status `assigned_member`.
+4. **Anggota** melihat tugas → mengerjakan → mengunggah file → submit → status `pending_pm`.
+5. **PM** mereview hasil:
+   - **Approve** → status `pending_admin` → masuk ke Super Admin.
+   - **Reject** + catatan revisi → status `revision` → kembali ke Anggota.
+6. **Anggota** menerima revisi → memperbaiki → upload ulang → status kembali `pending_pm`.
+7. **Super Admin** membuka tugas `pending_admin` → final approve → status `done`.
+
+> Notifikasi otomatis dikirim setiap kali status berubah.
+
+---
+
+## 11. Teknologi
+
+- **Back-end:** Laravel 11 (PHP 8.2+)
+- **Panel/Admin UI:** Filament (Super Admin)
+- **Front-end:** Blade, Tailwind CSS 3.4, Alpine.js 3.0, Livewire 3
+- **Database:** MariaDB 10.6 (InnoDB)
+- **Autentikasi:** Laravel Breeze (session-based)
+- **Build Tool:** Vite
+- **Web Server:** Nginx
+- **Containerization:** Docker Compose
+- **Version Control:** Git & GitHub
+- **Notifikasi:** WhatsApp (Fonnte API), Email (SMTP)
+
+---
+
+## 12. Asumsi
+
+- Setiap Atasan memiliki akses untuk membuat tugas.
+- Super Admin bertindak sebagai pengelola utama platform.
+- Setiap PM memimpin 1 workspace (tim) dan bertanggung jawab atas anggota timnya.
+- Anggota hanya bertugas pada satu tim.
+- File yang diunggah oleh Anggota memiliki format yang didukung.
+- Proses review oleh PM dilakukan dalam waktu yang wajar setelah Anggota submit.
+- Notifikasi WhatsApp dan Email dikirim secara asinkron (tidak menghambat alur utama).
+
+---
+
+## 13. Risiko & Mitigasi
+
+| Risiko | Mitigasi |
+|--------|----------|
+| PM tidak melakukan review tepat waktu | Dashboard PM menampilkan indikator tugas yang menunggu review. Super Admin dapat memantau. |
+| Anggota tidak mengunggah file sesuai format | Sistem membatasi ekstensi file yang diperbolehkan (pdf, doc, docx, zip, xlsx, jpg, png) dan maksimal 10 MB. |
+| Tugas tidak selesai tepat waktu | Deadlines terlihat jelas di dashboard, dan sistem menandai overdue. |
+| Kesalahan penunjukan PM oleh Super Admin | Super Admin dapat melihat daftar PM dan workspace-nya sebelum menunjuk. |
+| Kehilangan data tugas | Database backup rutin. |
+| Notifikasi gagal terkirim | Sistem mencatat log pengiriman; admin dapat melihat dan mengirim ulang secara manual. |
+
+---
+
+## 14. Kriteria Penerimaan
 
 | No | Kriteria | Status |
 |----|----------|--------|
-| 1 | Atasan buat tugas, masuk ke Global Tasks Admin | ✅ |
-| 2 | Super Admin assign tugas dari Atasan ke PM | ✅ |
-| 3 | PM assign tugas ke anggota | ✅ |
-| 4 | Anggota upload file + submit | ✅ |
-| 5 | PM approve → pending_admin | ✅ |
-| 6 | PM reject + catatan → revision | ✅ |
-| 7 | Super Admin final approve → done | ✅ |
-| 9 | Hubungi Team via modal popup | ✅ |
-| 10 | PM Performance metrics dashboard | ⏳ |
-| 11 | Notifikasi WhatsApp otomatis + manual | ✅ |
-| 12 | Hubungi Team via WhatsApp compose | ✅ |
-| 13 | Notifikasi Email via compose form | ✅ |
+| 1 | Atasan dapat membuat tugas dan mengirim ke Super Admin. | ✅ Wajib |
+| 2 | Super Admin dapat menunjuk PM untuk tugas dari Atasan. | ✅ Wajib |
+| 3 | PM dapat menugaskan tugas ke Anggota. | ✅ Wajib |
+| 4 | Anggota dapat melihat tugas yang ditugaskan dan mengunggah file. | ✅ Wajib |
+| 5 | PM dapat approve → pending_admin atau reject + catatan → revision. | ✅ Wajib |
+| 6 | Super Admin dapat final approve → done. | ✅ Wajib |
+| 7 | Setiap perubahan status tercatat dalam audit trail. | ✅ Wajib |
+| 8 | Notifikasi WhatsApp dan Email terkirim otomatis saat status berubah. | ✅ Wajib |
+| 9 | Super Admin dapat melihat daftar pengguna dan mengaktifkan/menonaktifkan akun. | ✅ Wajib |
+| 10 | Super Admin dapat melihat dashboard kinerja PM. | ✅ Wajib |
+
+---
+
+## 15. Use Case Diagram
+
+### 15.1 Daftar Aktor
+
+| No | Aktor | Peran |
+|----|-------|-------|
+| 1 | **Atasan** | Membuat tugas dan memantau statusnya. |
+| 2 | **Super Admin** | Mendistribusikan tugas, final approval, dan mengelola akun. |
+| 3 | **Project Manager** | Menugaskan tugas, mereview hasil, approve/reject. |
+| 4 | **Anggota** | Mengerjakan tugas, upload file, respons revisi. |
+
+### 15.2 Daftar Use Case
+
+#### A. Use Case untuk Atasan
+
+| Kode | Nama Use Case | Deskripsi |
+|------|---------------|-----------|
+| UC-01 | Membuat Tugas Baru | Mengisi form tugas (judul, deskripsi, prioritas, deadline) dan mengirim ke Super Admin. |
+| UC-02 | Memantau Status Tugas | Melihat daftar tugas yang dibuat beserta statusnya (dari awal hingga selesai). |
+
+#### B. Use Case untuk Super Admin
+
+| Kode | Nama Use Case | Deskripsi |
+|------|---------------|-----------|
+| UC-03 | Melihat Global Tasks | Melihat semua tugas yang masuk dari Atasan. |
+| UC-04 | Menunjuk Project Manager | Memilih PM yang bertanggung jawab atas tugas. |
+| UC-05 | Final Approval | Memberikan persetujuan akhir untuk tugas yang sudah di-review PM. |
+| UC-06 | Mengelola Akun Pengguna | Mengaktifkan/menonaktifkan akun. |
+| UC-07 | Memantau Kinerja PM | Melihat dashboard metrik kinerja PM. |
+
+#### C. Use Case untuk Project Manager
+
+| Kode | Nama Use Case | Deskripsi |
+|------|---------------|-----------|
+| UC-08 | Menugaskan Anggota | Memilih Anggota untuk mengerjakan tugas. |
+| UC-09 | Mereview Hasil Kerja | Memeriksa file hasil kerja Anggota. |
+| UC-10 | Menyetujui Hasil Kerja | Approve → status `pending_admin`. |
+| UC-11 | Menolak Hasil Kerja | Reject + catatan → status `revision`. |
+
+#### D. Use Case untuk Anggota
+
+| Kode | Nama Use Case | Deskripsi |
+|------|---------------|-----------|
+| UC-12 | Melihat Tugas Saya | Melihat daftar tugas yang ditugaskan. |
+| UC-13 | Mengerjakan & Mengunggah File | Upload file hasil kerja dan submit. |
+| UC-14 | Merespons Revisi | Menerima catatan revisi dan mengunggah ulang. |
+
+### 15.3 Relasi Include / Extend
+
+| Use Case Utama | Relasi | Use Case Terkait | Alasan |
+|----------------|--------|------------------|--------|
+| UC-01 (Membuat Tugas) | **<<include>>** | Validasi Data | Judul wajib diisi. |
+| UC-04 (Menunjuk PM) | **<<include>>** | Lihat Detail Tugas | Admin harus lihat detail sebelum menunjuk PM. |
+| UC-08 (Menugaskan Anggota) | **<<include>>** | Lihat Anggota Tim | PM harus lihat daftar anggota sebelum assign. |
+| UC-09 (Mereview Hasil) | **<<include>>** | Lihat File Upload | PM harus lihat file sebelum memutuskan. |
+| UC-11 (Menolak Hasil) | **<<extend>>** | Kirim Catatan Revisi | Hanya jika reject (opsional). |
+
+---
+
+**Status BRD:** ✅ **SIAP UNTUK DIVALIDASI STAKEHOLDER DAN DITERUSKAN KE TIM ENGINEERING.**
+
+---
+
+Dengan BRD ini, seluruh alur bisnis TaskFlow—dari pembuatan tugas oleh Atasan hingga finalisasi oleh Super Admin—terdokumentasi dengan jelas. Setiap peran memiliki fungsi dan tanggung jawab yang terdefinisi, dan alur status tugas (8 status) memastikan transparansi di setiap tahap. 
+
+Silakan gunakan dokumen ini sebagai acuan untuk pengembangan! 🚀
