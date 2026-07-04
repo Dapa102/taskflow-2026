@@ -179,7 +179,7 @@
                                 <div class="shrink-0 ml-4">
                                     @if($task->status === 'assigned_member' || $task->status === 'revision')
                                         <div class="space-y-2">
-                                            <input type="file" wire:model="upload.{{ $task->id }}" class="text-xs w-40">
+                                            <input type="file" wire:model="upload.{{ $task->id }}" accept=".pdf,.doc,.docx,.zip,.xlsx,.xls,.jpg,.jpeg,.png" class="text-xs w-40">
                                             @error("upload.{$task->id}") <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
                                             <button wire:click="submitTask({{ $task->id }})"
                                                 wire:loading.attr="disabled"
