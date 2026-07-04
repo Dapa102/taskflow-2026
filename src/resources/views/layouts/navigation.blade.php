@@ -26,8 +26,13 @@
                 </div>
             </div>
 
+            <!-- Notification Bell -->
+            <div class="hidden sm:flex sm:items-center">
+                @livewire('notification-bell')
+            </div>
+
             <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ms-2">
                 <div class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold mr-4 uppercase">
                     {{ Auth::user()->role }}
                 </div>
