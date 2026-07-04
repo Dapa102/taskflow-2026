@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard - KerjaanKu')
+@section('title', 'Dashboard - TaskFlow')
 
 @section('content')
 <div x-data="dashboard" class="max-w-4xl mx-auto px-4 py-6 pb-24">

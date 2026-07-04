@@ -5,7 +5,7 @@
             <div class="w-8 h-8 bg-gradient-to-br from-violet-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/20">
                 <span class="text-white font-bold text-sm">K</span>
             </div>
-            <span class="font-bold text-lg hidden sm:block bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">KerjaanKu</span>
+            <span class="font-bold text-lg hidden sm:block bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">TaskFlow</span>
         </a>
 
         <nav class="hidden md:flex items-center gap-1">

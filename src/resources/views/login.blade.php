@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>KerjaanKu - Sign In</title>
+    <title>TaskFlow - Sign In</title>
     <link rel="icon" href="{{ asset('images/logo.svg') }}" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800" rel="stylesheet"/>
@@ -37,7 +37,7 @@
                     <span class="text-white font-bold text-lg">K</span>
                 </div>
                 <div class="text-left">
-                    <h1 class="text-xl font-bold text-zinc-100">KerjaanKu</h1>
+                    <h1 class="text-xl font-bold text-zinc-100">TaskFlow</h1>
                     <p class="text-sm text-zinc-400">Sign in to your account</p>
                 </div>
             </div>

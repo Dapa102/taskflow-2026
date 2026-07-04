@@ -22,7 +22,7 @@
                         <span class="text-white font-bold text-lg">K</span>
                     </div>
                     <div class="text-left">
-                        <h1 class="text-xl font-bold text-gray-900">KerjaanKu</h1>
+                        <h1 class="text-xl font-bold text-gray-900">TaskFlow</h1>
                         <p class="text-sm text-gray-500">Daily Task Management</p>
                     </div>
                 </a>

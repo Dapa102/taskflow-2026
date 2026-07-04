@@ -1,6 +1,6 @@
 {
-    "name": "KerjaanKu",
-    "short_name": "KerjaanKu",
+    "name": "TaskFlow",
+    "short_name": "TaskFlow",
     "description": "Daily Task Management System",
     "start_url": "/dashboard",
     "display": "standalone",

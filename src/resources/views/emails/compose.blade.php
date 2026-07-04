@@ -4,7 +4,7 @@
 {{ $body }}
 
 <x-mail::button :url="url('/login')">
-Buka KerjaanKu
+Buka TaskFlow
 </x-mail::button>
 
 Terima kasih,<br>
