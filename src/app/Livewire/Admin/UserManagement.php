@@ -5,10 +5,18 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use App\Models\User;
 use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Hash;
 
 #[Layout('layouts.admin')]
 class UserManagement extends Component
 {
+    public $showCreateForm = false;
+    public $name;
+    public $email;
+    public $password;
+    public $role = 'member';
+    public $phone;
+
     public function toggleUserStatus($userId)
     {
         if (auth()->id() == $userId) {
@@ -21,6 +29,29 @@ class UserManagement extends Component
             $user->update(['is_active' => !$user->is_active]);
             session()->flash('message', 'User status updated.');
         }
+    }
+
+    public function createUser()
+    {
+        $this->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'role' => 'required|in:pm,member,admin',
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        User::create([
+            'name' => $this->name,
+            'email' => $this->email,
+            'password' => Hash::make($this->password),
+            'role' => $this->role,
+            'phone' => $this->phone,
+            'is_active' => true,
+        ]);
+
+        session()->flash('message', 'User created successfully.');
+        $this->reset(['name', 'email', 'password', 'role', 'phone', 'showCreateForm']);
     }
 
     public function render()
