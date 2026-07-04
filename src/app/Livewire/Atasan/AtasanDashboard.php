@@ -5,7 +5,6 @@ namespace App\Livewire\Atasan;
 use Livewire\Component;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\Team;
 use App\Models\Workspace;
 use Livewire\Attributes\Layout;
 
@@ -22,25 +21,31 @@ class AtasanDashboard extends Component
     public function render()
     {
         $userId = auth()->id();
+        $baseQuery = Task::where('created_by', $userId);
 
-        $total = Task::where('created_by', $userId)->count();
-        $given = Task::where('created_by', $userId)->whereNotNull('assigned_to')->count();
-        $pending = Task::where('created_by', $userId)->whereNull('assigned_to')->count();
-        $done = Task::where('created_by', $userId)->where('status', 'done')->count();
-        $belumSelesai = $total - $done;
-        $deadlineCount = Task::where('created_by', $userId)
+        $total = (clone $baseQuery)->count();
+        $draft = (clone $baseQuery)->where('status', 'draft')->count();
+        $assignedPm = (clone $baseQuery)->where('status', 'assigned_pm')->count();
+        $inProgress = (clone $baseQuery)->whereIn('status', ['assigned_member', 'pending_pm', 'revision'])->count();
+        $pendingAdmin = (clone $baseQuery)->where('status', 'pending_admin')->count();
+        $pendingArbitration = (clone $baseQuery)->where('status', 'pending_arbitration')->count();
+        $done = (clone $baseQuery)->where('status', 'done')->count();
+        $deadlineCount = (clone $baseQuery)
             ->whereNotNull('deadline')
-            ->where('status', '!=', 'done')
+            ->whereNotIn('status', ['done', 'cancelled'])
             ->count();
 
         $chartData = [
-            ['label' => 'Belum Selesai', 'count' => $belumSelesai, 'bg' => '#6366f1'],
+            ['label' => 'Draft', 'count' => $draft, 'bg' => '#9ca3af'],
+            ['label' => 'Dikerjakan', 'count' => $inProgress, 'bg' => '#6366f1'],
+            ['label' => 'Menunggu Approval', 'count' => $pendingAdmin, 'bg' => '#a855f7'],
+            ['label' => 'Arbitrase', 'count' => $pendingArbitration, 'bg' => '#ef4444'],
             ['label' => 'Selesai', 'count' => $done, 'bg' => '#22c55e'],
-            ['label' => 'Deadline', 'count' => $deadlineCount, 'bg' => '#f43f5e'],
         ];
 
         $pms = User::where('role', 'pm')
-            ->with(['workspace', 'teams.members.user'])
+            ->with(['workspace'])
+            ->where('is_active', true)
             ->get()
             ->map(fn($pm) => [
                 'id' => $pm->id,
@@ -48,15 +53,14 @@ class AtasanDashboard extends Component
                 'email' => $pm->email,
                 'phone' => $pm->phone,
                 'workspace' => $pm->workspace,
-                'teams' => $pm->teams->map(fn($team) => [
-                    'id' => $team->id,
-                    'name' => $team->name,
-                    'member_count' => $team->members->count(),
-                    'members' => $team->members->map(fn($m) => [
-                        'name' => $m->user?->name ?? 'Unknown',
-                        'role' => $m->role,
-                    ]),
-                ]),
+                'active_tasks' => Task::where('assigned_pm_id', $pm->id)
+                    ->whereNotIn('status', ['done', 'cancelled'])->count(),
+                'pending_review' => Task::where('assigned_pm_id', $pm->id)
+                    ->where('status', 'pending_pm')->count(),
+                'overdue' => Task::where('assigned_pm_id', $pm->id)
+                    ->whereNotIn('status', ['done', 'cancelled'])
+                    ->whereNotNull('deadline')
+                    ->where('deadline', '<', now())->count(),
             ]);
 
         $selectedPm = null;
@@ -66,8 +70,11 @@ class AtasanDashboard extends Component
 
         return view('livewire.atasan.atasan-dashboard', [
             'total' => $total,
-            'given' => $given,
-            'pending' => $pending,
+            'draft' => $draft,
+            'assignedPm' => $assignedPm,
+            'inProgress' => $inProgress,
+            'pendingAdmin' => $pendingAdmin,
+            'pendingArbitration' => $pendingArbitration,
             'done' => $done,
             'deadlineCount' => $deadlineCount,
             'chartData' => $chartData,

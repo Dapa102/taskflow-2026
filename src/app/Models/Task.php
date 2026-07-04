@@ -15,6 +15,9 @@ class Task extends Model
         'workspace_id',
         'created_by',
         'assigned_to',
+        'recommended_pm_id',
+        'assigned_pm_id',
+        'assigned_member_id',
         'reviewed_by',
         'team_id',
         'title',
@@ -23,10 +26,22 @@ class Task extends Model
         'status',
         'priority',
         'deadline',
+        'submitted_at',
+        'escalated_at',
+        'revision_counter',
+        'max_revision_limit',
+        'cancellation_note',
+        'arbitration_decision',
+        'file_path',
+        'file_original_name',
     ];
 
     protected $casts = [
         'deadline' => 'date',
+        'submitted_at' => 'datetime',
+        'escalated_at' => 'datetime',
+        'revision_counter' => 'integer',
+        'max_revision_limit' => 'integer',
     ];
 
     public function workspace(): BelongsTo
@@ -44,6 +59,21 @@ class Task extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    public function recommendedPm(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'recommended_pm_id');
+    }
+
+    public function assignedPm(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_pm_id');
+    }
+
+    public function assignedMember(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_member_id');
+    }
+
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
@@ -59,8 +89,24 @@ class Task extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(TaskStatusHistory::class);
+    }
+
+    public function inboxNotifications(): HasMany
+    {
+        return $this->hasMany(InboxNotification::class);
+    }
+
     public function isOverdue(): bool
     {
-        return $this->deadline && $this->deadline->isPast() && !in_array($this->status, ['done', 'pending_admin']);
+        return $this->deadline && $this->deadline->isPast()
+            && !in_array($this->status, ['done', 'cancelled', 'pending_admin']);
+    }
+
+    public function isRevisiLocked(): bool
+    {
+        return $this->revision_counter >= $this->max_revision_limit;
     }
 }

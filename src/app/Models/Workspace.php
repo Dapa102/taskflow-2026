@@ -14,6 +14,7 @@ class Workspace extends Model
 
     protected $fillable = [
         'pm_id',
+        'deputy_pm_id',
         'name',
         'description',
     ];
@@ -21,6 +22,11 @@ class Workspace extends Model
     public function pm(): BelongsTo
     {
         return $this->belongsTo(User::class, 'pm_id');
+    }
+
+    public function deputyPm(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deputy_pm_id');
     }
 
     public function members(): BelongsToMany

@@ -1,6 +1,6 @@
 <div>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard Atasan</h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard Super Admin</h2>
     </x-slot>
 
     <div class="py-6 px-6">
@@ -11,20 +11,20 @@
                     <p class="text-3xl font-bold text-gray-900 mt-1">{{ $total }}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
-                    <p class="text-sm text-gray-500 font-medium">Belum Diberikan</p>
-                    <p class="text-3xl font-bold text-yellow-600 mt-1">{{ $pending }}</p>
+                    <p class="text-sm text-gray-500 font-medium">Perlu Approval</p>
+                    <p class="text-3xl font-bold text-purple-600 mt-1">{{ $pendingAdmin }}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
-                    <p class="text-sm text-gray-500 font-medium">Sudah Diberikan</p>
-                    <p class="text-3xl font-bold text-blue-600 mt-1">{{ $given }}</p>
+                    <p class="text-sm text-gray-500 font-medium">Arbitrase</p>
+                    <p class="text-3xl font-bold text-red-600 mt-1">{{ $pendingArbitration }}</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                    <p class="text-sm text-gray-500 font-medium">Sedang Dikerjakan</p>
+                    <p class="text-3xl font-bold text-indigo-600 mt-1">{{ $inProgress }}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
                     <p class="text-sm text-gray-500 font-medium">Selesai</p>
                     <p class="text-3xl font-bold text-green-600 mt-1">{{ $done }}</p>
-                </div>
-                <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
-                    <p class="text-sm text-gray-500 font-medium">Jumlah Deadline</p>
-                    <p class="text-3xl font-bold text-rose-600 mt-1">{{ $deadlineCount }}</p>
                 </div>
             </div>
 
@@ -46,7 +46,7 @@
             </div>
 
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Project Manager</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Beban Kerja Project Manager</h3>
                 @if($pms->isEmpty())
                     <p class="text-sm text-gray-500">Belum ada Project Manager.</p>
                 @else
@@ -62,7 +62,13 @@
                                         <p class="font-medium text-gray-900 truncate">{{ $pm['name'] }}</p>
                                         <p class="text-xs text-gray-500 truncate">{{ $pm['email'] }}</p>
                                     </div>
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                                <div class="mt-2 flex gap-2 text-xs">
+                                    <span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">{{ $pm['active_tasks'] }} aktif</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-600">{{ $pm['pending_review'] }} review</span>
+                                    @if($pm['overdue'] > 0)
+                                    <span class="px-2 py-0.5 rounded-full bg-red-50 text-red-600">{{ $pm['overdue'] }} terlambat</span>
+                                    @endif
                                 </div>
                             </button>
                         @endforeach
@@ -95,30 +101,20 @@
                                 </div>
                             @endif
 
-                            @foreach($selectedPm['teams'] as $team)
-                                <div class="mb-3 last:mb-0 p-3 bg-white/70 rounded-lg border border-indigo-100">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <p class="text-sm font-semibold text-gray-900">{{ $team['name'] }}</p>
-                                        <span class="text-xs text-gray-500">{{ $team['member_count'] }} anggota</span>
-                                    </div>
-                                    @if($team['members']->isNotEmpty())
-                                        <div class="flex flex-wrap gap-1.5">
-                                            @foreach($team['members'] as $member)
-                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium {{ $member['role'] === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700' }}">
-                                                    {{ $member['name'] }}
-                                                    @if($member['role'] === 'admin')
-                                                        <span class="text-purple-400">(PM)</span>
-                                                    @endif
-                                                </span>
-                                            @endforeach
-                                        </div>
-                                    @endif
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="p-3 bg-white/70 rounded-lg border border-indigo-100 text-center">
+                                    <p class="text-2xl font-bold text-indigo-600">{{ $selectedPm['active_tasks'] }}</p>
+                                    <p class="text-xs text-gray-500">Tugas Aktif</p>
                                 </div>
-                            @endforeach
-
-                            @if(!$selectedPm['workspace'] && $selectedPm['teams']->isEmpty())
-                                <p class="text-sm text-gray-500 italic">Belum memiliki workspace atau tim.</p>
-                            @endif
+                                <div class="p-3 bg-white/70 rounded-lg border border-indigo-100 text-center">
+                                    <p class="text-2xl font-bold text-yellow-600">{{ $selectedPm['pending_review'] }}</p>
+                                    <p class="text-xs text-gray-500">Menunggu Review</p>
+                                </div>
+                                <div class="p-3 bg-white/70 rounded-lg border border-indigo-100 text-center">
+                                    <p class="text-2xl font-bold text-red-600">{{ $selectedPm['overdue'] }}</p>
+                                    <p class="text-xs text-gray-500">Terlambat</p>
+                                </div>
+                            </div>
                         </div>
                     @endif
                 @endif

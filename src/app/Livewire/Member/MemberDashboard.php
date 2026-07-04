@@ -5,9 +5,9 @@ namespace App\Livewire\Member;
 use Livewire\Component;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\Attachment;
 use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
+use App\Services\TaskStatusHistoryService;
 
 #[Layout('layouts.member')]
 class MemberDashboard extends Component
@@ -23,7 +23,7 @@ class MemberDashboard extends Component
             "upload.{$taskId}" => 'required|file|max:10240|mimes:pdf,doc,docx,zip,xlsx,xls,jpg,jpeg,png',
         ]);
 
-        $task = Task::where('assigned_to', auth()->id())->findOrFail($taskId);
+        $task = Task::where('assigned_member_id', auth()->id())->findOrFail($taskId);
 
         $file = $this->upload[$taskId];
         $path = $file->store('task-submissions', 'public');
@@ -36,7 +36,14 @@ class MemberDashboard extends Component
             'mime_type' => $file->getMimeType(),
         ]);
 
-        $task->update(['status' => 'pending_pm']);
+        app(TaskStatusHistoryService::class)->transition(
+            $task, 'pending_pm', 'Tugas diserahkan oleh anggota'
+        );
+
+        $task->update([
+            'status' => 'pending_pm',
+            'submitted_at' => now(),
+        ]);
 
         session()->flash('message', 'Tugas selesai dikerjakan. Menunggu review PM.');
         $this->reset('upload');
@@ -44,8 +51,8 @@ class MemberDashboard extends Component
 
     public function render()
     {
-        $tasks = Task::where('assigned_to', auth()->id())
-            ->with('workspace', 'attachments', 'creator')
+        $tasks = Task::where('assigned_member_id', auth()->id())
+            ->with(['workspace', 'attachments', 'creator', 'assignedPm'])
             ->latest()
             ->get();
 
@@ -63,6 +70,7 @@ class MemberDashboard extends Component
         $done = $tasks->where('status', 'done')->count();
         $belumSelesai = $total - $done;
         $deadlineCount = $tasks->filter(fn($t) => $t->deadline && $t->status !== 'done')->count();
+        $revisionCount = $tasks->where('status', 'revision')->count();
 
         $chartData = [
             ['label' => 'Belum Selesai', 'count' => $belumSelesai, 'bg' => '#6366f1'],
@@ -77,6 +85,7 @@ class MemberDashboard extends Component
             'total' => $total,
             'done' => $done,
             'deadlineCount' => $deadlineCount,
+            'revisionCount' => $revisionCount,
             'chartData' => $chartData,
         ]);
     }

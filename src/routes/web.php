@@ -26,6 +26,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         $role = auth()->user()->role;
         if ($role === 'pm') return redirect()->route('pm.dashboard');
         if ($role === 'member') return redirect()->route('member.dashboard');
+        if ($role === 'super_admin') return redirect()->route('super-admin.dashboard');
         if ($role === 'admin') return redirect()->route('admin.dashboard');
         if ($role === 'atasan') return redirect()->route('atasan.dashboard');
         return view('dashboard');
@@ -43,6 +44,12 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     });
 
     Route::middleware(['role:atasan'])->prefix('atasan')->name('atasan.')->group(function () {
+        Route::get('/dashboard', AtasanDashboard::class)->name('dashboard');
+        Route::get('/create-task', CreateTask::class)->name('create.task');
+        Route::get('/tasks', AtasanTaskList::class)->name('tasks');
+    });
+
+    Route::middleware(['role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
         Route::get('/dashboard', AtasanDashboard::class)->name('dashboard');
         Route::get('/create-task', CreateTask::class)->name('create.task');
         Route::get('/tasks', AtasanTaskList::class)->name('tasks');

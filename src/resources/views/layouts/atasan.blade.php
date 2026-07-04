@@ -13,8 +13,12 @@
 <body class="font-sans antialiased">
     <div class="min-h-screen flex bg-gray-100">
         <aside class="w-72 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0">
+            @php
+                $prefix = Auth::user()->role === 'super_admin' ? 'super-admin' : 'atasan';
+                $routePrefix = Auth::user()->role === 'super_admin' ? 'super-admin' : 'atasan';
+            @endphp
             <div class="h-16 flex items-center px-6 border-b border-gray-200">
-                <a href="{{ route('atasan.dashboard') }}" class="flex items-center gap-2.5">
+                <a href="{{ route("{$routePrefix}.dashboard") }}" class="flex items-center gap-2.5">
                     <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
                         <span class="text-white font-bold text-sm">K</span>
                     </div>
@@ -23,18 +27,18 @@
             </div>
 
             <nav class="flex-1 overflow-y-auto px-4 pt-4 pb-2 space-y-1">
-                <a href="{{ route('atasan.dashboard') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('atasan.dashboard') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
+                <a href="{{ route("{$routePrefix}.dashboard") }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs("{$routePrefix}.dashboard") ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                     Dashboard
                 </a>
-                <a href="{{ route('atasan.create.task') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('atasan.create.task') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
+                <a href="{{ route("{$routePrefix}.create.task") }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs("{$routePrefix}.create.task") ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Buat Tugas
                 </a>
-                <a href="{{ route('atasan.tasks') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('atasan.tasks') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
+                <a href="{{ route("{$routePrefix}.tasks") }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs("{$routePrefix}.tasks") ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                     Tugas Saya
                 </a>
@@ -47,7 +51,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="text-sm font-medium text-gray-900 truncate">{{ Auth::user()->name }}</div>
-                        <div class="text-xs text-gray-500">Atasan</div>
+                        <div class="text-xs text-gray-500 capitalize">{{ str_replace('_', ' ', Auth::user()->role) }}</div>
                     </div>
                     <div class="flex items-center">
                         <a href="{{ route('profile.edit') }}" class="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-gray-100" title="Profile">

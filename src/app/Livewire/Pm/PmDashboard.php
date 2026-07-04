@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Workspace;
 use App\Models\User;
 use App\Models\Task;
+use App\Services\TaskStatusHistoryService;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.pm')]
@@ -87,16 +88,20 @@ class PmDashboard extends Component
         $workspace = auth()->user()->workspace;
         if (!$workspace) return;
 
-        $task = Task::where('workspace_id', $workspace->id)->findOrFail($taskId);
+        $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
 
         if (!$workspace->members()->where('user_id', $this->assignMemberId)->exists()) {
             session()->flash('error', 'Member must be in your workspace.');
             return;
         }
 
+        app(TaskStatusHistoryService::class)->transition(
+            $task, 'assigned_member', "Ditugaskan ke {$this->assignMemberId}"
+        );
+
         $task->update([
+            'assigned_member_id' => $this->assignMemberId,
             'assigned_to' => $this->assignMemberId,
-            'status' => 'on_progress',
         ]);
 
         session()->flash('message', 'Task assigned to member.');
@@ -108,7 +113,7 @@ class PmDashboard extends Component
         $workspace = auth()->user()->workspace;
         if (!$workspace) return;
 
-        $task = Task::where('workspace_id', $workspace->id)->findOrFail($taskId);
+        $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
         $task->update([
             'status' => 'pending_admin',
             'reviewed_by' => auth()->id(),
@@ -124,7 +129,7 @@ class PmDashboard extends Component
         $workspace = auth()->user()->workspace;
         if (!$workspace) return;
 
-        $task = Task::where('workspace_id', $workspace->id)->findOrFail($taskId);
+        $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
         $task->update([
             'status' => 'revision',
             'review_note' => $this->reviewNote,
@@ -139,10 +144,17 @@ class PmDashboard extends Component
     {
         $workspace = auth()->user()->workspace;
         $members = $workspace ? $workspace->members : collect();
-        $tasks = $workspace ? $workspace->tasks()->with('assignee', 'creator', 'reviewedBy')->latest()->get() : collect();
 
+        $tasks = $workspace
+            ? Task::where('assigned_pm_id', auth()->id())
+                ->with(['assignedMember', 'assignedPm', 'creator', 'reviewedBy', 'attachments'])
+                ->latest()
+                ->get()
+            : collect();
+
+        $incomingTasks = $tasks->where('status', 'assigned_pm');
+        $activeTasks = $tasks->whereIn('status', ['assigned_member', 'pending_pm', 'revision']);
         $pendingReview = $tasks->where('status', 'pending_pm');
-
         $overdue = $tasks->filter(fn($t) => $t->isOverdue())->count();
 
         $total = $tasks->count();
@@ -150,12 +162,20 @@ class PmDashboard extends Component
         $belumSelesai = $total - $done;
         $deadlineCount = $tasks->filter(fn($t) => $t->deadline && $t->status !== 'done')->count();
 
+        // Member workload (F-19)
+        $memberWorkload = $members->map(fn($m) => [
+            'user' => $m,
+            'active_tasks' => Task::where('assigned_member_id', $m->id)
+                ->whereNotIn('status', ['done', 'cancelled'])->count(),
+        ]);
+
         $stats = [
             'total' => $total,
             'done' => $done,
             'pending_review' => $pendingReview->count(),
             'revision' => $tasks->where('status', 'revision')->count(),
             'overdue' => $overdue,
+            'incoming' => $incomingTasks->count(),
         ];
 
         $chartData = [
@@ -168,9 +188,12 @@ class PmDashboard extends Component
             'workspace' => $workspace,
             'members' => $members,
             'tasks' => $tasks,
+            'incomingTasks' => $incomingTasks,
+            'activeTasks' => $activeTasks,
             'stats' => $stats,
             'pendingReview' => $pendingReview,
             'chartData' => $chartData,
+            'memberWorkload' => $memberWorkload,
         ]);
     }
 }

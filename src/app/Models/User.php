@@ -18,6 +18,7 @@ class User extends Authenticatable
         'name',
         'email',
         'phone',
+        'nomor_whatsapp',
         'password',
         'role',
         'is_active',
@@ -42,6 +43,11 @@ class User extends Authenticatable
         return $this->hasOne(Workspace::class, 'pm_id');
     }
 
+    public function deputyWorkspace(): HasOne
+    {
+        return $this->hasOne(Workspace::class, 'deputy_pm_id');
+    }
+
     public function memberWorkspaces(): BelongsToMany
     {
         return $this->belongsToMany(Workspace::class, 'workspace_members', 'user_id', 'workspace_id')
@@ -53,14 +59,54 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class, 'assigned_to');
     }
-    
+
     public function createdTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'created_by');
     }
 
+    public function pmTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_pm_id');
+    }
+
+    public function memberTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_member_id');
+    }
+
+    public function recommendedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'recommended_pm_id');
+    }
+
     public function teams(): HasMany
     {
         return $this->hasMany(Team::class, 'owner_id');
+    }
+
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(TaskStatusHistory::class, 'changed_by');
+    }
+
+    public function inboxNotifications(): HasMany
+    {
+        return $this->hasMany(InboxNotification::class);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+    public function isPm(): bool
+    {
+        return $this->role === 'pm';
+    }
+
+    public function isMember(): bool
+    {
+        return $this->role === 'member';
     }
 }
