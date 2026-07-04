@@ -98,15 +98,16 @@
 
             <div class="bg-white shadow sm:rounded-lg p-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Overview Tugas</h3>
-                <div x-data="{ chart: @js($chartData) }">
-                    <div class="flex items-end gap-6 h-40 px-4">
+                <div x-data="{ chart: @js($chartData) }" class="flex flex-wrap items-center gap-6">
+                    <div class="w-56 h-56 mx-auto">
+                        <canvas x-chart="chart"></canvas>
+                    </div>
+                    <div class="flex-1 min-w-[180px] space-y-2">
                         <template x-for="item in chart" :key="item.label">
-                            <div class="flex-1 flex flex-col items-center justify-end h-full">
-                                <div class="text-xs font-semibold mb-1" :style="'color: ' + item.bg" x-text="item.count"></div>
-                                <div class="w-full rounded-t transition-all duration-300 min-h-[4px]"
-                                     :style="'height: ' + (item.count / Math.max(...chart.map(d => d.count), 1) * 100) + '%; background-color: ' + item.bg">
-                                </div>
-                                <span class="text-xs text-gray-500 mt-2" x-text="item.label"></span>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full shrink-0" :style="'background:' + item.bg"></span>
+                                <span class="text-sm text-gray-600 flex-1" x-text="item.label"></span>
+                                <span class="text-sm font-semibold text-gray-900" x-text="item.count"></span>
                             </div>
                         </template>
                     </div>

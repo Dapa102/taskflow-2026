@@ -73,9 +73,12 @@ class MemberDashboard extends Component
         $revisionCount = $tasks->where('status', 'revision')->count();
 
         $chartData = [
-            ['label' => 'Belum Selesai', 'count' => $belumSelesai, 'bg' => '#6366f1'],
+            ['label' => 'Dikerjakan', 'count' => $tasks->where('status', 'assigned_member')->count(), 'bg' => '#6366f1'],
+            ['label' => 'Menunggu Review', 'count' => $tasks->where('status', 'pending_pm')->count(), 'bg' => '#eab308'],
+            ['label' => 'Revisi', 'count' => $revisionCount, 'bg' => '#f97316'],
+            ['label' => 'Menunggu Approval', 'count' => $tasks->where('status', 'pending_admin')->count(), 'bg' => '#a855f7'],
+            ['label' => 'Arbitrase', 'count' => $tasks->where('status', 'pending_arbitration')->count(), 'bg' => '#ef4444'],
             ['label' => 'Selesai', 'count' => $done, 'bg' => '#22c55e'],
-            ['label' => 'Deadline', 'count' => $deadlineCount, 'bg' => '#f43f5e'],
         ];
 
         return view('livewire.member.member-dashboard', [
