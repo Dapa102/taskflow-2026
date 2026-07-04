@@ -10,7 +10,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 
-#[Layout('layouts.admin')]
+#[Layout('layouts.super-admin')]
 class TaskOversight extends Component
 {
     use WithPagination;

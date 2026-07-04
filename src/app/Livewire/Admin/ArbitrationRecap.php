@@ -7,7 +7,7 @@ use App\Models\Task;
 use App\Models\TaskStatusHistory;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.admin')]
+#[Layout('layouts.super-admin')]
 class ArbitrationRecap extends Component
 {
     public $selectedTaskId = null;

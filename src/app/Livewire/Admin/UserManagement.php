@@ -7,7 +7,7 @@ use App\Models\User;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Hash;
 
-#[Layout('layouts.admin')]
+#[Layout('layouts.super-admin')]
 class UserManagement extends Component
 {
     public $showCreateForm = false;

@@ -10,7 +10,7 @@ use App\Models\Team;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.admin')]
+#[Layout('layouts.super-admin')]
 class TaskList extends Component
 {
     use WithPagination;

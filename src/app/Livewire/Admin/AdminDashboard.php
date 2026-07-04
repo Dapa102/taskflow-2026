@@ -9,7 +9,7 @@ use App\Models\Task;
 use App\Models\Team;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.admin')]
+#[Layout('layouts.super-admin')]
 class AdminDashboard extends Component
 {
     public function render()

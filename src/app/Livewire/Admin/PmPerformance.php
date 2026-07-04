@@ -8,7 +8,7 @@ use App\Models\Task;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.admin')]
+#[Layout('layouts.super-admin')]
 class PmPerformance extends Component
 {
     public function render()

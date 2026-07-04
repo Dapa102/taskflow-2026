@@ -8,7 +8,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.admin')]
+#[Layout('layouts.super-admin')]
 class ComposeEmail extends Component
 {
     public string $recipientId = '';

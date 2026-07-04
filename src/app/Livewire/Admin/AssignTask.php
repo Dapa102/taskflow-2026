@@ -9,7 +9,7 @@ use App\Models\Task;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Hash;
 
-#[Layout('layouts.admin')]
+#[Layout('layouts.super-admin')]
 class AssignTask extends Component
 {
     public $title = '';
