@@ -18,18 +18,24 @@
         <div class="max-w-7xl mx-auto space-y-6">
 
             <div class="flex justify-between items-center">
-                <select wire:model.live="statusFilter" class="border-gray-300 rounded-md shadow-sm text-sm">
-                    <option value="all">Semua Status</option>
-                    <option value="draft">Draft</option>
-                    <option value="assigned_pm">Dikirim ke PM</option>
-                    <option value="assigned_member">Dikerjakan Anggota</option>
-                    <option value="pending_pm">Menunggu Review PM</option>
-                    <option value="revision">Revisi</option>
-                    <option value="pending_arbitration">Arbitrase</option>
-                    <option value="pending_admin">Menunggu Approval</option>
-                    <option value="done">Selesai</option>
-                    <option value="cancelled">Dibatalkan</option>
-                </select>
+                <div class="flex gap-2 items-center">
+                    <select wire:model.live="statusFilter" class="border-gray-300 rounded-md shadow-sm text-sm">
+                        <option value="all">Semua Status</option>
+                        <option value="draft">Draft</option>
+                        <option value="assigned_pm">Dikirim ke PM</option>
+                        <option value="assigned_member">Dikerjakan Anggota</option>
+                        <option value="pending_pm">Menunggu Review PM</option>
+                        <option value="revision">Revisi</option>
+                        <option value="pending_arbitration">Arbitrase</option>
+                        <option value="pending_admin">Menunggu Approval</option>
+                        <option value="done">Selesai</option>
+                        <option value="cancelled">Dibatalkan</option>
+                    </select>
+                    <label class="flex items-center gap-1 text-sm text-gray-600 cursor-pointer">
+                        <input type="checkbox" wire:model.live="escalatedFilter" class="rounded border-gray-300 text-red-600">
+                        Eskalasi PM
+                    </label>
+                </div>
                 <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari tugas..." class="border-gray-300 rounded-md shadow-sm text-sm">
             </div>
 
@@ -54,7 +60,12 @@
                                 <div class="text-sm font-medium text-gray-900">{{ $task->title }}</div>
                                 <div class="text-xs text-gray-500 truncate max-w-[200px]">{{ $task->description }}</div>
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-500">{{ $task->assignedPm->name ?? ($task->recommendedPm->name ?? 'Belum ditugaskan') }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-500">
+                                {{ $task->assignedPm->name ?? ($task->recommendedPm->name ?? 'Belum ditugaskan') }}
+                                @if($task->escalated_at)
+                                    <span class="ml-1 px-1.5 py-0.5 text-xs bg-red-100 text-red-700 rounded font-bold">Eskalasi</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3">
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full
                                     @switch($status = $task->status)
@@ -122,6 +133,11 @@
                                 @if($task->status === 'pending_arbitration')
                                 <button wire:click="confirmArbitration({{ $task->id }}, 'approve')" class="text-green-600 hover:text-green-800 text-xs font-medium">Setujui</button>
                                 <button wire:click="confirmArbitration({{ $task->id }}, 'reject')" class="text-orange-600 hover:text-orange-800 text-xs font-medium">Tolak</button>
+                                @endif
+                                @if($task->escalated_at && $task->status === 'pending_pm')
+                                <button wire:click="approveEscalatedTask({{ $task->id }})" wire:confirm="Setujui langsung (bypass PM)?" class="text-green-600 hover:text-green-800 text-xs font-medium">Setujui</button>
+                                <button wire:click="rejectEscalatedTask({{ $task->id }})" wire:confirm="Kembalikan ke anggota untuk revisi?" class="text-orange-600 hover:text-orange-800 text-xs font-medium">Tolak</button>
+                                <button wire:click="confirmReassign({{ $task->id }})" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Pindahkan</button>
                                 @endif
                                 @if(!in_array($task->status, ['done', 'cancelled']))
                                 <button wire:click="confirmCancel({{ $task->id }})" class="text-red-600 hover:text-red-800 text-xs font-medium">Batalkan</button>
@@ -226,6 +242,31 @@
                 <button wire:click="executeArbitration" class="px-4 py-2 text-sm text-white rounded-lg {{ $arbitrationAction === 'approve' ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700' }}">
                     {{ $arbitrationAction === 'approve' ? 'Ya, Setujui' : 'Ya, Kembalikan' }}
                 </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- Modal Pindahkan PM --}}
+    @if($showReassignModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" wire:click.self="showReassignModal = false">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
+            <div class="p-4 border-b">
+                <h3 class="text-lg font-semibold text-blue-600">Pindahkan ke PM Lain</h3>
+            </div>
+            <div class="p-4 space-y-3">
+                <p class="text-sm text-gray-600">Pilih PM baru untuk tugas ini. Tugas akan dikirim ulang ke PM baru.</p>
+                <select wire:model="reassignPmId" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
+                    <option value="">Pilih PM...</option>
+                    @foreach(\App\Models\User::where('role', 'pm')->where('is_active', true)->get() as $pm)
+                        <option value="{{ $pm->id }}">{{ $pm->name }}</option>
+                    @endforeach
+                </select>
+                @error('reassignPmId') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+            </div>
+            <div class="flex justify-end gap-2 p-4 border-t bg-gray-50">
+                <button wire:click="$set('showReassignModal', false)" class="px-4 py-2 text-sm bg-white border rounded-lg hover:bg-gray-50">Tutup</button>
+                <button wire:click="reassignPm" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">Pindahkan</button>
             </div>
         </div>
     </div>

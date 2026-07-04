@@ -25,6 +25,10 @@ class AtasanTaskList extends Component
     public $showArbitrationModal = false;
     public $arbitrationTaskId = null;
     public $arbitrationAction = null;
+    public $escalatedFilter = false;
+    public $showReassignModal = false;
+    public $reassignTaskId = null;
+    public $reassignPmId = null;
 
     public function updatingStatusFilter() { $this->resetPage(); }
     public function updatingSearch() { $this->resetPage(); }
@@ -115,10 +119,78 @@ class AtasanTaskList extends Component
         $this->reset(['arbitrationTaskId', 'arbitrationAction', 'arbitrationNote', 'showArbitrationModal']);
     }
 
+    public function approveEscalatedTask($taskId)
+    {
+        $task = Task::where('created_by', auth()->id())
+            ->where('status', 'pending_pm')
+            ->whereNotNull('escalated_at')
+            ->findOrFail($taskId);
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, 'done', 'Eskalasi: disetujui langsung oleh Super Admin'
+        );
+
+        session()->flash('message', 'Tugas eskalasi disetujui (bypass PM).');
+    }
+
+    public function rejectEscalatedTask($taskId)
+    {
+        $task = Task::where('created_by', auth()->id())
+            ->where('status', 'pending_pm')
+            ->whereNotNull('escalated_at')
+            ->findOrFail($taskId);
+
+        $newCounter = $task->revision_counter + 1;
+        $task->update([
+            'review_note' => 'Ditolak via eskalasi oleh Super Admin',
+            'revision_counter' => $newCounter,
+        ]);
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, 'revision', "Eskalasi: ditolak Super Admin, kembali ke revisi ({$newCounter}/{$task->max_revision_limit})"
+        );
+
+        session()->flash('message', 'Tugas eskalasi dikembalikan ke revisi.');
+    }
+
+    public function confirmReassign($taskId)
+    {
+        $this->reassignTaskId = $taskId;
+        $this->reassignPmId = null;
+        $this->showReassignModal = true;
+    }
+
+    public function reassignPm()
+    {
+        $this->validate(['reassignPmId' => 'required|exists:users,id']);
+
+        $task = Task::where('created_by', auth()->id())
+            ->whereNotNull('escalated_at')
+            ->findOrFail($this->reassignTaskId);
+
+        $oldPm = $task->assignedPm?->name ?? 'unknown';
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, 'assigned_pm', "Eskalasi: dipindahkan dari {$oldPm} ke PM #{$this->reassignPmId}"
+        );
+
+        $task->update([
+            'assigned_pm_id' => $this->reassignPmId,
+            'escalated_at' => null,
+        ]);
+
+        session()->flash('message', 'Tugas dipindahkan ke PM baru.');
+        $this->reset(['reassignTaskId', 'reassignPmId', 'showReassignModal']);
+    }
+
     public function render()
     {
         $query = Task::with(['workspace', 'assignee', 'assignedPm', 'assignedMember', 'attachments.user'])
             ->where('created_by', auth()->id());
+
+        if ($this->escalatedFilter) {
+            $query->whereNotNull('escalated_at');
+        }
 
         if ($this->search) {
             $query->where('title', 'like', '%' . $this->search . '%');
