@@ -72,7 +72,7 @@ class TaskOversight extends Component
     {
         $query = Task::with(['workspace', 'assignee', 'creator', 'attachments'])
             ->whereHas('creator', function ($q) {
-                $q->where('role', 'atasan');
+                $q->where('role', 'super_admin');
             });
 
         if ($this->search) {

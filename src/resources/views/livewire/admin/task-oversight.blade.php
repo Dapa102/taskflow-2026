@@ -75,7 +75,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada tugas dari atasan.</td>
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada tugas dari Super Admin.</td>
                             </tr>
                             @endforelse
                         </tbody>
