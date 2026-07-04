@@ -117,7 +117,7 @@
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Tugas Saya</h3>
                 <div class="space-y-4">
                     @forelse($tasks as $task)
-                        <div class="p-4 border rounded-lg {{ $task->status === 'revision' ? 'border-orange-300 bg-orange-50' : ($task->status === 'done' ? 'bg-gray-50' : ($task->status === 'pending_pm' ? 'border-yellow-200 bg-yellow-50' : ($task->status === 'assigned_member' ? 'border-blue-200 bg-blue-50' : 'bg-white'))) }}">
+                        <div class="p-4 border rounded-lg {{ $task->status === 'revision' ? 'border-orange-300 bg-orange-50' : ($task->status === 'done' ? 'bg-gray-50' : ($task->status === 'pending_pm' ? 'border-yellow-200 bg-yellow-50' : ($task->status === 'assigned_member' ? 'border-blue-200 bg-blue-50' : ($task->status === 'pending_arbitration' ? 'border-red-300 bg-red-50' : 'bg-white')))) }}">
                             <div class="flex justify-between items-start">
                                 <div class="flex-1">
                                     <div class="font-medium {{ $task->status === 'done' ? 'line-through text-gray-500' : '' }}">
@@ -167,7 +167,9 @@
                                         <div class="mt-1 text-xs text-gray-500 space-y-0.5">
                                             @foreach($task->attachments as $att)
                                             <div class="flex items-center gap-1">
-                                                <span>📎 {{ $att->filename }}</span>
+                                                <a href="{{ Storage::url($att->file_path) }}" target="_blank" class="text-blue-600 hover:underline">
+                                                    {{ $att->filename }}
+                                                </a>
                                             </div>
                                             @endforeach
                                         </div>

@@ -114,10 +114,11 @@ class PmDashboard extends Component
         if (!$workspace) return;
 
         $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
-        $task->update([
-            'status' => 'pending_admin',
-            'reviewed_by' => auth()->id(),
-        ]);
+        $task->update(['reviewed_by' => auth()->id()]);
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, 'pending_admin', 'Disetujui PM, menunggu approval admin'
+        );
 
         session()->flash('message', 'Task approved and sent to admin.');
     }
@@ -130,13 +131,28 @@ class PmDashboard extends Component
         if (!$workspace) return;
 
         $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
+
+        $note = $this->reviewNote;
+        $newCounter = $task->revision_counter + 1;
+
         $task->update([
-            'status' => 'revision',
-            'review_note' => $this->reviewNote,
+            'review_note' => $note,
             'reviewed_by' => auth()->id(),
+            'revision_counter' => $newCounter,
         ]);
 
-        session()->flash('message', 'Task returned for revision.');
+        if ($task->isRevisiLocked() || $newCounter >= $task->max_revision_limit) {
+            app(TaskStatusHistoryService::class)->transition(
+                $task, 'pending_arbitration', "Batas revisi tercapai ({$newCounter}/{$task->max_revision_limit}): {$note}"
+            );
+            session()->flash('message', 'Batas revisi tercapai. Tugas dikirim ke arbitrase.');
+        } else {
+            app(TaskStatusHistoryService::class)->transition(
+                $task, 'revision', "Revisi ({$newCounter}/{$task->max_revision_limit}): {$note}"
+            );
+            session()->flash('message', 'Task returned for revision.');
+        }
+
         $this->reset(['reviewNote', 'rejectTaskId']);
     }
 
@@ -184,6 +200,16 @@ class PmDashboard extends Component
             ['label' => 'Deadline', 'count' => $deadlineCount, 'bg' => '#f43f5e'],
         ];
 
+        $revisionLimitWarnings = $tasks->filter(fn($t) =>
+            $t->status === 'revision' && $t->max_revision_limit > 0
+            && $t->revision_counter >= $t->max_revision_limit - 1
+        )->map(fn($t) => [
+            'id' => $t->id,
+            'title' => $t->title,
+            'counter' => $t->revision_counter,
+            'limit' => $t->max_revision_limit,
+        ]);
+
         return view('livewire.pm.pm-dashboard', [
             'workspace' => $workspace,
             'members' => $members,
@@ -194,6 +220,7 @@ class PmDashboard extends Component
             'pendingReview' => $pendingReview,
             'chartData' => $chartData,
             'memberWorkload' => $memberWorkload,
+            'revisionLimitWarnings' => $revisionLimitWarnings,
         ]);
     }
 }

@@ -73,6 +73,17 @@
                     </div>
                 </div>
 
+                @if($revisionLimitWarnings->isNotEmpty())
+                    <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-sm">
+                        <h3 class="text-sm font-semibold text-red-800 mb-2">Peringatan Batas Revisi</h3>
+                        <ul class="text-xs text-red-700 space-y-1">
+                            @foreach($revisionLimitWarnings as $w)
+                                <li>{{ $w['title'] }} — revisi {{ $w['counter'] }}/{{ $w['limit'] }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @if($incomingTasks->isNotEmpty())
                 <div class="p-4 bg-white shadow sm:rounded-lg border-l-4 border-blue-400">
                     <h3 class="text-lg font-medium text-gray-900 mb-3">Tugas Masuk (Perlu Ditugaskan)</h3>
@@ -139,7 +150,7 @@
                             <h3 class="text-lg font-medium text-gray-900 mb-4">Semua Tugas</h3>
                             <div class="space-y-4">
                                 @forelse($tasks as $task)
-                                    <div class="p-4 border rounded-lg {{ $task->status === 'done' ? 'bg-gray-50' : ($task->status === 'pending_pm' ? 'border-yellow-300 bg-yellow-50' : ($task->status === 'revision' ? 'border-orange-300 bg-orange-50' : ($task->status === 'assigned_pm' ? 'border-blue-200 bg-blue-50' : 'bg-white'))) }}">
+                                    <div class="p-4 border rounded-lg {{ $task->status === 'done' ? 'bg-gray-50' : ($task->status === 'pending_pm' ? 'border-yellow-300 bg-yellow-50' : ($task->status === 'revision' ? 'border-orange-300 bg-orange-50' : ($task->status === 'assigned_pm' ? 'border-blue-200 bg-blue-50' : ($task->status === 'pending_arbitration' ? 'border-red-300 bg-red-50' : 'bg-white'))) }}">
                                         <div class="flex justify-between items-start">
                                             <div class="flex-1">
                                                 <div class="font-medium {{ $task->status === 'done' ? 'line-through text-gray-500' : '' }}">
@@ -190,8 +201,17 @@
                                                     </div>
                                                 @endif
                                                 @if($task->attachments->count() > 0)
-                                                    <div class="mt-1 text-xs text-gray-500">
-                                                        File: {{ $task->attachments->count() }} lampiran
+                                                    <div class="mt-1 text-xs text-gray-500 space-y-0.5">
+                                                        @foreach($task->attachments as $att)
+                                                            <div class="flex items-center gap-1">
+                                                                <a href="{{ Storage::url($att->file_path) }}" target="_blank" class="text-blue-600 hover:underline">
+                                                                    {{ $att->filename }}
+                                                                </a>
+                                                                @if($att->user_id !== auth()->id())
+                                                                    <span class="text-gray-400">({{ $att->user?->name ?? 'anggota' }})</span>
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
                                                     </div>
                                                 @endif
                                             </div>
@@ -209,10 +229,14 @@
                                                         class="px-3 py-1 text-xs bg-green-600 text-white rounded-md hover:bg-green-700">
                                                         Approve
                                                     </button>
-                                                    <button wire:click="$set('rejectTaskId', {{ $task->id }})"
-                                                        class="px-3 py-1 text-xs bg-orange-600 text-white rounded-md hover:bg-orange-700">
-                                                        Revisi
-                                                    </button>
+                                                    @if($task->isRevisiLocked())
+                                                        <span class="text-xs text-red-500 font-medium">Batas revisi tercapai</span>
+                                                    @else
+                                                        <button wire:click="$set('rejectTaskId', {{ $task->id }})"
+                                                            class="px-3 py-1 text-xs bg-orange-600 text-white rounded-md hover:bg-orange-700">
+                                                            Revisi
+                                                        </button>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </div>
