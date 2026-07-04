@@ -14,7 +14,12 @@ class CheckRole
             return redirect('login');
         }
 
-        if (!in_array(auth()->user()->role, $roles)) {
+        $allowed = collect($roles)
+            ->flatMap(fn($r) => explode(',', $r))
+            ->map('trim')
+            ->toArray();
+
+        if (!in_array(auth()->user()->role, $allowed)) {
             abort(403, 'Unauthorized access.');
         }
 

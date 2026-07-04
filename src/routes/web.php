@@ -55,7 +55,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/tasks', AtasanTaskList::class)->name('tasks');
     });
     
-    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['role:admin,super_admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
         Route::get('/tasks', TaskList::class)->name('tasks.list');
         Route::get('/tasks/oversight/{taskId?}', TaskOversight::class)->name('tasks.oversight');
