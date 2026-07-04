@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Atasan;
+namespace App\Livewire\SuperAdmin;
 
 use Livewire\Component;
 use App\Models\Task;
@@ -8,8 +8,8 @@ use App\Models\User;
 use App\Models\Workspace;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.atasan')]
-class AtasanDashboard extends Component
+#[Layout('layouts.super-admin')]
+class SuperAdminDashboard extends Component
 {
     public $selectedPmId = null;
 
@@ -68,7 +68,7 @@ class AtasanDashboard extends Component
             $selectedPm = $pms->firstWhere('id', $this->selectedPmId);
         }
 
-        return view('livewire.atasan.atasan-dashboard', [
+        return view('livewire.super-admin.super-admin-dashboard', [
             'total' => $total,
             'draft' => $draft,
             'assignedPm' => $assignedPm,

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Atasan;
+namespace App\Livewire\SuperAdmin;
 
 use Livewire\Component;
 use App\Models\Task;
@@ -9,8 +9,8 @@ use App\Services\TaskStatusHistoryService;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.atasan')]
-class AtasanTaskList extends Component
+#[Layout('layouts.super-admin')]
+class SuperAdminTaskList extends Component
 {
     use WithPagination;
 
@@ -210,7 +210,7 @@ class AtasanTaskList extends Component
                 ->get();
         }
 
-        return view('livewire.atasan.atasan-task-list', [
+        return view('livewire.super-admin.super-admin-task-list', [
             'tasks' => $tasks,
             'history' => $history,
         ]);

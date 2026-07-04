@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Atasan;
+namespace App\Livewire\SuperAdmin;
 
 use Livewire\Component;
 use App\Models\Task;
@@ -9,7 +9,7 @@ use App\Models\Workspace;
 use App\Services\TaskStatusHistoryService;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.atasan')]
+#[Layout('layouts.super-admin')]
 class CreateTask extends Component
 {
     public $title = '';
@@ -56,7 +56,7 @@ class CreateTask extends Component
         $workspaces = Workspace::with('pm')->latest()->get();
         $pms = User::where('role', 'pm')->where('is_active', true)->get();
 
-        return view('livewire.atasan.create-task', [
+        return view('livewire.super-admin.create-task', [
             'workspaces' => $workspaces,
             'pms' => $pms,
         ]);

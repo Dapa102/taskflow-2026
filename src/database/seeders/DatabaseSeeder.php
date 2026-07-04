@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             TeamSeeder::class,
         ]);
 
-        $admin = User::where('email', 'admin@admin.com')->first() ?? User::where('email', 'atasan@test.com')->first();
+        $admin = User::where('email', 'admin@admin.com')->first();
         $pm = User::where('email', 'pm1@test.com')->first();
         $member1 = User::where('email', 'member1@test.com')->first();
         $member2 = User::where('email', 'member2@test.com')->first();

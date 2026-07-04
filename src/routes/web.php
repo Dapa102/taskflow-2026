@@ -10,9 +10,9 @@ use App\Livewire\Admin\PmPerformance;
 use App\Livewire\Admin\AssignTask;
 use App\Livewire\Admin\TaskList;
 use App\Livewire\Admin\UserManagement;
-use App\Livewire\Atasan\AtasanDashboard;
-use App\Livewire\Atasan\CreateTask;
-use App\Livewire\Atasan\AtasanTaskList;
+use App\Livewire\SuperAdmin\SuperAdminDashboard;
+use App\Livewire\SuperAdmin\CreateTask;
+use App\Livewire\SuperAdmin\SuperAdminTaskList;
 use App\Livewire\AllTasks;
 
 Route::get('/', function () {
@@ -43,9 +43,9 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     });
 
     Route::middleware(['role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
-        Route::get('/dashboard', AtasanDashboard::class)->name('dashboard');
+        Route::get('/dashboard', SuperAdminDashboard::class)->name('dashboard');
         Route::get('/create-task', CreateTask::class)->name('create.task');
-        Route::get('/tasks', AtasanTaskList::class)->name('tasks');
+        Route::get('/tasks', SuperAdminTaskList::class)->name('tasks');
     });
     
     Route::middleware(['role:admin,super_admin'])->prefix('admin')->name('admin.')->group(function () {
