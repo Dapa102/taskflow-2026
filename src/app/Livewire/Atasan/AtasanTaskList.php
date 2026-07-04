@@ -21,6 +21,10 @@ class AtasanTaskList extends Component
     public $cancelNote = '';
     public $showCancelModal = false;
     public $cancelTaskId = null;
+    public $arbitrationNote = '';
+    public $showArbitrationModal = false;
+    public $arbitrationTaskId = null;
+    public $arbitrationAction = null;
 
     public function updatingStatusFilter() { $this->resetPage(); }
     public function updatingSearch() { $this->resetPage(); }
@@ -59,9 +63,61 @@ class AtasanTaskList extends Component
         $this->cancelTaskId = null;
     }
 
+    public function approveTask($taskId)
+    {
+        $task = Task::where('created_by', auth()->id())
+            ->where('status', 'pending_admin')
+            ->findOrFail($taskId);
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, 'done', 'Disetujui oleh Super Admin'
+        );
+
+        session()->flash('message', 'Tugas selesai disetujui.');
+    }
+
+    public function confirmArbitration($taskId, $action)
+    {
+        $task = Task::where('created_by', auth()->id())
+            ->where('status', 'pending_arbitration')
+            ->findOrFail($taskId);
+
+        $this->arbitrationTaskId = $taskId;
+        $this->arbitrationAction = $action;
+        $this->arbitrationNote = '';
+        $this->showArbitrationModal = true;
+    }
+
+    public function executeArbitration()
+    {
+        $task = Task::where('created_by', auth()->id())
+            ->where('status', 'pending_arbitration')
+            ->findOrFail($this->arbitrationTaskId);
+
+        if ($this->arbitrationAction === 'approve') {
+            app(TaskStatusHistoryService::class)->transition(
+                $task, 'pending_admin', 'Arbitrase: disetujui Super Admin'
+            );
+            session()->flash('message', 'Arbitrase disetujui. Tugas masuk antrean approval admin.');
+        } else {
+            $note = $this->arbitrationNote ?: 'Dikembalikan ke revisi oleh Super Admin';
+            $newCounter = $task->revision_counter + 1;
+            $task->update([
+                'review_note' => $note,
+                'revision_counter' => $newCounter,
+            ]);
+            app(TaskStatusHistoryService::class)->transition(
+                $task, 'revision', "Arbitrase: {$note} ({$newCounter}/{$task->max_revision_limit})"
+            );
+            session()->flash('message', 'Arbitrase: tugas dikembalikan ke revisi.');
+        }
+
+        $this->reset(['arbitrationTaskId', 'arbitrationAction', 'arbitrationNote', 'showArbitrationModal']);
+    }
+
     public function render()
     {
-        $query = Task::with(['workspace', 'assignee', 'assignedPm', 'assignedMember', 'attachments'])
+        $query = Task::with(['workspace', 'assignee', 'assignedPm', 'assignedMember', 'attachments.user'])
             ->where('created_by', auth()->id());
 
         if ($this->search) {

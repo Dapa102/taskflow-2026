@@ -41,6 +41,7 @@
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">PM</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revisi</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lampiran</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prioritas</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deadline</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
@@ -92,6 +93,19 @@
                                     <span class="text-gray-400">-</span>
                                 @endif
                             </td>
+                            <td class="px-4 py-3 text-xs">
+                                @if($task->attachments->count() > 0)
+                                    <div class="space-y-0.5 max-w-[150px] truncate">
+                                        @foreach($task->attachments as $att)
+                                        <a href="{{ Storage::url($att->file_path) }}" target="_blank" class="block text-blue-600 hover:underline truncate">
+                                            {{ $att->filename }}
+                                        </a>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3">
                                 <span class="text-xs font-medium px-2 py-1 rounded {{ $task->priority === 'high' ? 'bg-red-50 text-red-700' : ($task->priority === 'medium' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-50 text-gray-600') }}">
                                     {{ $task->priority === 'high' ? 'Tinggi' : ($task->priority === 'medium' ? 'Sedang' : 'Rendah') }}
@@ -102,13 +116,20 @@
                             </td>
                             <td class="px-4 py-3 text-sm space-x-1">
                                 <button wire:click="viewHistory({{ $task->id }})" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Riwayat</button>
+                                @if($task->status === 'pending_admin')
+                                <button wire:click="approveTask({{ $task->id }})" wire:confirm="Setujui tugas ini?" class="text-green-600 hover:text-green-800 text-xs font-medium">Setujui</button>
+                                @endif
+                                @if($task->status === 'pending_arbitration')
+                                <button wire:click="confirmArbitration({{ $task->id }}, 'approve')" class="text-green-600 hover:text-green-800 text-xs font-medium">Setujui</button>
+                                <button wire:click="confirmArbitration({{ $task->id }}, 'reject')" class="text-orange-600 hover:text-orange-800 text-xs font-medium">Tolak</button>
+                                @endif
                                 @if(!in_array($task->status, ['done', 'cancelled']))
                                 <button wire:click="confirmCancel({{ $task->id }})" class="text-red-600 hover:text-red-800 text-xs font-medium">Batalkan</button>
                                 @endif
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">Belum ada tugas.</td></tr>
+                        <tr><td colspan="8" class="px-4 py-8 text-center text-gray-400">Belum ada tugas.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -170,6 +191,41 @@
             <div class="flex justify-end gap-2 p-4 border-t bg-gray-50">
                 <button wire:click="$set('showCancelModal', false)" class="px-4 py-2 text-sm bg-white border rounded-lg hover:bg-gray-50">Tutup</button>
                 <button wire:click="cancelTask" class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Ya, Batalkan</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- Modal Arbitrase --}}
+    @if($showArbitrationModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" wire:click.self="showArbitrationModal = false">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
+            <div class="p-4 border-b">
+                <h3 class="text-lg font-semibold {{ $arbitrationAction === 'approve' ? 'text-green-600' : 'text-orange-600' }}">
+                    {{ $arbitrationAction === 'approve' ? 'Setujui Arbitrase' : 'Tolak & Kembalikan ke Revisi' }}
+                </h3>
+            </div>
+            <div class="p-4 space-y-3">
+                <p class="text-sm text-gray-600">
+                    @if($arbitrationAction === 'approve')
+                        Setujui tugas ini? Status akan berubah menjadi <strong>Menunggu Approval Admin</strong> (bukan langsung selesai).
+                    @else
+                        Kembalikan tugas ke anggota untuk revisi. Revision counter akan bertambah.
+                    @endif
+                </p>
+                @if($arbitrationAction === 'reject')
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Catatan Revisi <span class="text-red-500">*</span></label>
+                    <textarea wire:model="arbitrationNote" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                    @error('arbitrationNote') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                </div>
+                @endif
+            </div>
+            <div class="flex justify-end gap-2 p-4 border-t bg-gray-50">
+                <button wire:click="$set('showArbitrationModal', false)" class="px-4 py-2 text-sm bg-white border rounded-lg hover:bg-gray-50">Tutup</button>
+                <button wire:click="executeArbitration" class="px-4 py-2 text-sm text-white rounded-lg {{ $arbitrationAction === 'approve' ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700' }}">
+                    {{ $arbitrationAction === 'approve' ? 'Ya, Setujui' : 'Ya, Kembalikan' }}
+                </button>
             </div>
         </div>
     </div>
