@@ -24,7 +24,7 @@ class CreateTask extends Component
         'description' => 'nullable|max:2000',
         'priority' => 'required|in:low,medium,high',
         'deadline' => 'nullable|date|after_or_equal:today',
-        'workspaceId' => 'required|exists:workspaces,id',
+        'workspaceId' => 'nullable|exists:workspaces,id',
         'recommendedPmId' => 'nullable|exists:users,id',
     ];
 
@@ -33,7 +33,7 @@ class CreateTask extends Component
         $this->validate();
 
         $task = Task::create([
-            'workspace_id' => $this->workspaceId,
+            'workspace_id' => $this->workspaceId ?: null,
             'created_by' => auth()->id(),
             'title' => $this->title,
             'description' => $this->description,
