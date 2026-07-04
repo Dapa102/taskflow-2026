@@ -8,6 +8,7 @@ use App\Models\User;
 use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
 use App\Services\TaskStatusHistoryService;
+use Carbon\Carbon;
 
 #[Layout('layouts.member')]
 class MemberDashboard extends Component
@@ -16,6 +17,10 @@ class MemberDashboard extends Component
 
     public $upload = [];
     public $uploadingTaskId;
+
+    public $detailModal = false;
+    public $detailTitle = '';
+    public $detailTasks = [];
 
     public function submitTask($taskId)
     {
@@ -47,6 +52,28 @@ class MemberDashboard extends Component
 
         session()->flash('message', 'Tugas selesai dikerjakan. Menunggu review PM.');
         $this->reset('upload');
+    }
+
+    public function showDetail($label)
+    {
+        $this->detailTitle = $label;
+        $statuses = match ($label) {
+            'Dikerjakan' => ['assigned_member'],
+            'Menunggu Review' => ['pending_pm'],
+            'Revisi' => ['revision'],
+            'Menunggu Approval' => ['pending_admin'],
+            'Arbitrase' => ['pending_arbitration'],
+            'Selesai' => ['done'],
+            default => [],
+        };
+
+        $this->detailTasks = Task::with(['workspace', 'assignedPm', 'creator'])
+            ->where('assigned_member_id', auth()->id())
+            ->whereIn('status', $statuses)
+            ->latest()
+            ->get();
+
+        $this->detailModal = true;
     }
 
     public function render()
@@ -81,6 +108,25 @@ class MemberDashboard extends Component
             ['label' => 'Selesai', 'count' => $done, 'bg' => '#22c55e'],
         ];
 
+        $doneTasks = Task::where('assigned_member_id', auth()->id())
+            ->where('status', 'done')
+            ->where('updated_at', '>=', Carbon::now()->subDays(6)->startOfDay())
+            ->get()
+            ->groupBy(fn($t) => $t->updated_at->format('Y-m-d'));
+
+        $dailyChartData = [];
+        $dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $key = $date->format('Y-m-d');
+            $count = isset($doneTasks[$key]) ? $doneTasks[$key]->count() : 0;
+            $dailyChartData[] = [
+                'label' => $dayNames[$date->dayOfWeek],
+                'count' => $count,
+                'bg' => $date->isToday() ? '#6366f1' : '#a5b4fc',
+            ];
+        }
+
         return view('livewire.member.member-dashboard', [
             'tasks' => $tasks,
             'pm' => $pm,
@@ -90,6 +136,7 @@ class MemberDashboard extends Component
             'deadlineCount' => $deadlineCount,
             'revisionCount' => $revisionCount,
             'chartData' => $chartData,
+            'dailyChartData' => $dailyChartData,
         ]);
     }
 }

@@ -7,15 +7,44 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\Workspace;
 use Livewire\Attributes\Layout;
+use Carbon\Carbon;
 
 #[Layout('layouts.super-admin')]
 class SuperAdminDashboard extends Component
 {
     public $selectedPmId = null;
+    public $detailModal = false;
+    public $detailTitle = '';
+    public $detailTasks = [];
 
     public function selectPm($pmId)
     {
         $this->selectedPmId = $pmId;
+    }
+
+    public function showDetail($label)
+    {
+        $this->detailTitle = $label;
+        $userId = auth()->id();
+        $statuses = match ($label) {
+            'Draft' => ['draft'],
+            'Dikerjakan' => ['assigned_member', 'pending_pm', 'revision'],
+            'Menunggu Approval' => ['pending_admin'],
+            'Arbitrase' => ['pending_arbitration'],
+            'Selesai' => ['done'],
+            default => [],
+        };
+
+        $query = Task::with(['workspace', 'assignedPm', 'assignedMember', 'creator']);
+        if (!empty($statuses)) {
+            $query->whereIn('status', $statuses);
+        }
+        $this->detailTasks = $query
+            ->where('created_by', $userId)
+            ->latest()
+            ->get();
+
+        $this->detailModal = true;
     }
 
     public function render()
@@ -68,6 +97,25 @@ class SuperAdminDashboard extends Component
             $selectedPm = $pms->firstWhere('id', $this->selectedPmId);
         }
 
+        $doneTasks = Task::where('created_by', $userId)
+            ->where('status', 'done')
+            ->where('updated_at', '>=', Carbon::now()->subDays(6)->startOfDay())
+            ->get()
+            ->groupBy(fn($t) => $t->updated_at->format('Y-m-d'));
+
+        $dailyChartData = [];
+        $dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $key = $date->format('Y-m-d');
+            $count = isset($doneTasks[$key]) ? $doneTasks[$key]->count() : 0;
+            $dailyChartData[] = [
+                'label' => $dayNames[$date->dayOfWeek],
+                'count' => $count,
+                'bg' => $date->isToday() ? '#6366f1' : '#a5b4fc',
+            ];
+        }
+
         return view('livewire.super-admin.super-admin-dashboard', [
             'total' => $total,
             'draft' => $draft,
@@ -78,6 +126,7 @@ class SuperAdminDashboard extends Component
             'done' => $done,
             'deadlineCount' => $deadlineCount,
             'chartData' => $chartData,
+            'dailyChartData' => $dailyChartData,
             'pms' => $pms,
             'selectedPm' => $selectedPm,
         ]);

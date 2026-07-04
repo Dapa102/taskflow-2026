@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Task;
 use App\Services\TaskStatusHistoryService;
 use Livewire\Attributes\Layout;
+use Carbon\Carbon;
 
 #[Layout('layouts.pm')]
 class PmDashboard extends Component
@@ -21,6 +22,10 @@ class PmDashboard extends Component
     public $rejectTaskId;
     public $assignTaskId;
     public $assignMemberId;
+
+    public $detailModal = false;
+    public $detailTitle = '';
+    public $detailTasks = [];
 
     public function createWorkspace()
     {
@@ -156,6 +161,28 @@ class PmDashboard extends Component
         $this->reset(['reviewNote', 'rejectTaskId']);
     }
 
+    public function showDetail($label)
+    {
+        $this->detailTitle = $label;
+        $statuses = match ($label) {
+            'Dikirim ke PM' => ['assigned_pm'],
+            'Dikerjakan' => ['assigned_member'],
+            'Menunggu Review' => ['pending_pm'],
+            'Revisi' => ['revision'],
+            'Arbitrase' => ['pending_arbitration'],
+            'Selesai' => ['done'],
+            default => [],
+        };
+
+        $this->detailTasks = Task::with(['workspace', 'assignedMember', 'creator'])
+            ->where('assigned_pm_id', auth()->id())
+            ->whereIn('status', $statuses)
+            ->latest()
+            ->get();
+
+        $this->detailModal = true;
+    }
+
     public function render()
     {
         $workspace = auth()->user()->workspace;
@@ -213,6 +240,25 @@ class PmDashboard extends Component
             'limit' => $t->max_revision_limit,
         ]);
 
+        $doneTasks = Task::where('assigned_pm_id', auth()->id())
+            ->where('status', 'done')
+            ->where('updated_at', '>=', Carbon::now()->subDays(6)->startOfDay())
+            ->get()
+            ->groupBy(fn($t) => $t->updated_at->format('Y-m-d'));
+
+        $dailyChartData = [];
+        $dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $key = $date->format('Y-m-d');
+            $count = isset($doneTasks[$key]) ? $doneTasks[$key]->count() : 0;
+            $dailyChartData[] = [
+                'label' => $dayNames[$date->dayOfWeek],
+                'count' => $count,
+                'bg' => $date->isToday() ? '#6366f1' : '#a5b4fc',
+            ];
+        }
+
         return view('livewire.pm.pm-dashboard', [
             'workspace' => $workspace,
             'members' => $members,
@@ -222,6 +268,7 @@ class PmDashboard extends Component
             'stats' => $stats,
             'pendingReview' => $pendingReview,
             'chartData' => $chartData,
+            'dailyChartData' => $dailyChartData,
             'memberWorkload' => $memberWorkload,
             'revisionLimitWarnings' => $revisionLimitWarnings,
         ]);

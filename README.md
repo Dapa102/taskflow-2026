@@ -1,6 +1,6 @@
 # TaskFlow — Collaborative Task Management System
 
-Sistem manajemen tugas kolaboratif multi-level: **Atasan → Super Admin → Project Manager → Anggota**. Berbasis Laravel 11 + Livewire 3 + Tailwind CSS + Alpine.js. Docker-ready.
+Sistem manajemen tugas kolaboratif multi-level: **Super Admin → Project Manager → Anggota**. Berbasis Laravel 12 + Filament 3 + Livewire 3 + Tailwind CSS + Alpine.js. Docker-ready.
 
 ---
 
@@ -8,16 +8,14 @@ Sistem manajemen tugas kolaboratif multi-level: **Atasan → Super Admin → Pro
 
 | Role | Tanggung Jawab |
 |------|---------------|
-| **Atasan** | Buat tugas → rekomendasi PM → kirim ke PM |
-| **Super Admin** | Buat & assign tugas ke PM, final approve, arbitrase, eskalasi, user management |
-| **Admin** | Dashboard monitoring, PM performance, user management, laporan arbitrase |
+| **Super Admin** | Buat & assign tugas ke PM, final approve, arbitrase, eskalasi, user management, PM performance, hubungi team |
 | **Project Manager** | Kelola workspace & tim, assign tugas ke anggota, review hasil, reject/approve |
 | **Anggota** | Kerjakan tugas, upload file, terima & kirim ulang revisi |
 
 Alur lengkap (9 status):
 ```
-Atasan/Super Admin → draft
-                      ↓ assigned_pm
+Super Admin → draft
+               ↓ assigned_pm
 PM → assign → assigned_member
                 ↓
 Anggota → submit → pending_pm
@@ -31,10 +29,11 @@ Super Admin → approve → done     Anggota → re-upload → pending_pm (loop)
 
 ## Tech Stack
 
-- **Backend:** PHP 8.2+, Laravel 11
+- **Backend:** PHP 8.2+, Laravel 12
+- **Admin Panel:** Filament 3 (dengan Shield, Logger, Progressbar, Slim Scrollbar, dll.)
 - **Frontend:** Blade, Tailwind CSS 3.4, Alpine.js 3.0, Livewire 3
 - **Database:** MariaDB 10.6 (InnoDB)
-- **Auth:** Laravel Breeze (session-based)
+- **Auth:** Laravel Breeze (session-based) + Spatie Permission
 - **Notifications:** Database (inbox), Mail (SMTP), WhatsApp (Fonnte API)
 - **Build:** Vite
 
@@ -44,10 +43,10 @@ Super Admin → approve → done     Anggota → re-upload → pending_pm (loop)
 
 | Role | Email | Password |
 |------|-------|----------|
-| Atasan | atasan@test.com | password |
 | Super Admin | admin@admin.com | password |
 | PM | pm1@test.com | password |
 | Member | member1@test.com | password |
+| Member | member2@test.com | password |
 
 Login di `/login`.
 
@@ -58,34 +57,41 @@ Login di `/login`.
 ```
 app/
 ├── Livewire/
-│   ├── Admin/                # Admin dashboard, tasks, user management, PM perf, arbitration
-│   ├── Atasan/               # Atasan/Super Admin: dashboard, create task, task list
-│   ├── Pm/                   # PM: dashboard (workspace, assign, review)
-│   ├── Member/               # Member: dashboard (my tasks, upload)
+│   ├── Admin/                # Admin/super_admin: dashboard, tasks, assign, users, PM perf, arbitration
+│   ├── SuperAdmin/           # Super Admin: dashboard, create task, task list
+│   ├── Pm/                   # PM: dashboard, compose email
+│   ├── Member/               # Member: dashboard
 │   └── NotificationBell.php  # Livewire: inbox bell component
 ├── Console/Commands/
 │   ├── SendDeadlineReminders.php
-│   └── CheckPmEscalation.php
+│   ├── CheckPmEscalation.php
+│   ├── ProjectInitialize.php
+│   ├── ProjectUpdate.php
+│   ├── DevIde.php
+│   └── Recache.php
 ├── Models/
 │   ├── User.php, Task.php, Workspace.php
 │   ├── Team.php, TeamMember.php
+│   ├── Category.php, Comment.php, Subtask.php
 │   ├── Attachment.php, InboxNotification.php
 │   └── TaskStatusHistory.php
 ├── Services/
-│   └── TaskStatusHistoryService.php  # Status transition + auto-notification
+│   ├── TaskStatusHistoryService.php  # Status transition + auto-notification
+│   └── FonnteService.php             # WhatsApp API client
 ├── Notifications/
 │   ├── TaskAssignedNotification.php
-│   └── DeadlineReminderNotification.php
+│   ├── TaskCommentNotification.php
+│   ├── DeadlineReminderNotification.php
+│   └── Channels/FonnteChannel.php
 ├── Http/Middleware/
 │   ├── CheckRole.php          # Filter by role column
 │   └── CheckActive.php        # Block inactive users
 resources/views/
 ├── layouts/
-│   ├── admin.blade.php, atasan.blade.php
-│   ├── pm.blade.php, member.blade.php
+│   ├── super-admin.blade.php, pm.blade.php, member.blade.php
 │   └── navigation.blade.php   # Includes notification bell
 └── livewire/
-    ├── admin/, atasan/, pm/, member/
+    ├── admin/, super-admin/, pm/, member/
     └── notification-bell.blade.php
 ```
 
@@ -95,9 +101,8 @@ resources/views/
 
 | Prefix | Middleware | Halaman |
 |--------|-----------|---------|
-| `/atasan` | atasan | Dashboard, Buat Tugas, Daftar Tugas |
 | `/super-admin` | super_admin | Dashboard, Buat Tugas, Daftar Tugas |
-| `/admin` | admin | Dashboard, Tasks, Oversight, Assign, Users, PM Performance, Arbitration Recap, Hubungi Team |
+| `/admin` | admin,super_admin | Dashboard, Tasks, Oversight, Assign, Users, PM Performance, Arbitration Recap, Hubungi Team, Compose Email |
 | `/pm` | pm | Dashboard, Compose Email |
 | `/member` | member | Dashboard |
 | `/tasks` | all | Read-only all tasks |
@@ -108,7 +113,7 @@ resources/views/
 
 | Status | Arti |
 |--------|------|
-| `draft` | Draft — baru dibuat Atasan/Super Admin |
+| `draft` | Draft — baru dibuat Super Admin |
 | `assigned_pm` | Dikirim ke PM — menunggu ditugaskan ke anggota |
 | `assigned_member` | Dikerjakan Anggota — PM sudah assign |
 | `pending_pm` | Menunggu Review PM — anggota sudah submit |
@@ -120,19 +125,22 @@ resources/views/
 
 ---
 
-## Fitur per Fase
+## Notifikasi
 
-| Fase | Fitur |
-|------|-------|
-| **0** | DB schema, 9 status enum, task_status_histories, inbox_notifications, role enum |
-| **1** | Super Admin: create task, PM recommendation, task list + audit trail, cancel |
-| **2** | PM: assign member. Member: lihat tugas, upload hasil, revision counter |
-| **3** | PM: approve → pending_admin. Reject → revision (+counter, auto-arbitration at limit) |
-| **4** | Super Admin: final approval (→ done). Arbitration decision (→ pending_admin / → revision) |
-| **5** | PM escalation: artisan command detect pending_pm >48h. Super Admin resolve (approve/reject/reassign) |
-| **6** | Notifikasi tiap transisi status (inbox). Bell icon navbar + unread badge + dropdown |
-| **7** | User management (CRUD + suspend). PM performance (assigned_pm_id). Arbitration recap page |
-| **8** | Upload validation, schedules (deadline reminders hourly, escalation every 6h), polish |
+Tiap transisi status otomatis kirim InboxNotification ke penerima sesuai mapping:
+
+| Transisi | Penerima |
+|----------|----------|
+| draft → assigned_pm | PM |
+| assigned_pm → assigned_member | Anggota |
+| assigned_member → pending_pm | PM |
+| pending_pm → revision | Anggota |
+| pending_pm → pending_admin | Creator |
+| pending_admin → done | Creator + PM |
+| → pending_arbitration | Creator |
+| → cancelled | Creator + PM + Anggota |
+
+Channel: inbox (database) selalu aktif. Email & WhatsApp via Laravel Notification.
 
 ---
 
@@ -150,6 +158,12 @@ php artisan storage:link
 npm run build
 ```
 
+Atau sekali jalan:
+
+```bash
+php artisan project:init
+```
+
 Pastikan DB MariaDB running, sesuaikan `.env`.
 
 ---
@@ -160,32 +174,19 @@ Pastikan DB MariaDB running, sesuaikan `.env`.
 php artisan migrate:fresh --seed
 ```
 
-Seeder bawaan: 1 atasan, 1 super_admin, 2 PM (Budi, Siti), 2 member (Ahmad, Dewi), 3 workspace, 10+ tasks.
-
----
-
-## Notifikasi (Phase 6)
-
-Tiap transisi status otomatis kirim InboxNotification ke penerima sesuai mapping (BR-06):
-
-| Transisi | Penerima |
-|----------|----------|
-| draft → assigned_pm | PM |
-| assigned_pm → assigned_member | Anggota |
-| assigned_member → pending_pm | PM |
-| pending_pm → revision | Anggota |
-| pending_pm → pending_admin | Super Admin |
-| pending_admin → done | Creator + PM |
-| → pending_arbitration | Super Admin |
-| → cancelled | Creator + PM + Anggota |
-
-Channel: inbox (database) selalu aktif. Email & WhatsApp via Laravel Notification.
+Seeder bawaan: 1 super_admin, 1 PM (Budi), 2 member (Ahmad, Dewi), 1 workspace, 10+ tasks.
 
 ---
 
 ## Perintah Artisan
 
 ```bash
+# Init project: migrate fresh + seed + shield generate + optimize
+php artisan project:init
+
+# Update project: migrate + shield + optimize
+php artisan project:update
+
 # Deadline reminders (terjadwal: setiap jam)
 php artisan reminders:deadline
 
