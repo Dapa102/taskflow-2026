@@ -52,6 +52,7 @@ function initDonutCharts() {
             bg: item.bg,
         }));
 
+        el.__chartLabels = data.map(d => d.label);
         el.__chartInstance = new Chart(el, {
             type: 'doughnut',
             data: {
@@ -102,10 +103,9 @@ function initDonutCharts() {
                 onClick: (e, elements) => {
                     if (elements.length > 0) {
                         const idx = elements[0].index;
-                        const card = el.closest('[data-donut-card]');
-                        if (card) {
-                            const btn = card.querySelectorAll('.legend-btn');
-                            if (btn[idx]) btn[idx].click();
+                        const labels = el.__chartLabels;
+                        if (labels && labels[idx] && typeof Livewire !== 'undefined') {
+                            Livewire.dispatch('showDetail', { label: labels[idx] });
                         }
                     }
                 },
