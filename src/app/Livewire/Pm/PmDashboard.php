@@ -103,12 +103,11 @@ class PmDashboard extends Component
     {
         $this->detailTitle = $label;
         $statuses = match ($label) {
-            'Dikirim ke PM' => ['assigned_pm'],
-            'Dikerjakan' => ['assigned_member'],
+            'Tugas Masuk' => ['assigned_pm'],
             'Menunggu Review' => ['pending_pm'],
             'Revisi' => ['revision'],
-            'Arbitrase' => ['pending_arbitration'],
             'Selesai' => ['done'],
+            'Lainnya' => ['assigned_member', 'pending_admin', 'pending_arbitration'],
             default => [],
         };
 
@@ -159,12 +158,21 @@ class PmDashboard extends Component
             'incoming' => $incomingTasks->count(),
         ];
 
+        $incomingCount = $incomingTasks->count();
+        $reviewCount = $pendingReview->count();
+        $revisionCount = $tasks->where('status', 'revision')->count();
+        $lainnya = $total - ($incomingCount + $reviewCount + $revisionCount + $done);
+
         $chartData = [
-            ['label' => 'Tugas Masuk', 'count' => $incomingTasks->count(), 'bg' => '#3b82f6'],
-            ['label' => 'Menunggu Review', 'count' => $pendingReview->count(), 'bg' => '#eab308'],
-            ['label' => 'Revisi', 'count' => $tasks->where('status', 'revision')->count(), 'bg' => '#f97316'],
+            ['label' => 'Tugas Masuk', 'count' => $incomingCount, 'bg' => '#3b82f6'],
+            ['label' => 'Menunggu Review', 'count' => $reviewCount, 'bg' => '#eab308'],
+            ['label' => 'Revisi', 'count' => $revisionCount, 'bg' => '#f97316'],
             ['label' => 'Selesai', 'count' => $done, 'bg' => '#22c55e'],
         ];
+
+        if ($lainnya > 0) {
+            $chartData[] = ['label' => 'Lainnya', 'count' => $lainnya, 'bg' => '#94a3b8'];
+        }
 
         $revisionLimitWarnings = $tasks->filter(fn($t) =>
             $t->status === 'revision' && $t->max_revision_limit > 0
