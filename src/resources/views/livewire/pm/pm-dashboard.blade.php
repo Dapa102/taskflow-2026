@@ -246,7 +246,8 @@
         </div>
     </div>
 
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 {{ $detailModal ? '' : 'hidden' }}" wire:click.self="$set('detailModal', false)">
+    @if($detailModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" wire:click.self="$set('detailModal', false)">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 max-h-[70vh] overflow-y-auto">
             <div class="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10">
                 <h3 class="text-lg font-semibold text-gray-900">Detail: {{ $detailTitle }}</h3>
@@ -291,5 +292,6 @@
             </div>
         </div>
     </div>
+    @endif
 
 </div>
