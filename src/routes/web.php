@@ -3,7 +3,6 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Pm\PmDashboard;
-use App\Livewire\Member\MemberDashboard;
 use App\Livewire\SuperAdmin\SuperAdminDashboard;
 use App\Livewire\SuperAdmin\CreateTask;
 use App\Livewire\SuperAdmin\SuperAdminTaskList;
@@ -36,10 +35,13 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/compose-email', \App\Livewire\Pm\ComposeEmail::class)->name('compose.email');
         Route::get('/team-members', \App\Livewire\Pm\TeamMembers::class)->name('team.members');
         Route::get('/workspace', \App\Livewire\Pm\WorkspaceDetail::class)->name('workspace');
+        Route::get('/projects', \App\Livewire\Pm\Projects::class)->name('projects');
+        Route::get('/create-task', \App\Livewire\Pm\CreateTask::class)->name('create-task');
     });
 
     Route::middleware(['role:member'])->prefix('member')->name('member.')->group(function () {
-        Route::get('/dashboard', MemberDashboard::class)->name('dashboard');
+        Route::get('/dashboard', \App\Livewire\Member\MemberDashboard::class)->name('dashboard');
+        Route::get('/tasks', \App\Livewire\Member\Tasks::class)->name('tasks');
     });
 
     Route::middleware(['role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
