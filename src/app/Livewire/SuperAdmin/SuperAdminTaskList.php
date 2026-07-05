@@ -29,6 +29,8 @@ class SuperAdminTaskList extends Component
     public $showReassignModal = false;
     public $reassignTaskId = null;
     public $reassignPmId = null;
+    public $showDetailModal = false;
+    public $detailTask = null;
 
     public function updatingStatusFilter() { $this->resetPage(); }
     public function updatingSearch() { $this->resetPage(); }
@@ -37,6 +39,13 @@ class SuperAdminTaskList extends Component
     {
         $this->historyTaskId = $taskId;
         $this->showHistoryModal = true;
+    }
+
+    public function viewDetail($taskId)
+    {
+        $this->detailTask = Task::with(['workspace', 'assignedPm', 'assignedMember', 'creator', 'attachments'])
+            ->findOrFail($taskId);
+        $this->showDetailModal = true;
     }
 
     public function confirmCancel($taskId)

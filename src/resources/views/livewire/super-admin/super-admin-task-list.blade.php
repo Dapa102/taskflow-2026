@@ -126,6 +126,9 @@
                                 {{ $task->deadline?->format('Y-m-d') ?? '-' }}
                             </td>
                             <td class="px-4 py-3 text-sm space-x-1">
+                                <button wire:click="viewDetail({{ $task->id }})" class="text-gray-400 hover:text-indigo-600 transition" title="Lihat detail">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </button>
                                 <button wire:click="viewHistory({{ $task->id }})" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Riwayat</button>
                                 @if($task->status === 'pending_admin')
                                 <button wire:click="approveTask({{ $task->id }})" wire:confirm="Setujui tugas ini?" class="text-green-600 hover:text-green-800 text-xs font-medium">Setujui</button>
@@ -154,6 +157,102 @@
 
         </div>
     </div>
+
+    {{-- Modal Detail --}}
+    @if($showDetailModal && $detailTask)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" wire:click.self="$set('showDetailModal', false)">
+        <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10">
+                <h3 class="text-lg font-semibold text-gray-900">{{ $detailTask->title }}</h3>
+                <button wire:click="$set('showDetailModal', false)" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            </div>
+            <div class="p-4 space-y-4">
+                @if($detailTask->description)
+                    <div>
+                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deskripsi</h4>
+                        <p class="text-sm text-gray-700 mt-1">{{ $detailTask->description }}</p>
+                    </div>
+                @endif
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</h4>
+                        <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full
+                            @switch($detailTask->status)
+                                @case('draft') bg-gray-100 text-gray-700 @break
+                                @case('assigned_pm') bg-blue-100 text-blue-700 @break
+                                @case('assigned_member') bg-indigo-100 text-indigo-700 @break
+                                @case('pending_pm') bg-yellow-100 text-yellow-700 @break
+                                @case('revision') bg-orange-100 text-orange-700 @break
+                                @case('pending_arbitration') bg-red-100 text-red-700 @break
+                                @case('pending_admin') bg-purple-100 text-purple-700 @break
+                                @case('done') bg-green-100 text-green-700 @break
+                                @case('cancelled') bg-slate-100 text-slate-500 @break
+                                @default bg-gray-100 text-gray-700
+                            @endswitch
+                        ">
+                            {{ app(\App\Livewire\SuperAdmin\SuperAdminTaskList::class)->getStatusLabel($detailTask->status) }}
+                        </span>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Prioritas</h4>
+                        <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full {{ $detailTask->priority === 'high' ? 'bg-red-50 text-red-700' : ($detailTask->priority === 'medium' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-50 text-gray-600') }}">
+                            {{ $detailTask->priority === 'high' ? 'Tinggi' : ($detailTask->priority === 'medium' ? 'Sedang' : 'Rendah') }}
+                        </span>
+                    </div>
+                    @if($detailTask->deadline)
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</h4>
+                            <p class="mt-1">{{ $detailTask->deadline->format('d M Y') }}</p>
+                        </div>
+                    @endif
+                    @if($detailTask->assignedPm)
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Project Manager</h4>
+                            <p class="mt-1">{{ $detailTask->assignedPm->name }}</p>
+                        </div>
+                    @endif
+                    @if($detailTask->assignedMember)
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Anggota</h4>
+                            <p class="mt-1">{{ $detailTask->assignedMember->name }}</p>
+                        </div>
+                    @endif
+                    @if($detailTask->workspace)
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Workspace</h4>
+                            <p class="mt-1">{{ $detailTask->workspace->name }}</p>
+                        </div>
+                    @endif
+                    @if($detailTask->review_note)
+                        <div class="col-span-2">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Catatan Review</h4>
+                            <p class="mt-1 p-2 bg-orange-50 rounded text-sm text-orange-800">{{ $detailTask->review_note }}</p>
+                        </div>
+                    @endif
+                    @if($detailTask->escalated_at)
+                        <div class="col-span-2">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Eskalasi PM</h4>
+                            <p class="mt-1 text-sm text-red-600">{{ $detailTask->escalated_at->format('d M Y H:i') }}</p>
+                        </div>
+                    @endif
+                </div>
+                @if($detailTask->attachments->count())
+                    <div>
+                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Lampiran</h4>
+                        <div class="space-y-1">
+                            @foreach($detailTask->attachments as $att)
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <a href="{{ Storage::url($att->file_path) }}" target="_blank" class="hover:text-indigo-600">{{ $att->filename }}</a>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endif
 
     {{-- Modal Riwayat --}}
     @if($showHistoryModal && $historyTaskId)
