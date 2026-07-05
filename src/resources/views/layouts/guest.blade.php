@@ -19,7 +19,7 @@
             <div>
                 <a href="/" class="flex items-center gap-3">
                     <div class="w-12 h-12 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center flex-shrink-0">
-                        <span class="text-white font-bold text-lg">K</span>
+                        <span class="text-white font-bold text-lg">T</span>
                     </div>
                     <div class="text-left">
                         <h1 class="text-xl font-bold text-gray-900">TaskFlow</h1>

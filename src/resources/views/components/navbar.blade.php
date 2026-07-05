@@ -3,7 +3,7 @@
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <a href="/dashboard" class="flex items-center gap-2.5 flex-shrink-0">
             <div class="w-8 h-8 bg-gradient-to-br from-violet-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/20">
-                <span class="text-white font-bold text-sm">K</span>
+                <span class="text-white font-bold text-sm">T</span>
             </div>
             <span class="font-bold text-lg hidden sm:block bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">TaskFlow</span>
         </a>

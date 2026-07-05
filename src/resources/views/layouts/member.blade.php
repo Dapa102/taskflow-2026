@@ -16,7 +16,7 @@
             <div class="h-16 flex items-center px-6 border-b border-gray-200">
                 <a href="{{ route('member.dashboard') }}" class="flex items-center gap-2.5">
                     <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <span class="text-white font-bold text-sm">K</span>
+                        <span class="text-white font-bold text-sm">T</span>
                     </div>
                     <span class="font-bold text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">TaskFlow</span>
                 </a>
