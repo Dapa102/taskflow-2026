@@ -7,7 +7,6 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\Workspace;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\On;
 use Carbon\Carbon;
 
 #[Layout('layouts.super-admin')]
@@ -23,7 +22,6 @@ class SuperAdminDashboard extends Component
         $this->selectedPmId = $pmId;
     }
 
-    #[On('showDetail')]
     public function showDetail($label)
     {
         $this->detailTitle = $label;
