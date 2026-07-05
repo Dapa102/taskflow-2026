@@ -6,19 +6,38 @@ use Livewire\Component;
 use App\Models\Task;
 use App\Services\TaskStatusHistoryService;
 use Livewire\Attributes\Layout;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.member')]
 class Tasks extends Component
 {
+    use WithFileUploads;
+
     public $upload = [];
-    public $uploadingTaskId;
-    public $submitTaskId = null;
+    public $detailModal = false;
+    public $detailTitle = '';
+    public $detailTasks = [];
 
     public function submitTask($taskId)
     {
+        $this->validate([
+            "upload.{$taskId}" => 'required|file|max:10240|mimes:pdf,doc,docx,zip,xlsx,xls,jpg,jpeg,png',
+        ]);
+
         $task = Task::where('assigned_member_id', auth()->id())
             ->whereIn('status', ['assigned_member', 'revision'])
             ->findOrFail($taskId);
+
+        $file = $this->upload[$taskId];
+        $path = $file->store('task-submissions', 'public');
+
+        $task->attachments()->create([
+            'user_id' => auth()->id(),
+            'filename' => $file->getClientOriginalName(),
+            'file_path' => $path,
+            'file_size' => $file->getSize(),
+            'mime_type' => $file->getMimeType(),
+        ]);
 
         app(TaskStatusHistoryService::class)->transition(
             $task, 'pending_pm', 'Tugas diserahkan oleh anggota'
@@ -27,12 +46,24 @@ class Tasks extends Component
         $task->update(['submitted_at' => now()]);
 
         session()->flash('message', 'Tugas berhasil dikirim untuk direview PM.');
+        $this->reset('upload');
+    }
+
+    public function showDetail($taskId)
+    {
+        $task = Task::with(['workspace', 'assignedPm', 'creator', 'attachments', 'comments.user'])
+            ->where('assigned_member_id', auth()->id())
+            ->findOrFail($taskId);
+
+        $this->detailTitle = $task->title;
+        $this->detailTasks = [$task];
+        $this->detailModal = true;
     }
 
     public function render()
     {
         $tasks = Task::where('assigned_member_id', auth()->id())
-            ->with('project')
+            ->with(['project', 'workspace', 'assignedPm', 'creator', 'attachments'])
             ->latest()
             ->get();
 

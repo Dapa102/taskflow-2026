@@ -46,10 +46,7 @@ class MemberDashboard extends Component
             $task, 'pending_pm', 'Tugas diserahkan oleh anggota'
         );
 
-        $task->update([
-            'status' => 'pending_pm',
-            'submitted_at' => now(),
-        ]);
+        $task->update(['submitted_at' => now()]);
 
         session()->flash('message', 'Tugas selesai dikerjakan. Menunggu review PM.');
         $this->reset('upload');
