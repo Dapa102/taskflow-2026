@@ -1,12 +1,8 @@
 import './bootstrap';
 
-import Alpine from 'alpinejs';
-import collapse from '@alpinejs/collapse';
 import { Chart, DoughnutController, BarController, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Filler } from 'chart.js';
 
 Chart.register(DoughnutController, BarController, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Filler);
-
-Alpine.plugin(collapse);
 
 const COLORS = {
     blue: ['#3b82f6', '#60a5fa', '#93c5fd'],
@@ -239,6 +235,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-window.Alpine = Alpine;
-
-Alpine.start();
