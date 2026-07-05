@@ -9,12 +9,26 @@ class NotificationBell extends Component
 {
     public $unreadCount = 0;
     public $notifications = [];
+    public $open = false;
 
     protected $listeners = ['$refresh'];
 
     public function mount()
     {
         $this->loadNotifications();
+    }
+
+    public function toggle()
+    {
+        $this->open = !$this->open;
+        if ($this->open) {
+            $this->loadNotifications();
+        }
+    }
+
+    public function close()
+    {
+        $this->open = false;
     }
 
     public function loadNotifications()
