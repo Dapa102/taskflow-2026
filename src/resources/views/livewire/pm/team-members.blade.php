@@ -22,7 +22,6 @@
                         <h3 class="text-lg font-semibold text-gray-900">Anggota Tim ({{ $members->count() }})</h3>
                         <div class="flex items-center gap-2">
                             <span class="text-xs text-gray-500">PM: {{ auth()->user()->name }}</span>
-                            <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
                         </div>
                     </div>
 
