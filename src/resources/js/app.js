@@ -58,10 +58,7 @@ function initDonutCharts() {
                     backgroundColor: data.map(d => hexToRgba(d.bg, 0.85)),
                     borderColor: '#fff',
                     borderWidth: 3,
-                    hoverBorderColor: d => {
-                        const c = d.element.$context.raw;
-                        return hexToRgba(c, 1);
-                    },
+                    hoverBorderColor: (ctx) => hexToRgba(data[ctx.dataIndex].bg, 1),
                     hoverBorderWidth: 4,
                     hoverOffset: 12,
                 }],
