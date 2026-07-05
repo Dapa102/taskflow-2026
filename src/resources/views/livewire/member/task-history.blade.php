@@ -6,7 +6,7 @@
     <div class="py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-4">
             @forelse($tasks as $task)
-                <div class="bg-white shadow sm:rounded-lg p-5 border-l-4 {{ $task->status === 'done' ? 'border-l-green-500' : 'border-l-red-500' }}">
+                <div class="bg-white shadow sm:rounded-lg p-5">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <h4 class="font-semibold text-gray-900">{{ $task->title }}</h4>

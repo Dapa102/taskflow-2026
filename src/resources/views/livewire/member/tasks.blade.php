@@ -13,14 +13,7 @@
             @endif
 
             @forelse($tasks as $task)
-                <div class="bg-white shadow sm:rounded-lg p-6 border-l-4
-                    {{ $task->status === 'done' ? 'border-l-green-500' : '' }}
-                    {{ $task->status === 'pending_pm' ? 'border-l-purple-500' : '' }}
-                    {{ $task->status === 'revision' ? 'border-l-orange-500' : '' }}
-                    {{ $task->status === 'pending_admin' ? 'border-l-indigo-500' : '' }}
-                    {{ $task->status === 'pending_arbitration' ? 'border-l-red-500' : '' }}
-                    {{ in_array($task->status, ['assigned_member', 'assigned_pm']) ? 'border-l-blue-500' : '' }}
-                ">
+                <div class="bg-white shadow sm:rounded-lg p-6">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <h4 class="font-semibold text-gray-900">{{ $task->title }}</h4>
