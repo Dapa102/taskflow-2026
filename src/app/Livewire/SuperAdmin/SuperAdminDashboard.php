@@ -25,7 +25,6 @@ class SuperAdminDashboard extends Component
     public function showDetail($label)
     {
         $this->detailTitle = $label;
-        $userId = auth()->id();
         $statuses = match ($label) {
             'Draft' => ['draft'],
             'Dikerjakan' => ['assigned_member', 'pending_pm', 'revision'],
@@ -39,18 +38,14 @@ class SuperAdminDashboard extends Component
         if (!empty($statuses)) {
             $query->whereIn('status', $statuses);
         }
-        $this->detailTasks = $query
-            ->where('created_by', $userId)
-            ->latest()
-            ->get();
+        $this->detailTasks = $query->latest()->get();
 
         $this->detailModal = true;
     }
 
     public function render()
     {
-        $userId = auth()->id();
-        $baseQuery = Task::where('created_by', $userId);
+        $baseQuery = Task::query();
 
         $total = (clone $baseQuery)->count();
         $draft = (clone $baseQuery)->where('status', 'draft')->count();
@@ -98,8 +93,7 @@ class SuperAdminDashboard extends Component
             $selectedPm = $pms->firstWhere('id', $this->selectedPmId);
         }
 
-        $doneTasks = Task::where('created_by', $userId)
-            ->where('status', 'done')
+        $doneTasks = Task::where('status', 'done')
             ->where('updated_at', '>=', Carbon::now()->subDays(6)->startOfDay())
             ->get()
             ->groupBy(fn($t) => $t->updated_at->format('Y-m-d'));
