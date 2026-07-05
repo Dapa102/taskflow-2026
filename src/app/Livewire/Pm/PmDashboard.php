@@ -172,10 +172,6 @@ class PmDashboard extends Component
             ['label' => 'Selesai', 'count' => $done, 'bg' => '#22c55e'],
         ];
 
-        if ($lainnya > 0) {
-            $chartData[] = ['label' => 'Lainnya', 'count' => $lainnya, 'bg' => '#94a3b8'];
-        }
-
         $revisionLimitWarnings = $tasks->filter(fn($t) =>
             $t->status === 'revision' && $t->max_revision_limit > 0
             && $t->revision_counter >= $t->max_revision_limit - 1

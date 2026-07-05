@@ -177,6 +177,35 @@
                             </div>
                         </div>
                     @endif
+
+                    @if($detailTask->status === 'pending_pm')
+                        <div class="mt-6 pt-4 border-t flex flex-col gap-3">
+                            <div class="flex items-center gap-2 justify-end">
+                                <button wire:click="approveTask({{ $detailTask->id }})" wire:confirm="Setujui tugas ini dan kirim ke Admin?" class="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 font-medium">
+                                    Menyetujui
+                                </button>
+                                
+                                @if($detailTask->isRevisiLocked())
+                                    <span class="text-xs text-red-500 font-medium px-2">Batas revisi tercapai</span>
+                                @else
+                                    <button wire:click="$set('rejectTaskId', {{ $detailTask->id }})" class="px-4 py-2 text-sm bg-orange-600 text-white rounded-md hover:bg-orange-700 font-medium">
+                                        Revisi
+                                    </button>
+                                @endif
+                            </div>
+
+                            @if($rejectTaskId === $detailTask->id)
+                                <div class="mt-2 p-3 bg-orange-50 rounded-md border border-orange-200">
+                                    <textarea wire:model="reviewNote" placeholder="Catatan revisi..." rows="2" class="w-full border-gray-300 rounded-md shadow-sm text-sm mb-2"></textarea>
+                                    @error('reviewNote') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                    <div class="flex gap-2 justify-end mt-2">
+                                        <button wire:click="rejectTask({{ $detailTask->id }})" class="px-3 py-1 text-xs bg-orange-600 text-white rounded-md hover:bg-orange-700">Kirim Revisi</button>
+                                        <button wire:click="$set('rejectTaskId', null)" class="px-3 py-1 text-xs text-gray-600 hover:text-gray-900">Batal</button>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
