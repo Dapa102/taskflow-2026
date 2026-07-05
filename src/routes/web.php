@@ -50,6 +50,10 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/hubungi-team', \App\Livewire\SuperAdmin\HubungiTeam::class)->name('hubungi-team');
         Route::get('/compose-email', \App\Livewire\SuperAdmin\ComposeEmail::class)->name('compose-email');
         Route::get('/workspaces', \App\Livewire\SuperAdmin\ManageWorkspaces::class)->name('workspaces');
+        Route::get('/tasks', \App\Livewire\SuperAdmin\SuperAdminTaskList::class)->name('tasks');
+        Route::get('/create-task', \App\Livewire\SuperAdmin\CreateTask::class)->name('create-task');
+        Route::get('/assign-task', \App\Livewire\SuperAdmin\AssignTask::class)->name('assign-task');
+        Route::get('/task-oversight', \App\Livewire\SuperAdmin\TaskOversight::class)->name('task-oversight');
     });
 });
 

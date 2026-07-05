@@ -50,7 +50,7 @@ class SuperAdminTaskList extends Component
     {
         $this->validate(['cancelNote' => 'nullable|max:500']);
 
-        $task = Task::where('created_by', auth()->id())->findOrFail($this->cancelTaskId);
+        $task = Task::findOrFail($this->cancelTaskId);
 
         if (in_array($task->status, ['done', 'cancelled'])) {
             session()->flash('error', 'Tugas sudah selesai atau dibatalkan.');
@@ -69,9 +69,7 @@ class SuperAdminTaskList extends Component
 
     public function approveTask($taskId)
     {
-        $task = Task::where('created_by', auth()->id())
-            ->where('status', 'pending_admin')
-            ->findOrFail($taskId);
+        $task = Task::where('status', 'pending_admin')->findOrFail($taskId);
 
         app(TaskStatusHistoryService::class)->transition(
             $task, 'done', 'Disetujui oleh Super Admin'
@@ -82,9 +80,7 @@ class SuperAdminTaskList extends Component
 
     public function confirmArbitration($taskId, $action)
     {
-        $task = Task::where('created_by', auth()->id())
-            ->where('status', 'pending_arbitration')
-            ->findOrFail($taskId);
+        $task = Task::where('status', 'pending_arbitration')->findOrFail($taskId);
 
         $this->arbitrationTaskId = $taskId;
         $this->arbitrationAction = $action;
@@ -94,9 +90,7 @@ class SuperAdminTaskList extends Component
 
     public function executeArbitration()
     {
-        $task = Task::where('created_by', auth()->id())
-            ->where('status', 'pending_arbitration')
-            ->findOrFail($this->arbitrationTaskId);
+        $task = Task::where('status', 'pending_arbitration')->findOrFail($this->arbitrationTaskId);
 
         if ($this->arbitrationAction === 'approve') {
             app(TaskStatusHistoryService::class)->transition(
@@ -121,10 +115,7 @@ class SuperAdminTaskList extends Component
 
     public function approveEscalatedTask($taskId)
     {
-        $task = Task::where('created_by', auth()->id())
-            ->where('status', 'pending_pm')
-            ->whereNotNull('escalated_at')
-            ->findOrFail($taskId);
+        $task = Task::where('status', 'pending_pm')->whereNotNull('escalated_at')->findOrFail($taskId);
 
         app(TaskStatusHistoryService::class)->transition(
             $task, 'done', 'Eskalasi: disetujui langsung oleh Super Admin'
@@ -135,10 +126,7 @@ class SuperAdminTaskList extends Component
 
     public function rejectEscalatedTask($taskId)
     {
-        $task = Task::where('created_by', auth()->id())
-            ->where('status', 'pending_pm')
-            ->whereNotNull('escalated_at')
-            ->findOrFail($taskId);
+        $task = Task::where('status', 'pending_pm')->whereNotNull('escalated_at')->findOrFail($taskId);
 
         $newCounter = $task->revision_counter + 1;
         $task->update([
@@ -164,20 +152,18 @@ class SuperAdminTaskList extends Component
     {
         $this->validate(['reassignPmId' => 'required|exists:users,id']);
 
-        $task = Task::where('created_by', auth()->id())
-            ->whereNotNull('escalated_at')
-            ->findOrFail($this->reassignTaskId);
+        $task = Task::whereNotNull('escalated_at')->findOrFail($this->reassignTaskId);
 
         $oldPm = $task->assignedPm?->name ?? 'unknown';
-
-        app(TaskStatusHistoryService::class)->transition(
-            $task, 'assigned_pm', "Eskalasi: dipindahkan dari {$oldPm} ke PM #{$this->reassignPmId}"
-        );
 
         $task->update([
             'assigned_pm_id' => $this->reassignPmId,
             'escalated_at' => null,
         ]);
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, 'assigned_pm', "Eskalasi: dipindahkan dari {$oldPm} ke PM #{$this->reassignPmId}"
+        );
 
         session()->flash('message', 'Tugas dipindahkan ke PM baru.');
         $this->reset(['reassignTaskId', 'reassignPmId', 'showReassignModal']);
@@ -185,8 +171,7 @@ class SuperAdminTaskList extends Component
 
     public function render()
     {
-        $query = Task::with(['workspace', 'assignee', 'assignedPm', 'assignedMember', 'attachments.user'])
-            ->where('created_by', auth()->id());
+        $query = Task::with(['workspace', 'assignee', 'assignedPm', 'assignedMember', 'attachments.user']);
 
         if ($this->escalatedFilter) {
             $query->whereNotNull('escalated_at');
