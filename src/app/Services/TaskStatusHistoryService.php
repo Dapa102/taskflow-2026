@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Task;
+use App\Models\User;
 use App\Models\TaskStatusHistory;
 use App\Models\InboxNotification;
 use Illuminate\Support\Facades\DB;
@@ -68,11 +69,10 @@ class TaskStatusHistoryService
             'pending_pm->revision' => [
                 ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Perlu Revisi', 'message' => "Tugas \"{$task->title}\" perlu direvisi. Catatan: {$notes}"],
             ],
-            'pending_pm->pending_admin' => [
-                ['user_id' => $task->created_by, 'subject' => 'Tugas Menunggu Approval', 'message' => "Tugas \"{$task->title}\" telah disetujui PM dan menunggu approval Anda."],
+            'revision->pending_pm' => [
+                ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Direvisi', 'message' => "Tugas \"{$task->title}\" telah direvisi anggota. Mohon direview kembali."],
             ],
             'pending_admin->done' => [
-                ['user_id' => $task->created_by, 'subject' => 'Tugas Selesai', 'message' => "Tugas \"{$task->title}\" telah selesai disetujui."],
                 ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Selesai', 'message' => "Tugas \"{$task->title}\" telah selesai."],
             ],
             default => null,
@@ -97,6 +97,23 @@ class TaskStatusHistoryService
                 if ($r['user_id']) {
                     $this->sendInboxNotification($task, $r['user_id'], $r['subject'], $r['message']);
                 }
+            }
+        }
+
+        if (in_array($newStatus, ['pending_admin', 'done', 'pending_arbitration'])) {
+            $superAdmins = User::where('role', 'super_admin')->pluck('id');
+            $subject = match ($newStatus) {
+                'pending_admin' => 'Tugas Menunggu Approval',
+                'done' => 'Tugas Selesai',
+                'pending_arbitration' => 'Arbitrase: Batas Revisi Tercapai',
+            };
+            $message = match ($newStatus) {
+                'pending_admin' => "Tugas \"{$task->title}\" telah disetujui PM dan menunggu approval Anda.",
+                'done' => "Tugas \"{$task->title}\" telah selesai disetujui.",
+                'pending_arbitration' => "Tugas \"{$task->title}\" masuk arbitrase karena batas revisi tercapai ({$task->revision_counter}/{$task->max_revision_limit}).",
+            };
+            foreach ($superAdmins as $saId) {
+                $this->sendInboxNotification($task, $saId, $subject, $message);
             }
         }
     }

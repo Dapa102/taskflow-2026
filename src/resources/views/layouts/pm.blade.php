@@ -96,11 +96,12 @@
 
         <div class="flex-1 flex flex-col min-w-0">
             <header class="bg-white border-b border-gray-200 h-16 flex items-center px-6">
-                <div class="flex-1">
-                    @isset($header)
-                        {{ $header }}
-                    @endisset
-                </div>
+                        <div class="flex-1">
+                            @isset($header)
+                                {{ $header }}
+                            @endisset
+                        </div>
+                        @livewire('notification-bell')
             </header>
 
             <main class="flex-1 overflow-y-auto">
