@@ -55,7 +55,7 @@
                                     <span class="w-3 h-3 rounded-full shrink-0" style="background: {{ $item['bg'] }}"></span>
                                     <span class="text-sm text-gray-600">{{ $item['label'] }}</span>
                                     <span class="ml-auto text-sm font-semibold text-gray-900">{{ $item['count'] }}</span>
-                                    <button wire:click="showDetail('{{ $item['label'] }}')" class="text-xs text-gray-400 hover:text-indigo-600 transition cursor-pointer underline" title="Lihat detail" type="button">Lihat</button>
+                                    <button wire:click="$set('detailModal', true)" class="text-xs text-gray-400 hover:text-indigo-600 transition cursor-pointer underline" title="Lihat detail" type="button">Lihat</button>
                                 </div>
                             @endforeach
                         </div>
