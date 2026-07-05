@@ -15,10 +15,20 @@ class AllTasks extends Component
     public $statusFilter = 'all';
     public $search = '';
 
+    public $detailModal = false;
+    public $detailTask = null;
+
     protected $queryString = ['statusFilter', 'search'];
 
     public function updatingStatusFilter() { $this->resetPage(); }
     public function updatingSearch() { $this->resetPage(); }
+
+    public function showDetail($id)
+    {
+        $this->detailTask = Task::with(['workspace', 'assignee', 'creator', 'attachments', 'comments.user'])
+            ->findOrFail($id);
+        $this->detailModal = true;
+    }
 
     public function render()
     {
