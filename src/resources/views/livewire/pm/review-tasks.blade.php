@@ -19,7 +19,7 @@
             @endif
 
             @forelse($pending as $task)
-                <div class="bg-white shadow sm:rounded-lg p-6 border-l-4 border-l-purple-500">
+                <div class="bg-white shadow sm:rounded-lg p-6">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <h4 class="font-semibold text-gray-900">{{ $task->title }}</h4>
