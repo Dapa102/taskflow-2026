@@ -81,10 +81,12 @@ class HubungiTeam extends Component
 
         $message = "*Pesan dari {$sender->name} (Super Admin)*\n\n{$this->body}";
 
+        $phone = '62' . ltrim($recipient->phone, '0');
+
         $response = Http::withHeaders([
             'Authorization' => $token,
         ])->post('https://api.fonnte.com/send', [
-            'target' => $recipient->phone,
+            'target' => $phone,
             'message' => $message,
             'countryCode' => '62',
         ]);
