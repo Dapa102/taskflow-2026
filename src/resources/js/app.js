@@ -80,7 +80,32 @@ function initDonutCharts() {
                 },
                 plugins: {
                     legend: {
-                        display: false,
+                        position: 'bottom',
+                        labels: {
+                            padding: 16,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12,
+                                family: 'Inter, system-ui, sans-serif',
+                            },
+                            generateLabels: (chart) => {
+                                const ds = chart.data.datasets[0];
+                                return chart.data.labels.map((label, i) => ({
+                                    text: `${label}: ${ds.data[i]}`,
+                                    fillStyle: ds.backgroundColor[i] || ds.backgroundColor,
+                                    strokeStyle: ds.borderColor,
+                                    pointStyle: 'circle',
+                                    index: i,
+                                }));
+                            },
+                        },
+                        onClick: (e, legendItem, legend) => {
+                            const label = legendItem.text.split(':')[0].trim();
+                            if (typeof Livewire !== 'undefined') {
+                                Livewire.dispatch('showDetail', { label: label });
+                            }
+                        },
                     },
                     tooltip: {
                         backgroundColor: 'rgba(15, 23, 42, 0.9)',
