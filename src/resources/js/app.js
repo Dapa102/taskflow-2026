@@ -67,6 +67,9 @@ function initDonutCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '68%',
+                layout: {
+                    padding: 12
+                },
                 animation: {
                     animateRotate: true,
                     duration: 1200,
