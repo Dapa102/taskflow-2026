@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\SuperAdmin;
 
 use App\Mail\ComposeMessage;
 use App\Models\User;
@@ -48,6 +48,6 @@ class ComposeEmail extends Component
     public function render()
     {
         $recipients = User::where('role', 'pm')->get();
-        return view('livewire.admin.compose-email', ['recipients' => $recipients]);
+        return view('livewire.super-admin.compose-email', ['recipients' => $recipients]);
     }
 }

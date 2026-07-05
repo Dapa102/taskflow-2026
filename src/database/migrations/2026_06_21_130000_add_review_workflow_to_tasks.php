@@ -14,7 +14,9 @@ return new class extends Migration
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->after('assigned_to');
         });
 
-        DB::statement("ALTER TABLE tasks MODIFY COLUMN status ENUM('todo','on_progress','pending_pm','pending_admin','revision','done') NOT NULL DEFAULT 'todo'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE tasks MODIFY COLUMN status ENUM('todo','on_progress','pending_pm','pending_admin','revision','done') NOT NULL DEFAULT 'todo'");
+        }
     }
 
     public function down(): void
@@ -23,6 +25,8 @@ return new class extends Migration
             $table->dropColumn(['review_note', 'reviewed_by']);
         });
 
-        DB::statement("ALTER TABLE tasks MODIFY COLUMN status ENUM('todo','on_progress','done') NOT NULL DEFAULT 'todo'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE tasks MODIFY COLUMN status ENUM('todo','on_progress','done') NOT NULL DEFAULT 'todo'");
+        }
     }
 };

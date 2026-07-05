@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\SuperAdmin;
 
 use App\Mail\ComposeMessage;
 use App\Models\Team;
@@ -105,7 +105,7 @@ class HubungiTeam extends Component
                 ->with('members.user')
                 ->get();
         }
-        return view('livewire.admin.hubungi-team', [
+        return view('livewire.super-admin.hubungi-team', [
             'recipients' => $recipients,
             'pmTeams' => $pmTeams,
         ]);

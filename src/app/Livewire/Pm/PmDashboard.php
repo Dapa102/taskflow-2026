@@ -13,11 +13,6 @@ use Carbon\Carbon;
 #[Layout('layouts.pm')]
 class PmDashboard extends Component
 {
-    public $workspaceName;
-    public $workspaceDesc;
-
-    public $inviteEmail;
-
     public $reviewNote;
     public $rejectTaskId;
     public $assignTaskId;
@@ -27,70 +22,11 @@ class PmDashboard extends Component
     public $detailTitle = '';
     public $detailTasks = [];
 
-    public function createWorkspace()
-    {
-        $this->validate([
-            'workspaceName' => 'required|string|max:100',
-            'workspaceDesc' => 'nullable|string',
-        ]);
-
-        if (auth()->user()->workspace) {
-            session()->flash('error', 'You already have a workspace.');
-            return;
-        }
-
-        Workspace::create([
-            'pm_id' => auth()->id(),
-            'name' => $this->workspaceName,
-            'description' => $this->workspaceDesc,
-        ]);
-
-        session()->flash('message', 'Workspace created successfully.');
-        $this->reset(['workspaceName', 'workspaceDesc']);
-    }
-
-    public function inviteMember()
-    {
-        $this->validate([
-            'inviteEmail' => 'required|email|exists:users,email',
-        ]);
-
-        $workspace = auth()->user()->workspace;
-        if (!$workspace) {
-            session()->flash('error', 'Create a workspace first.');
-            return;
-        }
-
-        $user = User::where('email', $this->inviteEmail)->where('role', 'member')->first();
-        if (!$user) {
-            session()->flash('error', 'User not found or is not a member role.');
-            return;
-        }
-
-        if ($workspace->members()->where('user_id', $user->id)->exists()) {
-            session()->flash('error', 'User is already in your workspace.');
-            return;
-        }
-
-        $workspace->members()->attach($user->id);
-        session()->flash('message', 'Member added successfully.');
-        $this->reset('inviteEmail');
-    }
-
-    public function removeMember($userId)
-    {
-        $workspace = auth()->user()->workspace;
-        if ($workspace) {
-            $workspace->members()->detach($userId);
-            session()->flash('message', 'Member removed.');
-        }
-    }
-
     public function assignToMember($taskId)
     {
         $this->validate(['assignMemberId' => 'required|exists:users,id']);
 
-        $workspace = auth()->user()->workspace;
+        $workspace = auth()->user()->currentWorkspace();
         if (!$workspace) return;
 
         $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
@@ -115,7 +51,7 @@ class PmDashboard extends Component
 
     public function approveTask($taskId)
     {
-        $workspace = auth()->user()->workspace;
+        $workspace = auth()->user()->currentWorkspace();
         if (!$workspace) return;
 
         $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
@@ -132,7 +68,7 @@ class PmDashboard extends Component
     {
         $this->validate(['reviewNote' => 'required|string|min:3|max:1000']);
 
-        $workspace = auth()->user()->workspace;
+        $workspace = auth()->user()->currentWorkspace();
         if (!$workspace) return;
 
         $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
@@ -185,7 +121,7 @@ class PmDashboard extends Component
 
     public function render()
     {
-        $workspace = auth()->user()->workspace;
+        $workspace = auth()->user()->currentWorkspace();
         $members = $workspace ? $workspace->members : collect();
 
         $tasks = $workspace

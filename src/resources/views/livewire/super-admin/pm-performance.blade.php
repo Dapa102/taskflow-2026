@@ -4,7 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('PM Performance Metrics') }}
             </h2>
-            <a href="{{ route('admin.dashboard') }}" class="text-sm text-gray-500 hover:underline">Back to Dashboard</a>
+            <a href="{{ route('super-admin.dashboard') }}" class="text-sm text-gray-500 hover:underline">Back to Dashboard</a>
         </div>
     </x-slot>
 
@@ -73,11 +73,11 @@
                                                 {{ $pm->email }} &middot; {{ $pm->phone ?? 'belum ada nomor telepon' }}
                                             </p>
                                             <div class="space-y-3">
-                                                <a href="{{ route('admin.hubungi.team') }}?recipient={{ $pm->id }}"
+                                                <a href="{{ route('super-admin.hubungi-team') }}?recipient={{ $pm->id }}"
                                                    class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
                                                     Kirim Email
                                                 </a>
-                                                <a href="{{ route('admin.hubungi.team') }}?recipient={{ $pm->id }}&sendType=whatsapp"
+                                                <a href="{{ route('super-admin.hubungi-team') }}?recipient={{ $pm->id }}&sendType=whatsapp"
                                                    class="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
                                                     Kirim WhatsApp
                                                 </a>

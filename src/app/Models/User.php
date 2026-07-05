@@ -8,11 +8,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles;
 
     protected $fillable = [
         'name',
@@ -38,14 +39,14 @@ class User extends Authenticatable
         ];
     }
 
-    public function workspace(): HasOne
+    public function workspaces(): HasMany
     {
-        return $this->hasOne(Workspace::class, 'pm_id');
+        return $this->hasMany(Workspace::class, 'pm_id');
     }
 
-    public function deputyWorkspace(): HasOne
+    public function currentWorkspace()
     {
-        return $this->hasOne(Workspace::class, 'deputy_pm_id');
+        return $this->workspaces()->first();
     }
 
     public function memberWorkspaces(): BelongsToMany

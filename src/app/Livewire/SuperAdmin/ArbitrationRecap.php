@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\SuperAdmin;
 
 use Livewire\Component;
 use App\Models\Task;
@@ -43,7 +43,7 @@ class ArbitrationRecap extends Component
             $detail = ['task' => $task, 'histories' => $histories];
         }
 
-        return view('livewire.admin.arbitration-recap', [
+        return view('livewire.super-admin.arbitration-recap', [
             'tasks' => $tasks,
             'detail' => $detail,
         ]);

@@ -48,7 +48,7 @@ class ComposeEmail extends Component
     public function render()
     {
         $pm = auth()->user();
-        $workspace = $pm->workspace;
+        $workspace = $pm->currentWorkspace();
         $recipients = $workspace ? $workspace->members : collect();
 
         return view('livewire.pm.compose-email', ['recipients' => $recipients]);

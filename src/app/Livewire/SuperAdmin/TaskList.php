@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\SuperAdmin;
 
 use Livewire\Component;
 use App\Models\Task;
@@ -91,7 +91,7 @@ class TaskList extends Component
                   ->where('status', '!=', 'done');
         }
 
-        return view('livewire.admin.task-list', [
+        return view('livewire.super-admin.task-list', [
             'tasks' => $query->latest()->paginate(20),
         ]);
     }

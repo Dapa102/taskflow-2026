@@ -73,7 +73,7 @@ class SuperAdminDashboard extends Component
         ];
 
         $pms = User::where('role', 'pm')
-            ->with(['workspace'])
+            ->with(['workspaces'])
             ->where('is_active', true)
             ->get()
             ->map(fn($pm) => [
@@ -81,7 +81,8 @@ class SuperAdminDashboard extends Component
                 'name' => $pm->name,
                 'email' => $pm->email,
                 'phone' => $pm->phone,
-                'workspace' => $pm->workspace,
+                'workspace' => $pm->workspaces->first(),
+                'workspace_count' => $pm->workspaces->count(),
                 'active_tasks' => Task::where('assigned_pm_id', $pm->id)
                     ->whereNotIn('status', ['done', 'cancelled'])->count(),
                 'pending_review' => Task::where('assigned_pm_id', $pm->id)

@@ -13,6 +13,7 @@ class Task extends Model
 
     protected $fillable = [
         'workspace_id',
+        'project_id',
         'created_by',
         'assigned_to',
         'recommended_pm_id',
@@ -47,6 +48,11 @@ class Task extends Model
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 
     public function creator(): BelongsTo

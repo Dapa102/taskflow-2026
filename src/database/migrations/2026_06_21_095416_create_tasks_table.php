@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('team_id')->nullable()->index();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('status', ['todo', 'on_progress', 'done'])->default('todo');
-            $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
+            $table->string('status', 30)->default('todo');
+            $table->string('priority', 10)->default('medium');
             $table->date('deadline')->nullable();
             $table->timestamps();
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\SuperAdmin;
 
 use Livewire\Component;
 use App\Models\User;
@@ -58,7 +58,7 @@ class UserManagement extends Component
     {
         $users = User::latest()->get();
 
-        return view('livewire.admin.user-management', [
+        return view('livewire.super-admin.user-management', [
             'users' => $users,
         ]);
     }

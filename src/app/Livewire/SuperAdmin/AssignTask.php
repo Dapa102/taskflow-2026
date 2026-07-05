@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\SuperAdmin;
 
 use Livewire\Component;
 use App\Models\User;
@@ -62,7 +62,7 @@ class AssignTask extends Component
             $workspaces = Workspace::where('pm_id', $this->selectedPm)->get();
         }
 
-        return view('livewire.admin.assign-task', [
+        return view('livewire.super-admin.assign-task', [
             'pms' => $pms,
             'workspaces' => $workspaces,
         ]);

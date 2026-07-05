@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\SuperAdmin;
 
 use Livewire\Component;
 use App\Models\User;
@@ -32,7 +32,7 @@ class PmPerformance extends Component
             return $pmsList;
         });
 
-        return view('livewire.admin.pm-performance', [
+        return view('livewire.super-admin.pm-performance', [
             'pms' => $pms
         ]);
     }

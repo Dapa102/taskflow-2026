@@ -9,9 +9,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // ============================================================
-        // Step 0.1 — tasks: tambah field BRD (skip kalo udah ada)
-        // ============================================================
         Schema::table('tasks', function (Blueprint $table) {
             if (!Schema::hasColumn('tasks', 'recommended_pm_id')) {
                 $table->foreignId('recommended_pm_id')->nullable()->constrained('users')->after('created_by');
@@ -38,23 +35,27 @@ return new class extends Migration
                 $table->text('cancellation_note')->nullable()->after('escalated_at');
             }
             if (!Schema::hasColumn('tasks', 'arbitration_decision')) {
-                $table->enum('arbitration_decision', ['approved', 'return_to_revision'])->nullable()->after('cancellation_note');
+                $table->string('arbitration_decision', 30)->nullable()->after('cancellation_note');
             }
         });
 
         // Step 0.2 — Migrasi status: dari legacy 6 status ke 9 status BRD
-        // Cek apakah status sudah berisi 'draft' atau belum
-        $statusCol = DB::select("SHOW COLUMNS FROM tasks WHERE Field = 'status'")[0]->Type ?? '';
-        if (strpos($statusCol, 'draft') === false) {
+        if (DB::getDriverName() === 'mysql') {
+            $statusCol = DB::select("SHOW COLUMNS FROM tasks WHERE Field = 'status'")[0]->Type ?? '';
+            if (strpos($statusCol, 'draft') === false) {
+                DB::statement("UPDATE tasks SET status = 'draft' WHERE status = 'todo'");
+                DB::statement("UPDATE tasks SET status = 'assigned_member' WHERE status = 'on_progress'");
+                DB::statement("
+                    ALTER TABLE tasks
+                    MODIFY COLUMN status ENUM(
+                        'draft','assigned_pm','assigned_member','pending_pm',
+                        'revision','pending_arbitration','pending_admin','done','cancelled'
+                    ) NOT NULL DEFAULT 'draft'
+                ");
+            }
+        } else {
             DB::statement("UPDATE tasks SET status = 'draft' WHERE status = 'todo'");
             DB::statement("UPDATE tasks SET status = 'assigned_member' WHERE status = 'on_progress'");
-            DB::statement("
-                ALTER TABLE tasks
-                MODIFY COLUMN status ENUM(
-                    'draft','assigned_pm','assigned_member','pending_pm',
-                    'revision','pending_arbitration','pending_admin','done','cancelled'
-                ) NOT NULL DEFAULT 'draft'
-            ");
         }
 
         // ============================================================
@@ -81,10 +82,10 @@ return new class extends Migration
                 $table->id();
                 $table->foreignId('user_id')->constrained()->onDelete('cascade');
                 $table->foreignId('task_id')->nullable()->constrained()->onDelete('cascade');
-                $table->enum('channel', ['whatsapp', 'email', 'inbox']);
+                $table->string('channel', 20);
                 $table->string('subject', 200);
                 $table->text('message')->nullable();
-                $table->enum('status', ['pending', 'sent', 'failed', 'read'])->default('pending');
+                $table->string('status', 20)->default('pending');
                 $table->timestamp('sent_at')->nullable();
                 $table->timestamps();
                 $table->index(['user_id', 'status', 'created_at']);
@@ -103,10 +104,12 @@ return new class extends Migration
         // role: mapping ke BRD + update ENUM
         DB::statement("UPDATE users SET role = 'super_admin' WHERE role = 'admin'");
         DB::statement("UPDATE users SET role = 'member' WHERE role NOT IN ('super_admin', 'pm', 'member')");
-        DB::statement("
-            ALTER TABLE users
-            MODIFY COLUMN role ENUM('super_admin', 'pm', 'member') DEFAULT 'member'
-        ");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("
+                ALTER TABLE users
+                MODIFY COLUMN role ENUM('super_admin', 'pm', 'member') DEFAULT 'member'
+            ");
+        }
 
         // ============================================================
         // Step 0.6 — workspaces: deputy_pm_id
@@ -134,8 +137,10 @@ return new class extends Migration
                 $table->dropColumn('nomor_whatsapp');
             });
         }
-        DB::statement("UPDATE users SET role = 'admin' WHERE role = 'super_admin'");
-        DB::statement("ALTER TABLE users MODIFY COLUMN role VARCHAR(20) DEFAULT 'member'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("UPDATE users SET role = 'admin' WHERE role = 'super_admin'");
+            DB::statement("ALTER TABLE users MODIFY COLUMN role VARCHAR(20) DEFAULT 'member'");
+        }
 
         // Reverse Step 0.4
         Schema::dropIfExists('inbox_notifications');
@@ -146,13 +151,15 @@ return new class extends Migration
         // Reverse Step 0.2
         DB::statement("UPDATE tasks SET status = 'todo' WHERE status = 'draft'");
         DB::statement("UPDATE tasks SET status = 'on_progress' WHERE status = 'assigned_member'");
-        $statusCol = DB::select("SHOW COLUMNS FROM tasks WHERE Field = 'status'")[0]->Type ?? '';
-        if (strpos($statusCol, 'todo') === false) {
-            DB::statement("
-                ALTER TABLE tasks
-                MODIFY COLUMN status ENUM('todo','on_progress','pending_pm','pending_admin','revision','done')
-                NOT NULL DEFAULT 'todo'
-            ");
+        if (DB::getDriverName() === 'mysql') {
+            $statusCol = DB::select("SHOW COLUMNS FROM tasks WHERE Field = 'status'")[0]->Type ?? '';
+            if (strpos($statusCol, 'todo') === false) {
+                DB::statement("
+                    ALTER TABLE tasks
+                    MODIFY COLUMN status ENUM('todo','on_progress','pending_pm','pending_admin','revision','done')
+                    NOT NULL DEFAULT 'todo'
+                ");
+            }
         }
 
         // Reverse Step 0.1

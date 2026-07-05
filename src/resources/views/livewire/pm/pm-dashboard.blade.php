@@ -16,21 +16,8 @@
             @endif
 
             @if(!$workspace)
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Create Workspace</h3>
-                    <form wire:submit="createWorkspace" class="space-y-4 max-w-xl">
-                        <div>
-                            <x-input-label for="workspaceName" value="Workspace Name" />
-                            <x-text-input id="workspaceName" wire:model="workspaceName" type="text" class="mt-1 block w-full" required />
-                            <x-input-error :messages="$errors->get('workspaceName')" class="mt-2" />
-                        </div>
-                        <div>
-                            <x-input-label for="workspaceDesc" value="Description" />
-                            <textarea wire:model="workspaceDesc" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"></textarea>
-                            <x-input-error :messages="$errors->get('workspaceDesc')" class="mt-2" />
-                        </div>
-                        <x-primary-button>Create Workspace</x-primary-button>
-                    </form>
+                <div class="p-6 bg-white shadow sm:rounded-lg">
+                    <p class="text-gray-600">Anda belum ditugaskan ke workspace. Hubungi Super Admin.</p>
                 </div>
             @else
                 <div class="grid grid-cols-5 gap-4">
@@ -116,52 +103,22 @@
                 </div>
                 @endif
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="md:col-span-1 space-y-6">
-                        <div class="p-4 bg-white shadow sm:rounded-lg">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Team Members</h3>
-
-                            <form wire:submit="inviteMember" class="flex gap-2 mb-4">
-                                <x-text-input wire:model="inviteEmail" type="email" placeholder="Member email" class="w-full" required />
-                                <x-primary-button>Add</x-primary-button>
-                            </form>
-                            <x-input-error :messages="$errors->get('inviteEmail')" class="mb-4" />
-
-                            <ul class="space-y-2">
-                                <li class="flex items-center text-sm p-2 bg-purple-50 rounded border border-purple-200">
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                        {{ auth()->user()->name }}
-                                        <span class="text-purple-400">(Project Manager)</span>
-                                    </span>
-                                </li>
-                                @forelse($members as $member)
-                                    <li class="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
-                                        <div class="flex items-center gap-2">
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                                                {{ $member->name }}
-                                                @php
-                                                    $wl = $memberWorkload->firstWhere('user.id', $member->id);
-                                                @endphp
-                                                @if($wl && $wl['active_tasks'] > 0)
-                                                    <span class="text-indigo-400">({{ $wl['active_tasks'] }} aktif)</span>
-                                                @endif
-                                            </span>
-                                        </div>
-                                        <button wire:click="removeMember({{ $member->id }})" wire:confirm="Remove member?" class="text-red-500 hover:text-red-700 text-xs">Remove</button>
-                                    </li>
-                                @empty
-                                    <li class="text-sm text-gray-500">No members yet.</li>
-                                @endforelse
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="md:col-span-2 space-y-6">
+                <div class="space-y-6">
                         <div class="p-4 bg-white shadow sm:rounded-lg">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">Semua Tugas</h3>
                             <div class="space-y-4">
                                 @forelse($tasks as $task)
-                                    <div class="p-4 border rounded-lg {{ $task->status === 'done' ? 'bg-gray-50' : ($task->status === 'pending_pm' ? 'border-yellow-300 bg-yellow-50' : ($task->status === 'revision' ? 'border-orange-300 bg-orange-50' : ($task->status === 'assigned_pm' ? 'border-blue-200 bg-blue-50' : ($task->status === 'pending_arbitration' ? 'border-red-300 bg-red-50' : 'bg-white'))) }}">
+                                    @php
+                                        $cardClass = match($task->status) {
+                                            'done' => 'bg-gray-50',
+                                            'pending_pm' => 'border-yellow-300 bg-yellow-50',
+                                            'revision' => 'border-orange-300 bg-orange-50',
+                                            'assigned_pm' => 'border-blue-200 bg-blue-50',
+                                            'pending_arbitration' => 'border-red-300 bg-red-50',
+                                            default => 'bg-white',
+                                        };
+                                    @endphp
+                                    <div class="p-4 border rounded-lg {{ $cardClass }}">
                                         <div class="flex justify-between items-start">
                                             <div class="flex-1">
                                                 <div class="font-medium {{ $task->status === 'done' ? 'line-through text-gray-500' : '' }}">

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\SuperAdmin;
 
 use Livewire\Component;
 use App\Models\Task;
@@ -98,7 +98,7 @@ class TaskOversight extends Component
 
         $pms = User::where('role', 'pm')->get();
 
-        return view('livewire.admin.task-oversight', [
+        return view('livewire.super-admin.task-oversight', [
             'tasks' => $query->latest()->paginate(15),
             'pms' => $pms,
         ]);
