@@ -33,6 +33,11 @@ class ComposeMessage extends Mailable
     {
         return new Content(
             markdown: 'emails.compose',
+            with: [
+                'subject' => $this->subject,
+                'body' => $this->body,
+                'senderName' => $this->senderName,
+            ],
         );
     }
 }
