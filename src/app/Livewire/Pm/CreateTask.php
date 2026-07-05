@@ -62,8 +62,23 @@ class CreateTask extends Component
     public function render()
     {
         $workspace = auth()->user()->currentWorkspace();
-        $projects = $workspace ? $workspace->projects()->where('status', 'active')->latest()->get() : collect();
-        $members = $workspace ? $workspace->members()->latest()->get() : collect();
+
+        $projects = collect();
+        $members = collect();
+
+        if ($workspace) {
+            try {
+                $projects = $workspace->projects()->where('status', 'active')->latest()->get();
+            } catch (\Exception $e) {
+                $projects = collect();
+            }
+
+            try {
+                $members = $workspace->members()->latest()->get();
+            } catch (\Exception $e) {
+                $members = collect();
+            }
+        }
 
         return view('livewire.pm.create-task', [
             'workspace' => $workspace,
