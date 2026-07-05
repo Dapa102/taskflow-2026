@@ -37,6 +37,8 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/workspace', \App\Livewire\Pm\WorkspaceDetail::class)->name('workspace');
         Route::get('/projects', \App\Livewire\Pm\Projects::class)->name('projects');
         Route::get('/create-task', \App\Livewire\Pm\CreateTask::class)->name('create-task');
+        Route::get('/review-tasks', \App\Livewire\Pm\ReviewTasks::class)->name('review-tasks');
+        Route::get('/tasks/{task}', \App\Livewire\Pm\TaskDetail::class)->name('task-detail');
     });
 
     Route::middleware(['role:member'])->prefix('member')->name('member.')->group(function () {
