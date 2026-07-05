@@ -227,8 +227,9 @@ function initBarCharts() {
 
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initCharts, 100);
-    Livewire.hook('message.processed', () => {
-        setTimeout(initCharts, 50);
-    });
+    (function waitLivewire() {
+        if (typeof Livewire === 'undefined') return setTimeout(waitLivewire, 50);
+        Livewire.hook('message.processed', () => setTimeout(initCharts, 50));
+    })();
 });
 
