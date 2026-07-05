@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Task;
 use App\Services\TaskStatusHistoryService;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Carbon\Carbon;
 
 #[Layout('layouts.pm')]
@@ -99,6 +100,7 @@ class PmDashboard extends Component
         $this->reset(['reviewNote', 'rejectTaskId']);
     }
 
+    #[On('showDetail')]
     public function showDetail($label)
     {
         $this->detailTitle = $label;

@@ -14,11 +14,21 @@ class PmAllTasks extends Component
 
     public $statusFilter = 'all';
     public $search = '';
+    public $showDetailModal = false;
+    public $detailTask = null;
 
     protected $queryString = ['statusFilter', 'search'];
 
     public function updatingStatusFilter() { $this->resetPage(); }
     public function updatingSearch() { $this->resetPage(); }
+
+    public function showDetail($taskId)
+    {
+        $this->detailTask = Task::with(['workspace', 'assignedMember', 'creator', 'attachments'])
+            ->where('assigned_pm_id', auth()->id())
+            ->findOrFail($taskId);
+        $this->showDetailModal = true;
+    }
 
     public function render()
     {
