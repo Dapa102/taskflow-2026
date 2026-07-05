@@ -41,6 +41,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/dashboard', \App\Livewire\Member\MemberDashboard::class)->name('dashboard');
         Route::get('/tasks', \App\Livewire\Member\Tasks::class)->name('tasks');
         Route::get('/history', \App\Livewire\Member\TaskHistory::class)->name('history');
+        Route::get('/teams', \App\Livewire\Member\MemberTeams::class)->name('teams');
     });
 
     Route::middleware(['role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
