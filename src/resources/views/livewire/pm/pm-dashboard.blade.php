@@ -185,7 +185,7 @@
                                             </div>
 
                                             <div class="flex items-center gap-2 shrink-0 ml-4">
-                                                @if($task->status === 'assigned_pm' || $task->status === 'assigned_member')
+                                                @if($task->status === 'assigned_pm')
                                                     <button wire:click="$set('assignTaskId', {{ $task->id }})"
                                                         class="px-3 py-1 text-xs bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
                                                         Assign

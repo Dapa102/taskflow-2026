@@ -29,21 +29,23 @@ class PmDashboard extends Component
         $workspace = auth()->user()->currentWorkspace();
         if (!$workspace) return;
 
-        $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
+        $task = Task::where('assigned_pm_id', auth()->id())
+            ->whereIn('status', ['assigned_pm', 'assigned_member'])
+            ->findOrFail($taskId);
 
         if (!$workspace->members()->where('user_id', $this->assignMemberId)->exists()) {
             session()->flash('error', 'Member must be in your workspace.');
             return;
         }
 
-        app(TaskStatusHistoryService::class)->transition(
-            $task, 'assigned_member', "Ditugaskan ke {$this->assignMemberId}"
-        );
-
         $task->update([
             'assigned_member_id' => $this->assignMemberId,
             'assigned_to' => $this->assignMemberId,
         ]);
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, 'assigned_member', "Ditugaskan ke {$this->assignMemberId}"
+        );
 
         session()->flash('message', 'Task assigned to member.');
         $this->reset(['assignTaskId', 'assignMemberId']);
