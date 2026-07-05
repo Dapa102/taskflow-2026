@@ -6,7 +6,6 @@ use Livewire\Component;
 use App\Models\Task;
 use App\Models\User;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\On;
 use Livewire\WithFileUploads;
 use App\Services\TaskStatusHistoryService;
 use Carbon\Carbon;
@@ -55,7 +54,6 @@ class MemberDashboard extends Component
         $this->reset('upload');
     }
 
-    #[On('showDetail')]
     public function showDetail($label)
     {
         $this->detailTitle = $label;
