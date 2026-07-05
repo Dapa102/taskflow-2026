@@ -10,8 +10,8 @@
             @endif
 
             @php
-                $pending = $tasks->where('status', 'pending_review');
-                $other = $tasks->where('status', '!=', 'pending_review');
+                $pending = $tasks->where('status', 'pending_pm');
+                $other = $tasks->where('status', '!=', 'pending_pm');
             @endphp
 
             @if($pending->count())
@@ -68,10 +68,27 @@
                                     <span class="text-sm font-medium text-gray-900">{{ $task->title }}</span>
                                     <span class="text-xs text-gray-400 ml-2">— {{ $task->assignedMember?->name ?? '—' }}</span>
                                 </div>
-                                <span class="text-xs px-2 py-1 rounded-full
-                                    {{ $task->status === 'done' ? 'bg-green-50 text-green-700' : ($task->status === 'assigned_member' ? 'bg-blue-50 text-blue-700' : ($task->status === 'in_progress' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-gray-500')) }}">
-                                    {{ str_replace('_', ' ', $task->status) }}
-                                </span>
+                                @php
+                                    $statusLabel = match($task->status) {
+                                        'assigned_pm' => 'Dikirim ke PM',
+                                        'assigned_member' => 'Dikerjakan',
+                                        'pending_admin' => 'Menunggu Approval',
+                                        'revision' => 'Revisi',
+                                        'pending_arbitration' => 'Arbitrase',
+                                        'done' => 'Selesai',
+                                        default => str_replace('_', ' ', $task->status),
+                                    };
+                                    $statusColor = match($task->status) {
+                                        'assigned_pm' => 'bg-blue-50 text-blue-700',
+                                        'assigned_member' => 'bg-indigo-50 text-indigo-700',
+                                        'revision' => 'bg-orange-50 text-orange-700',
+                                        'pending_admin' => 'bg-purple-50 text-purple-700',
+                                        'pending_arbitration' => 'bg-red-50 text-red-700',
+                                        'done' => 'bg-green-50 text-green-700',
+                                        default => 'bg-gray-100 text-gray-500',
+                                    };
+                                @endphp
+                                <span class="text-xs px-2 py-1 rounded-full {{ $statusColor }}">{{ $statusLabel }}</span>
                             </div>
                         @endforeach
                     </div>

@@ -4,36 +4,29 @@ namespace App\Livewire\Member;
 
 use Livewire\Component;
 use App\Models\Task;
+use App\Services\TaskStatusHistoryService;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.member')]
 class Tasks extends Component
 {
-    public $taskId;
-    public $statusNote = '';
+    public $upload = [];
+    public $uploadingTaskId;
+    public $submitTaskId = null;
 
-    public function updateStatus($taskId, $status)
+    public function submitTask($taskId)
     {
-        $task = Task::where('id', $taskId)->where('assigned_member_id', auth()->id())->firstOrFail();
+        $task = Task::where('assigned_member_id', auth()->id())
+            ->whereIn('status', ['assigned_member', 'revision'])
+            ->findOrFail($taskId);
 
-        $allowed = [
-            'in_progress',
-            'pending_review',
-        ];
-
-        if (!in_array($status, $allowed)) {
-            session()->flash('error', 'Status tidak valid.');
-            return;
-        }
-
-        $task->status = $status;
-        $task->save();
-
-        app(\App\Services\TaskStatusHistoryService::class)->record(
-            $task, $status, $status, 'Status diperbarui oleh anggota'
+        app(TaskStatusHistoryService::class)->transition(
+            $task, 'pending_pm', 'Tugas diserahkan oleh anggota'
         );
 
-        session()->flash('message', 'Status tugas berhasil diperbarui.');
+        $task->update(['submitted_at' => now()]);
+
+        session()->flash('message', 'Tugas berhasil dikirim untuk direview PM.');
     }
 
     public function render()

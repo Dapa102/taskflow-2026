@@ -13,7 +13,12 @@
             @endif
 
             @forelse($tasks as $task)
-                <div class="bg-white shadow sm:rounded-lg p-6 border-l-4 {{ $task->status === 'done' ? 'border-l-green-500' : ($task->status === 'in_progress' ? 'border-l-yellow-500' : ($task->status === 'pending_review' ? 'border-l-purple-500' : 'border-l-gray-300')) }}">
+                <div class="bg-white shadow sm:rounded-lg p-6 border-l-4
+                    {{ $task->status === 'done' ? 'border-l-green-500' : '' }}
+                    {{ $task->status === 'pending_pm' ? 'border-l-purple-500' : '' }}
+                    {{ $task->status === 'revision' ? 'border-l-orange-500' : '' }}
+                    {{ in_array($task->status, ['assigned_member', 'assigned_pm']) ? 'border-l-blue-500' : '' }}
+                ">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <h4 class="font-semibold text-gray-900">{{ $task->title }}</h4>
@@ -30,21 +35,24 @@
                                 @if($task->deadline)
                                     <span>Deadline: {{ $task->deadline->format('d M Y') }}</span>
                                 @endif
+                                @if($task->status === 'revision' && $task->review_note)
+                                    <span class="px-2 py-0.5 rounded bg-orange-50 text-orange-600">Catatan: {{ $task->review_note }}</span>
+                                @endif
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            @if($task->status === 'assigned_member')
-                                <button wire:click="updateStatus({{ $task->id }}, 'in_progress')"
-                                    class="px-3 py-1 text-xs font-medium bg-yellow-600 text-white rounded-md hover:bg-yellow-700">
-                                    Mulai
-                                </button>
-                            @elseif($task->status === 'in_progress')
-                                <button wire:click="updateStatus({{ $task->id }}, 'pending_review')"
-                                    class="px-3 py-1 text-xs font-medium bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                            @if(in_array($task->status, ['assigned_member', 'revision']))
+                                <button wire:click="submitTask({{ $task->id }})"
+                                    wire:confirm="Kirim tugas ini untuk direview PM?"
+                                    class="px-3 py-1 text-xs font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
                                     Ajukan Review
                                 </button>
-                            @elseif($task->status === 'pending_review')
-                                <span class="text-xs px-2 py-1 rounded-full bg-purple-50 text-purple-700">Menunggu Review</span>
+                            @elseif($task->status === 'pending_pm')
+                                <span class="text-xs px-2 py-1 rounded-full bg-purple-50 text-purple-700">Menunggu Review PM</span>
+                            @elseif($task->status === 'pending_admin')
+                                <span class="text-xs px-2 py-1 rounded-full bg-purple-50 text-purple-700">Menunggu Approval Admin</span>
+                            @elseif($task->status === 'pending_arbitration')
+                                <span class="text-xs px-2 py-1 rounded-full bg-red-50 text-red-700">Arbitrase</span>
                             @elseif($task->status === 'done')
                                 <span class="text-xs px-2 py-1 rounded-full bg-green-50 text-green-700">Selesai</span>
                             @else

@@ -55,14 +55,18 @@ class TaskOversight extends Component
         $pm = User::findOrFail($pmId);
 
         $task->update([
-            'assigned_to' => $pmId,
-            'status' => 'todo',
+            'assigned_pm_id' => $pmId,
+            'status' => 'assigned_pm',
         ]);
 
         $workspace = $task->workspace;
         if ($workspace && $workspace->pm_id !== $pmId) {
             $workspace->update(['pm_id' => $pmId]);
         }
+
+        app(\App\Services\TaskStatusHistoryService::class)->record(
+            $task, 'draft', 'assigned_pm', "Ditugaskan ke PM oleh Super Admin"
+        );
 
         session()->flash('message', "Task assigned to PM {$pm->name}.");
         $this->closeDetail();
@@ -71,9 +75,7 @@ class TaskOversight extends Component
     public function render()
     {
         $query = Task::with(['workspace', 'assignee', 'creator', 'attachments'])
-            ->whereHas('creator', function ($q) {
-                $q->where('role', 'super_admin');
-            });
+            ->whereNotIn('status', ['done', 'cancelled']);
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -85,9 +87,9 @@ class TaskOversight extends Component
         }
 
         if ($this->statusFilter === 'pending') {
-            $query->whereNull('assigned_to');
+            $query->whereNull('assigned_pm_id');
         } elseif ($this->statusFilter === 'given') {
-            $query->whereNotNull('assigned_to');
+            $query->whereNotNull('assigned_pm_id');
         } elseif ($this->statusFilter === 'overdue') {
             $query->whereNotNull('deadline')
                   ->where('deadline', '<', now())

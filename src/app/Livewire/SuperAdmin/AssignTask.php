@@ -42,10 +42,10 @@ class AssignTask extends Component
         Task::create([
             'workspace_id' => $workspace->id,
             'created_by' => auth()->id(),
-            'assigned_to' => $workspace->pm_id,
+            'assigned_pm_id' => $workspace->pm_id,
             'title' => $this->title,
             'description' => $this->description,
-            'status' => 'todo',
+            'status' => 'assigned_pm',
             'priority' => $this->priority,
             'deadline' => $this->deadline ?: null,
         ]);
