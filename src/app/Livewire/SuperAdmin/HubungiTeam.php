@@ -42,6 +42,16 @@ class HubungiTeam extends Component
         return $rules;
     }
 
+    protected function messages(): array
+    {
+        return [
+            'recipientId.required' => 'Pilih Project Manager terlebih dahulu.',
+            'recipientId.exists' => 'PM yang dipilih tidak valid.',
+            'body.required' => 'Pesan harus diisi.',
+            'subject.required' => 'Subjek email harus diisi.',
+        ];
+    }
+
     public function send(): void
     {
         $this->validate();
