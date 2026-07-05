@@ -80,38 +80,7 @@ function initDonutCharts() {
                 },
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 16,
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: {
-                                size: 12,
-                                family: 'Inter, system-ui, sans-serif',
-                            },
-                            generateLabels: (chart) => {
-                                const ds = chart.data.datasets[0];
-                                return chart.data.labels.map((label, i) => ({
-                                    text: `${label}: ${ds.data[i]}`,
-                                    fillStyle: ds.backgroundColor[i] || ds.backgroundColor,
-                                    strokeStyle: ds.borderColor,
-                                    pointStyle: 'circle',
-                                    index: i,
-                                }));
-                            },
-                        },
-                        onClick: (e, legendItem, legend) => {
-                            const index = legendItem.index;
-                            const meta = legend.chart.getDatasetMeta(0);
-                            const ci = meta.data[index];
-                            if (ci && ci.$context && ci.$context.raw !== undefined) {
-                                const card = el.closest('[data-donut-card]');
-                                if (card) {
-                                    const btn = card.querySelectorAll('.legend-btn');
-                                    if (btn[index]) btn[index].click();
-                                }
-                            }
-                        },
+                        display: false,
                     },
                     tooltip: {
                         backgroundColor: 'rgba(15, 23, 42, 0.9)',
