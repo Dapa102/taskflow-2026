@@ -23,6 +23,9 @@ class MemberDashboard extends Component
     public $detailTitle = '';
     public $detailTasks = [];
 
+    public $detailTaskModal = false;
+    public $detailTask = null;
+
     public function submitTask($taskId)
     {
         $this->validate([
@@ -50,6 +53,15 @@ class MemberDashboard extends Component
 
         session()->flash('message', 'Tugas selesai dikerjakan. Menunggu review PM.');
         $this->reset('upload');
+    }
+
+    public function showTaskDetail($taskId)
+    {
+        $this->detailTask = Task::with(['workspace', 'assignedPm', 'creator', 'attachments', 'comments.user'])
+            ->where('assigned_member_id', auth()->id())
+            ->findOrFail($taskId);
+
+        $this->detailTaskModal = true;
     }
 
     #[On('showDetail')]
