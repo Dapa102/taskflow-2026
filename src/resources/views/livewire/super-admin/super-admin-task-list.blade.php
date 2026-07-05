@@ -126,24 +126,10 @@
                                 {{ $task->deadline?->format('Y-m-d') ?? '-' }}
                             </td>
                             <td class="px-4 py-3 text-sm space-x-1">
-                                <button wire:click="viewDetail({{ $task->id }})" class="text-gray-400 hover:text-indigo-600 transition" title="Lihat detail">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                </button>
-                                <button wire:click="viewHistory({{ $task->id }})" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Riwayat</button>
-                                @if($task->status === 'pending_admin')
-                                <button wire:click="approveTask({{ $task->id }})" wire:confirm="Setujui tugas ini?" class="text-green-600 hover:text-green-800 text-xs font-medium">Setujui</button>
-                                @endif
-                                @if($task->status === 'pending_arbitration')
-                                <button wire:click="confirmArbitration({{ $task->id }}, 'approve')" class="text-green-600 hover:text-green-800 text-xs font-medium">Setujui</button>
-                                <button wire:click="confirmArbitration({{ $task->id }}, 'reject')" class="text-orange-600 hover:text-orange-800 text-xs font-medium">Tolak</button>
-                                @endif
-                                @if($task->escalated_at && $task->status === 'pending_pm')
-                                <button wire:click="approveEscalatedTask({{ $task->id }})" wire:confirm="Setujui langsung (bypass PM)?" class="text-green-600 hover:text-green-800 text-xs font-medium">Setujui</button>
-                                <button wire:click="rejectEscalatedTask({{ $task->id }})" wire:confirm="Kembalikan ke anggota untuk revisi?" class="text-orange-600 hover:text-orange-800 text-xs font-medium">Tolak</button>
-                                <button wire:click="confirmReassign({{ $task->id }})" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Pindahkan</button>
-                                @endif
+                                <button wire:click="viewDetail({{ $task->id }})" class="px-3 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100">Detail</button>
+                                <button wire:click="viewHistory({{ $task->id }})" class="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50 rounded-md hover:bg-gray-100">Riwayat</button>
                                 @if(!in_array($task->status, ['done', 'cancelled']))
-                                <button wire:click="confirmCancel({{ $task->id }})" class="text-red-600 hover:text-red-800 text-xs font-medium">Batalkan</button>
+                                <button wire:click="confirmCancel({{ $task->id }})" class="px-3 py-1 text-xs font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100">Batalkan</button>
                                 @endif
                             </td>
                         </tr>
@@ -248,6 +234,22 @@
                             @endforeach
                         </div>
                     </div>
+                @endif
+                @if(in_array($detailTask->status, ['pending_admin', 'pending_arbitration']) || ($detailTask->escalated_at && $detailTask->status === 'pending_pm'))
+                <div class="border-t pt-4 flex gap-2 justify-end">
+                    @if($detailTask->status === 'pending_admin')
+                    <button wire:click="approveTask({{ $detailTask->id }})" wire:click="$set('showDetailModal', false)" class="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700">Setujui</button>
+                    @endif
+                    @if($detailTask->status === 'pending_arbitration')
+                    <button wire:click="confirmArbitration({{ $detailTask->id }}, 'approve')" wire:click="$set('showDetailModal', false)" class="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700">Setujui</button>
+                    <button wire:click="confirmArbitration({{ $detailTask->id }}, 'reject')" wire:click="$set('showDetailModal', false)" class="px-4 py-2 text-sm bg-orange-600 text-white rounded-md hover:bg-orange-700">Tolak</button>
+                    @endif
+                    @if($detailTask->escalated_at && $detailTask->status === 'pending_pm')
+                    <button wire:click="approveEscalatedTask({{ $detailTask->id }})" wire:click="$set('showDetailModal', false)" class="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700">Setujui</button>
+                    <button wire:click="rejectEscalatedTask({{ $detailTask->id }})" wire:click="$set('showDetailModal', false)" class="px-4 py-2 text-sm bg-orange-600 text-white rounded-md hover:bg-orange-700">Tolak</button>
+                    <button wire:click="confirmReassign({{ $detailTask->id }})" wire:click="$set('showDetailModal', false)" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">Pindahkan</button>
+                    @endif
+                </div>
                 @endif
             </div>
         </div>

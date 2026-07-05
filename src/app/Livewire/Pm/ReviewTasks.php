@@ -12,6 +12,16 @@ class ReviewTasks extends Component
 {
     public $reviewNote = '';
     public $taskId;
+    public $showDetailModal = false;
+    public $detailTask = null;
+
+    public function showDetail($taskId)
+    {
+        $this->detailTask = Task::with(['project', 'assignedMember', 'creator', 'attachments'])
+            ->where('assigned_pm_id', auth()->id())
+            ->findOrFail($taskId);
+        $this->showDetailModal = true;
+    }
 
     public function approve($taskId)
     {
@@ -24,6 +34,7 @@ class ReviewTasks extends Component
         );
 
         $this->reviewNote = '';
+        $this->showDetailModal = false;
     }
 
     public function reject($taskId)
@@ -51,6 +62,7 @@ class ReviewTasks extends Component
         }
 
         $this->reviewNote = '';
+        $this->showDetailModal = false;
     }
 
     public function render()
