@@ -12,7 +12,6 @@ class ComposeMessage extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public string $subject;
     public string $body;
     public string $senderName;
 
