@@ -2,16 +2,50 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
-import { Chart, DoughnutController, BarController, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+import { Chart, DoughnutController, BarController, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Filler } from 'chart.js';
 
-Chart.register(DoughnutController, BarController, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+Chart.register(DoughnutController, BarController, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Filler);
 
 Alpine.plugin(collapse);
 
+const COLORS = {
+    blue: ['#3b82f6', '#60a5fa', '#93c5fd'],
+    indigo: ['#6366f1', '#818cf8', '#a5b4fc'],
+    yellow: ['#eab308', '#facc15', '#fde047'],
+    orange: ['#f97316', '#fb923c', '#fdba74'],
+    purple: ['#a855f7', '#c084fc', '#d8b4fe'],
+    green: ['#22c55e', '#4ade80', '#86efac'],
+    red: ['#ef4444', '#f87171', '#fca5a5'],
+};
+
+function getGradient(ctx, chartArea, colorTop, colorBottom) {
+    if (!chartArea) return colorTop;
+    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    gradient.addColorStop(0, colorTop);
+    gradient.addColorStop(1, colorBottom);
+    return gradient;
+}
+
+function hexToRgba(hex, alpha) {
+    const c = hex.replace('#', '');
+    const r = parseInt(c.slice(0,2), 16);
+    const g = parseInt(c.slice(2,4), 16);
+    const b = parseInt(c.slice(4,6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+}
+
 function initCharts() {
+    initDonutCharts();
+    initBarCharts();
+}
+
+function initDonutCharts() {
     document.querySelectorAll('canvas[data-donut]').forEach(el => {
         if (el.__chartInstance) return;
         const raw = JSON.parse(el.dataset.donut);
+        const hasData = raw.some(d => d.count > 0);
+        const total = raw.reduce((s, d) => s + d.count, 0);
+
         const data = raw.map(item => ({
             label: item.label,
             count: item.count,
@@ -24,43 +58,121 @@ function initCharts() {
                 labels: data.map(d => d.label),
                 datasets: [{
                     data: data.map(d => d.count),
-                    backgroundColor: data.map(d => d.bg),
-                    borderWidth: 2,
+                    backgroundColor: data.map(d => hexToRgba(d.bg, 0.85)),
                     borderColor: '#fff',
-                    hoverBorderColor: '#1e1b4b',
-                    hoverBorderWidth: 3,
+                    borderWidth: 3,
+                    hoverBorderColor: d => {
+                        const c = d.element.$context.raw;
+                        return hexToRgba(c, 1);
+                    },
+                    hoverBorderWidth: 4,
+                    hoverOffset: 12,
                 }],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '60%',
-
+                cutout: '68%',
+                animation: {
+                    animateRotate: true,
+                    duration: 1200,
+                    easing: 'easeOutQuart',
+                },
                 plugins: {
                     legend: {
                         position: 'bottom',
                         labels: {
                             padding: 16,
                             usePointStyle: true,
-                            font: { size: 12 },
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12,
+                                family: 'Inter, system-ui, sans-serif',
+                            },
+                            generateLabels: (chart) => {
+                                const ds = chart.data.datasets[0];
+                                return chart.data.labels.map((label, i) => ({
+                                    text: `${label}: ${ds.data[i]}`,
+                                    fillStyle: ds.backgroundColor[i] || ds.backgroundColor,
+                                    strokeStyle: ds.borderColor,
+                                    pointStyle: 'circle',
+                                    index: i,
+                                }));
+                            },
+                        },
+                        onClick: (e, legendItem, legend) => {
+                            const index = legendItem.index;
+                            const meta = legend.chart.getDatasetMeta(0);
+                            const ci = meta.data[index];
+                            if (ci && ci.$context && ci.$context.raw !== undefined) {
+                                const card = el.closest('[data-donut-card]');
+                                if (card) {
+                                    const btn = card.querySelectorAll('.legend-btn');
+                                    if (btn[index]) btn[index].click();
+                                }
+                            }
                         },
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: { size: 13, weight: '600' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        boxPadding: 4,
                         callbacks: {
                             label: (ctx) => {
-                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                                const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
-                                return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+                                const val = ctx.parsed;
+                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                return ` ${ctx.label}: ${val} tugas (${pct}%)`;
                             },
                         },
                     },
                 },
+                onClick: (e, elements) => {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        const card = el.closest('[data-donut-card]');
+                        if (card) {
+                            const btn = card.querySelectorAll('.legend-btn');
+                            if (btn[idx]) btn[idx].click();
+                        }
+                    }
+                },
             },
+            plugins: [{
+                id: 'centerText',
+                beforeDraw: function(chart) {
+                    const { width, height, ctx } = chart;
+                    ctx.save();
+                    const centerX = width / 2;
+                    const centerY = height / 2 - 8;
+
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    ctx.font = '700 24px Inter, sans-serif';
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillText(total, centerX, centerY - 10);
+
+                    ctx.font = '400 11px Inter, sans-serif';
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillText('Total Tugas', centerX, centerY + 16);
+
+                    ctx.restore();
+                }
+            }],
         });
 
         el.style.cursor = 'pointer';
+        el.style.transition = 'transform 0.2s ease';
+        el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.02)'; });
+        el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)'; });
     });
+}
 
+function initBarCharts() {
     document.querySelectorAll('canvas[data-bar]').forEach(el => {
         if (el.__chartInstance) return;
         const raw = JSON.parse(el.dataset.bar);
@@ -70,6 +182,8 @@ function initCharts() {
             bg: item.bg,
         }));
 
+        const maxVal = Math.max(...data.map(d => d.count), 1);
+
         el.__chartInstance = new Chart(el, {
             type: 'bar',
             data: {
@@ -77,45 +191,75 @@ function initCharts() {
                 datasets: [{
                     label: 'Selesai',
                     data: data.map(d => d.count),
-                    backgroundColor: data.map(d => d.bg),
-                    borderRadius: 6,
+                    backgroundColor: function(context) {
+                        const chart = context.chart;
+                        const { ctx, chartArea } = chart;
+                        if (!chartArea) return data[context.dataIndex]?.bg || '#6366f1';
+                        return getGradient(
+                            ctx, chartArea,
+                            hexToRgba(data[context.dataIndex]?.bg || '#6366f1', 0.9),
+                            hexToRgba(data[context.dataIndex]?.bg || '#6366f1', 0.3)
+                        );
+                    },
+                    borderRadius: 8,
                     borderSkipped: false,
-                    hoverBackgroundColor: data.map(d => {
-                        const c = d.bg.replace('#', '');
-                        const r = parseInt(c.slice(0,2), 16);
-                        const g = parseInt(c.slice(2,4), 16);
-                        const b = parseInt(c.slice(4,6), 16);
-                        return `rgba(${r},${g},${b},0.8)`;
-                    }),
+                    hoverBackgroundColor: data.map(d => hexToRgba(d.bg, 0.85)),
                 }],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart',
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: { size: 13, weight: '600' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
                         callbacks: {
-                            label: (ctx) => ` ${ctx.parsed.y} tugas`,
+                            title: (items) => `Hari ${items[0].label}`,
+                            label: (ctx) => ` ${ctx.parsed.y} tugas selesai`,
                         },
                     },
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
+                        max: Math.max(maxVal + 1, 3),
                         ticks: {
                             stepSize: 1,
-                            font: { size: 11 },
+                            font: { size: 11, family: 'Inter, sans-serif' },
+                            color: '#94a3b8',
                         },
                         grid: {
                             display: true,
-                            color: '#f3f4f6',
+                            color: '#f1f5f9',
+                            drawBorder: false,
                         },
                     },
                     x: {
                         grid: { display: false },
-                        ticks: { font: { size: 11 } },
+                        ticks: {
+                            font: { size: 11, family: 'Inter, sans-serif', weight: '500' },
+                            color: '#64748b',
+                        },
                     },
+                },
+                onClick: (e, elements) => {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        const label = data[idx]?.label || '';
+                        const body = document.querySelector('[data-bar-detail]');
+                        if (body) {
+                            body.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }
                 },
             },
         });
@@ -123,8 +267,10 @@ function initCharts() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Tunggu Alpine + Livewire selesai init DOM
     setTimeout(initCharts, 100);
+    Livewire.hook('message.processed', () => {
+        setTimeout(initCharts, 50);
+    });
 });
 
 window.Alpine = Alpine;
