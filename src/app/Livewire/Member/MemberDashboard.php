@@ -86,7 +86,7 @@ class MemberDashboard extends Component
             ->get();
 
         $pm = User::where('role', 'pm')
-            ->whereHas('workspace', function ($q) {
+            ->whereHas('workspaces', function ($q) {
                 $q->whereHas('members', fn ($q2) => $q2->where('user_id', auth()->id()));
             })
             ->first();
