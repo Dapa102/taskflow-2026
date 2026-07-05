@@ -85,7 +85,7 @@ class SuperAdminDashboard extends Component
                 'workspace_count' => $pm->workspaces->count(),
                 'active_tasks' => Task::where('assigned_pm_id', $pm->id)
                     ->whereNotIn('status', ['done', 'cancelled'])->count(),
-                'pending_review' => Task::where('assigned_pm_id', $pm->id)
+                'pending_pm' => Task::where('assigned_pm_id', $pm->id)
                     ->where('status', 'pending_pm')->count(),
                 'overdue' => Task::where('assigned_pm_id', $pm->id)
                     ->whereNotIn('status', ['done', 'cancelled'])

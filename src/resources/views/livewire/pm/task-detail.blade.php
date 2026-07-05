@@ -17,7 +17,7 @@
                         @endif
                     </div>
                     <span class="text-xs px-2 py-1 rounded-full
-                        {{ $task->status === 'done' ? 'bg-green-50 text-green-700' : ($task->status === 'pending_review' ? 'bg-purple-50 text-purple-700' : ($task->status === 'in_progress' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-gray-500')) }}">
+                        match($task->status) { 'done' => 'bg-green-50 text-green-700', 'pending_pm' => 'bg-purple-50 text-purple-700', 'assigned_member' => 'bg-yellow-50 text-yellow-700', default => 'bg-gray-100 text-gray-500' }">
                         {{ str_replace('_', ' ', $task->status) }}
                     </span>
                 </div>

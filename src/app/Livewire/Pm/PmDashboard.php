@@ -153,7 +153,7 @@ class PmDashboard extends Component
         $stats = [
             'total' => $total,
             'done' => $done,
-            'pending_review' => $pendingReview->count(),
+            'pending_pm' => $pendingReview->count(),
             'revision' => $tasks->where('status', 'revision')->count(),
             'overdue' => $overdue,
             'incoming' => $incomingTasks->count(),

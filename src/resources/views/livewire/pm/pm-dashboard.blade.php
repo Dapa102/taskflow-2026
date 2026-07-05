@@ -31,7 +31,7 @@
                     </div>
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                         <div class="text-gray-500">Menunggu Review</div>
-                        <div class="text-2xl font-bold text-yellow-600">{{ $stats['pending_review'] }}</div>
+                        <div class="text-2xl font-bold text-yellow-600">{{ $stats['pending_pm'] }}</div>
                     </div>
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                         <div class="text-gray-500">Revisi</div>

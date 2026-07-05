@@ -76,7 +76,7 @@
                                 </div>
                                 <div class="mt-2 flex gap-2 text-xs">
                                     <span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">{{ $pm['active_tasks'] }} aktif</span>
-                                    <span class="px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-600">{{ $pm['pending_review'] }} review</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-600">{{ $pm['pending_pm'] }} review</span>
                                     @if($pm['overdue'] > 0)
                                     <span class="px-2 py-0.5 rounded-full bg-red-50 text-red-600">{{ $pm['overdue'] }} terlambat</span>
                                     @endif
@@ -118,7 +118,7 @@
                                     <p class="text-xs text-gray-500">Tugas Aktif</p>
                                 </div>
                                 <div class="p-3 bg-white/70 rounded-lg border border-indigo-100 text-center">
-                                    <p class="text-2xl font-bold text-yellow-600">{{ $selectedPm['pending_review'] }}</p>
+                                    <p class="text-2xl font-bold text-yellow-600">{{ $selectedPm['pending_pm'] }}</p>
                                     <p class="text-xs text-gray-500">Menunggu Review</p>
                                 </div>
                                 <div class="p-3 bg-white/70 rounded-lg border border-indigo-100 text-center">
