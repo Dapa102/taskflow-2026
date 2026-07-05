@@ -54,7 +54,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/oversight/{taskId?}', TaskOversight::class)->name('oversight');
         Route::get('/assign-task', AssignTask::class)->name('assign-task');
         Route::get('/users', UserManagement::class)->name('users');
-        Route::get('/pm-performance', PmPerformance::class)->name('pm-performance');
+        Route::get('/performa-pm', PmPerformance::class)->name('performa-pm');
         Route::get('/arbitration-recap', \App\Livewire\SuperAdmin\ArbitrationRecap::class)->name('arbitration-recap');
         Route::get('/hubungi-team', \App\Livewire\SuperAdmin\HubungiTeam::class)->name('hubungi-team');
         Route::get('/compose-email', \App\Livewire\SuperAdmin\ComposeEmail::class)->name('compose-email');

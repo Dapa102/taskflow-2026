@@ -14,7 +14,7 @@ class PmPerformance extends Component
     public function render()
     {
         $pms = Cache::remember('admin_pm_performance', 300, function () {
-            $pmsList = User::where('role', 'pm')->with('workspace')->get();
+            $pmsList = User::where('role', 'pm')->with('workspaces')->get();
 
             foreach ($pmsList as $pm) {
                 $tasks = Task::where('assigned_pm_id', $pm->id)->get();
@@ -32,7 +32,7 @@ class PmPerformance extends Component
             return $pmsList;
         });
 
-        return view('livewire.super-admin.pm-performance', [
+        return view('livewire.super-admin.performa-pm', [
             'pms' => $pms
         ]);
     }
