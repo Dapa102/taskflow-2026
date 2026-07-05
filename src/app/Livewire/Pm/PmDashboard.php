@@ -160,11 +160,9 @@ class PmDashboard extends Component
         ];
 
         $chartData = [
-            ['label' => 'Dikirim ke PM', 'count' => $incomingTasks->count(), 'bg' => '#3b82f6'],
-            ['label' => 'Dikerjakan', 'count' => $tasks->where('status', 'assigned_member')->count(), 'bg' => '#6366f1'],
+            ['label' => 'Tugas Masuk', 'count' => $incomingTasks->count(), 'bg' => '#3b82f6'],
             ['label' => 'Menunggu Review', 'count' => $pendingReview->count(), 'bg' => '#eab308'],
             ['label' => 'Revisi', 'count' => $tasks->where('status', 'revision')->count(), 'bg' => '#f97316'],
-            ['label' => 'Arbitrase', 'count' => $tasks->where('status', 'pending_arbitration')->count(), 'bg' => '#ef4444'],
             ['label' => 'Selesai', 'count' => $done, 'bg' => '#22c55e'],
         ];
 
