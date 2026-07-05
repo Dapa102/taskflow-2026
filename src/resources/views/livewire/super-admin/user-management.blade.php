@@ -45,7 +45,7 @@
                         <select wire:model="role" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                             <option value="member">Anggota</option>
                             <option value="pm">Project Manager</option>
-                            <option value="admin">Admin</option>
+                            <option value="super_admin">Super Admin</option>
                         </select>
                         <x-input-error :messages="$errors->get('role')" class="mt-1" />
                     </div>
@@ -84,14 +84,14 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
                                         $roleLabel = match($user->role) {
-                                            'admin' => 'Admin',
+                                            'super_admin' => 'Super Admin',
                                             'super_admin' => 'Super Admin',
                                             'pm' => 'Project Manager',
                                             'member' => 'Anggota',
                                             default => ucfirst($user->role),
                                         };
                                         $roleClass = match($user->role) {
-                                            'admin' => 'bg-red-100 text-red-800',
+                                            'super_admin' => 'bg-red-100 text-red-800',
                                             'super_admin' => 'bg-purple-100 text-purple-800',
                                             'pm' => 'bg-indigo-100 text-indigo-800',
                                             default => 'bg-gray-100 text-gray-800',
@@ -112,7 +112,7 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    @if(in_array($user->role, ['admin', 'super_admin']))
+                                    @if($user->role === 'super_admin')
                                         <span class="text-gray-400 text-xs">—</span>
                                     @else
                                     <button wire:click="toggleUserStatus({{ $user->id }})" wire:confirm="Toggle status for this user?" class="text-indigo-600 hover:text-indigo-900">

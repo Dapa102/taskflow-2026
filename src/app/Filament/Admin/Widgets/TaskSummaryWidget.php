@@ -22,7 +22,7 @@ class TaskSummaryWidget extends BaseWidget
     {
         $user = auth()->user();
 
-        $tasks = $user->role === 'admin' ? Task::query() : Task::where('created_by', $user->id);
+        $tasks = $user->role === 'super_admin' ? Task::query() : Task::where('created_by', $user->id);
 
         $todo = (clone $tasks)->where('status', 'todo')->count();
         $onProgress = (clone $tasks)->where('status', 'on_progress')->count();

@@ -25,7 +25,7 @@ class UserManagement extends Component
         }
 
         $user = User::find($userId);
-        if ($user && $user->role !== 'admin') {
+        if ($user && $user->role !== 'super_admin') {
             $user->update(['is_active' => !$user->is_active]);
             session()->flash('message', 'User status updated.');
         }
@@ -37,7 +37,7 @@ class UserManagement extends Component
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
-            'role' => 'required|in:pm,member,admin',
+            'role' => 'required|in:pm,member,super_admin',
             'phone' => 'nullable|string|max:20',
         ]);
 

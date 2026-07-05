@@ -33,7 +33,7 @@ class TaskResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         $user = auth()->user();
-        if ($user->role === 'admin') {
+        if ($user->role === 'super_admin') {
             return static::getModel()::count();
         }
         return static::getModel()::where('created_by', $user->id)->count();
@@ -58,7 +58,7 @@ class TaskResource extends Resource
 
                         Forms\Components\Select::make('category_id')
                             ->label('Kategori')
-                            ->options(fn (): array => auth()->user()->role === 'admin'
+                            ->options(fn (): array => auth()->user()->role === 'super_admin'
                                 ? Category::pluck('name', 'id')->toArray()
                                 : Category::where('user_id', auth()->id())->pluck('name', 'id')->toArray())
                             ->searchable()
@@ -107,7 +107,7 @@ class TaskResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => auth()->user()->role === 'admin'
+            ->modifyQueryUsing(fn (Builder $query) => auth()->user()->role === 'super_admin'
                 ? $query->with(['category', 'team', 'assignees', 'comments.user', 'subtasks', 'attachments'])
                 : $query->where('created_by', auth()->id())->with(['category', 'team', 'assignees', 'comments.user', 'subtasks', 'attachments']))
             ->columns([
@@ -199,7 +199,7 @@ class TaskResource extends Resource
                     ]),
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Kategori')
-                    ->options(fn (): array => auth()->user()->role === 'admin'
+                    ->options(fn (): array => auth()->user()->role === 'super_admin'
                         ? Category::pluck('name', 'id')->toArray()
                         : Category::where('user_id', auth()->id())->pluck('name', 'id')->toArray()),
             ])

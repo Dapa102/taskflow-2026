@@ -14,21 +14,21 @@ class TaskPolicy
 
     public function view(User $user, Task $task): bool
     {
-        if ($user->role === 'admin') return true;
+        if ($user->role === 'super_admin') return true;
         if ($user->role === 'pm') {
             return $task->workspace && $task->workspace->pm_id === $user->id;
         }
-        return $task->assigned_to === $user->id;
+        return $task->assigned_member_id === $user->id;
     }
 
     public function create(User $user): bool
     {
-        return $user->role === 'pm' && $user->workspace !== null;
+        return in_array($user->role, ['super_admin', 'pm']);
     }
 
     public function update(User $user, Task $task): bool
     {
-        if ($user->role === 'admin') return false;
+        if ($user->role === 'super_admin') return true;
         if ($user->role === 'pm') {
             return $task->workspace && $task->workspace->pm_id === $user->id;
         }
@@ -37,7 +37,7 @@ class TaskPolicy
 
     public function delete(User $user, Task $task): bool
     {
-        if ($user->role === 'admin') return false;
+        if ($user->role === 'super_admin') return true;
         if ($user->role === 'pm') {
             return $task->workspace && $task->workspace->pm_id === $user->id;
         }
@@ -46,6 +46,6 @@ class TaskPolicy
 
     public function changeStatus(User $user, Task $task): bool
     {
-        return $task->assigned_to === $user->id && $user->role === 'member';
+        return $task->assigned_member_id === $user->id && $user->role === 'member';
     }
 }

@@ -28,7 +28,7 @@ class TeamTasksWidget extends BaseWidget
 
         return $table
             ->query(
-                $user->role === 'admin'
+                $user->role === 'super_admin'
                     ? Team::query()->withCount('members')
                     : Team::whereHas('members', fn ($q) => $q->where('user_id', $user->id))->withCount('members')
             )
