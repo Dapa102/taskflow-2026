@@ -8,6 +8,14 @@ services:
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
       - XDEBUG=${XDEBUG:-false}
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_USERNAME=projectku482@gmail.com
+      - MAIL_PASSWORD=drvxmlnsdzwhdwdx
+      - MAIL_ENCRYPTION=tls
+      - MAIL_FROM_ADDRESS=projectku482@gmail.com
+      - MAIL_FROM_NAME=TaskFlow
     volumes:
       - ./src:/var/www/html
     depends_on:
