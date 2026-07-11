@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TaskStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -113,11 +114,21 @@ class Task extends Model
     public function isOverdue(): bool
     {
         return $this->deadline && $this->deadline->isPast()
-            && !in_array($this->status, ['done', 'cancelled', 'pending_admin']);
+            && !in_array($this->status, [TaskStatus::DONE, TaskStatus::CANCELLED]);
     }
 
     public function isRevisiLocked(): bool
     {
         return $this->revision_counter >= $this->max_revision_limit;
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return TaskStatus::label($this->status);
+    }
+
+    public function getStatusBadgeClassAttribute(): string
+    {
+        return TaskStatus::badgeClass($this->status);
     }
 }

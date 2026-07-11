@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\TaskStatus;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\TaskStatusHistory;
@@ -57,39 +58,34 @@ class TaskStatusHistoryService
         $key = "{$oldStatus}->{$newStatus}";
 
         $recipients = match ($key) {
-            'draft->assigned_pm' => [
-                ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Baru Dikirim ke Anda', 'message' => "Tugas \"{$task->title}\" telah dikirim ke Anda untuk ditugaskan ke anggota."],
+            TaskStatus::TODO . '->' . TaskStatus::TODO => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Baru Ditugaskan', 'message' => "Anda ditugaskan mengerjakan \"{$task->title}\"."],
+                ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Ditugaskan ke Anggota', 'message' => "Tugas \"{$task->title}\" telah ditugaskan ke anggota."],
             ],
-            'assigned_pm->assigned_member' => [
+            TaskStatus::TODO . '->' . TaskStatus::IN_PROGRESS => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Mulai Dikerjakan', 'message' => "Tugas \"{$task->title}\" sedang dikerjakan."],
+            ],
+            TaskStatus::TODO . '->' . TaskStatus::REVIEW => [
                 ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Baru untuk Anda', 'message' => "Anda ditugaskan mengerjakan \"{$task->title}\"."],
             ],
-            'assigned_member->pending_pm' => [
+            TaskStatus::IN_PROGRESS . '->' . TaskStatus::REVIEW => [
                 ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Selesai Dikerjakan', 'message' => "Tugas \"{$task->title}\" telah selesai dikerjakan anggota. Mohon direview."],
             ],
-            'pending_pm->revision' => [
-                ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Perlu Revisi', 'message' => "Tugas \"{$task->title}\" perlu direvisi. Catatan: {$notes}"],
+            TaskStatus::REVIEW . '->' . TaskStatus::IN_PROGRESS => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Perlu Perbaikan', 'message' => "Tugas \"{$task->title}\" perlu diperbaiki. Catatan: {$notes}"],
             ],
-            'revision->pending_pm' => [
-                ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Direvisi', 'message' => "Tugas \"{$task->title}\" telah direvisi anggota. Mohon direview kembali."],
-            ],
-            'pending_admin->done' => [
-                ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Selesai', 'message' => "Tugas \"{$task->title}\" telah selesai."],
+            TaskStatus::REVIEW . '->' . TaskStatus::DONE => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Selesai', 'message' => "Tugas \"{$task->title}\" telah disetujui Project Manager."],
             ],
             default => null,
         };
 
-        if (in_array($newStatus, ['pending_arbitration', 'cancelled'])) {
-            $recipients = match ($newStatus) {
-                'pending_arbitration' => [
-                    ['user_id' => $task->created_by, 'subject' => 'Arbitrase: Batas Revisi Tercapai', 'message' => "Tugas \"{$task->title}\" masuk arbitrase karena batas revisi tercapai ({$task->revision_counter}/{$task->max_revision_limit})."],
-                ],
-                'cancelled' => array_filter([
-                    ['user_id' => $task->created_by, 'subject' => 'Tugas Dibatalkan', 'message' => "Tugas \"{$task->title}\" telah dibatalkan."],
-                    $task->assigned_pm_id ? ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Dibatalkan', 'message' => "Tugas \"{$task->title}\" telah dibatalkan."] : null,
-                    $task->assigned_member_id ? ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Dibatalkan', 'message' => "Tugas \"{$task->title}\" telah dibatalkan."] : null,
-                ]),
-                default => [],
-            };
+        if ($newStatus === TaskStatus::CANCELLED) {
+            $recipients = array_filter([
+                ['user_id' => $task->created_by, 'subject' => 'Tugas Dibatalkan', 'message' => "Tugas \"{$task->title}\" telah dibatalkan."],
+                $task->assigned_pm_id ? ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Dibatalkan', 'message' => "Tugas \"{$task->title}\" telah dibatalkan."] : null,
+                $task->assigned_member_id ? ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Dibatalkan', 'message' => "Tugas \"{$task->title}\" telah dibatalkan."] : null,
+            ]);
         }
 
         if ($recipients) {
@@ -100,20 +96,10 @@ class TaskStatusHistoryService
             }
         }
 
-        if (in_array($newStatus, ['pending_admin', 'done', 'pending_arbitration'])) {
+        if ($newStatus === TaskStatus::DONE) {
             $superAdmins = User::where('role', 'super_admin')->pluck('id');
-            $subject = match ($newStatus) {
-                'pending_admin' => 'Tugas Menunggu Approval',
-                'done' => 'Tugas Selesai',
-                'pending_arbitration' => 'Arbitrase: Batas Revisi Tercapai',
-            };
-            $message = match ($newStatus) {
-                'pending_admin' => "Tugas \"{$task->title}\" telah disetujui PM dan menunggu approval Anda.",
-                'done' => "Tugas \"{$task->title}\" telah selesai disetujui.",
-                'pending_arbitration' => "Tugas \"{$task->title}\" masuk arbitrase karena batas revisi tercapai ({$task->revision_counter}/{$task->max_revision_limit}).",
-            };
             foreach ($superAdmins as $saId) {
-                $this->sendInboxNotification($task, $saId, $subject, $message);
+                $this->sendInboxNotification($task, $saId, 'Tugas Selesai', "Tugas \"{$task->title}\" telah selesai disetujui Project Manager.");
             }
         }
     }

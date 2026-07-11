@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Workspace;
 use App\Models\User;
 use App\Models\Task;
+use App\Models\InboxNotification;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.super-admin')]
@@ -29,10 +30,19 @@ class ManageWorkspaces extends Component
     {
         $this->validate();
 
-        Workspace::create([
+        $ws = Workspace::create([
             'pm_id' => $this->pmId,
             'name' => $this->name,
             'description' => $this->description,
+        ]);
+
+        InboxNotification::create([
+            'user_id' => $this->pmId,
+            'subject' => 'Ditunjuk sebagai Project Manager',
+            'message' => "Anda ditunjuk sebagai Project Manager untuk workspace \"{$ws->name}\".",
+            'channel' => 'inbox',
+            'status' => 'sent',
+            'sent_at' => now(),
         ]);
 
         session()->flash('message', 'Workspace berhasil dibuat.');
@@ -57,11 +67,23 @@ class ManageWorkspaces extends Component
         ]);
 
         $ws = Workspace::findOrFail($this->editId);
+        $oldPmId = $ws->pm_id;
         $ws->update([
             'name' => $this->editName,
             'description' => $this->editDesc,
             'pm_id' => $this->editPmId,
         ]);
+
+        if ($oldPmId != $this->editPmId) {
+            InboxNotification::create([
+                'user_id' => $this->editPmId,
+                'subject' => 'Ditunjuk sebagai Project Manager',
+                'message' => "Anda ditunjuk sebagai Project Manager untuk workspace \"{$ws->name}\".",
+                'channel' => 'inbox',
+                'status' => 'sent',
+                'sent_at' => now(),
+            ]);
+        }
 
         session()->flash('message', 'Workspace diperbarui.');
         $this->reset(['editId', 'editName', 'editDesc', 'editPmId']);

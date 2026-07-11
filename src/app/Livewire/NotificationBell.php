@@ -9,26 +9,10 @@ class NotificationBell extends Component
 {
     public $unreadCount = 0;
     public $notifications = [];
-    public $open = false;
-
-    protected $listeners = ['$refresh'];
 
     public function mount()
     {
         $this->loadNotifications();
-    }
-
-    public function toggle()
-    {
-        $this->open = !$this->open;
-        if ($this->open) {
-            $this->loadNotifications();
-        }
-    }
-
-    public function close()
-    {
-        $this->open = false;
     }
 
     public function loadNotifications()
@@ -48,6 +32,10 @@ class NotificationBell extends Component
         $notif = InboxNotification::forUser(auth()->id())->findOrFail($id);
         $notif->markAsRead();
         $this->loadNotifications();
+
+        if ($notif->task_id && auth()->user()->role === 'pm') {
+            return redirect()->route('pm.task-detail', $notif->task_id);
+        }
     }
 
     public function render()

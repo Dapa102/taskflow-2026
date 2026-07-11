@@ -2,11 +2,11 @@
 
 namespace App\Livewire\Member;
 
+use App\Enums\TaskStatus;
 use Livewire\Component;
 use App\Models\Task;
 use App\Models\User;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\On;
 use Livewire\WithFileUploads;
 use App\Services\TaskStatusHistoryService;
 use Carbon\Carbon;
@@ -19,12 +19,22 @@ class MemberDashboard extends Component
     public $upload = [];
     public $uploadingTaskId;
 
-    public $detailModal = false;
-    public $detailTitle = '';
-    public $detailTasks = [];
-
     public $detailTaskModal = false;
     public $detailTask = null;
+
+    public function startTask($taskId): void
+    {
+        $task = Task::where('assigned_member_id', auth()->id())
+            ->where('status', TaskStatus::TODO)
+            ->where('status', '!=', TaskStatus::DONE)
+            ->findOrFail($taskId);
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, TaskStatus::IN_PROGRESS, 'Tugas mulai dikerjakan oleh anggota'
+        );
+
+        session()->flash('message', 'Status tugas diubah menjadi In Progress.');
+    }
 
     public function submitTask($taskId)
     {
@@ -32,7 +42,10 @@ class MemberDashboard extends Component
             "upload.{$taskId}" => 'required|file|max:10240|mimes:pdf,doc,docx,zip,xlsx,xls,jpg,jpeg,png',
         ]);
 
-        $task = Task::where('assigned_member_id', auth()->id())->findOrFail($taskId);
+        $task = Task::where('assigned_member_id', auth()->id())
+            ->whereIn('status', [TaskStatus::TODO, TaskStatus::IN_PROGRESS])
+            ->where('status', '!=', TaskStatus::DONE)
+            ->findOrFail($taskId);
 
         $file = $this->upload[$taskId];
         $path = $file->store('task-submissions', 'public');
@@ -46,7 +59,7 @@ class MemberDashboard extends Component
         ]);
 
         app(TaskStatusHistoryService::class)->transition(
-            $task, 'pending_pm', 'Tugas diserahkan oleh anggota'
+            $task, TaskStatus::REVIEW, 'Tugas diserahkan oleh anggota untuk review'
         );
 
         $task->update(['submitted_at' => now()]);
@@ -62,29 +75,6 @@ class MemberDashboard extends Component
             ->findOrFail($taskId);
 
         $this->detailTaskModal = true;
-    }
-
-    #[On('showDetail')]
-    public function showDetail($label)
-    {
-        $this->detailTitle = $label;
-        $statuses = match ($label) {
-            'Dikerjakan' => ['assigned_member'],
-            'Menunggu Review' => ['pending_pm'],
-            'Revisi' => ['revision'],
-            'Menunggu Approval' => ['pending_admin'],
-            'Arbitrase' => ['pending_arbitration'],
-            'Selesai' => ['done'],
-            default => [],
-        };
-
-        $this->detailTasks = Task::with(['workspace', 'assignedPm', 'creator'])
-            ->where('assigned_member_id', auth()->id())
-            ->whereIn('status', $statuses)
-            ->latest()
-            ->get();
-
-        $this->detailModal = true;
     }
 
     public function render()
@@ -105,22 +95,21 @@ class MemberDashboard extends Component
             ->get();
 
         $total = $tasks->count();
-        $done = $tasks->where('status', 'done')->count();
+        $done = $tasks->where('status', TaskStatus::DONE)->count();
         $belumSelesai = $total - $done;
-        $deadlineCount = $tasks->filter(fn($t) => $t->deadline && $t->status !== 'done')->count();
-        $revisionCount = $tasks->where('status', 'revision')->count();
+        $deadlineCount = $tasks->filter(fn($t) => $t->deadline && $t->status !== TaskStatus::DONE)->count();
+        $reviewCount = $tasks->where('status', TaskStatus::REVIEW)->count();
 
         $chartData = [
-            ['label' => 'Dikerjakan', 'count' => $tasks->where('status', 'assigned_member')->count(), 'bg' => '#6366f1'],
-            ['label' => 'Menunggu Review', 'count' => $tasks->where('status', 'pending_pm')->count(), 'bg' => '#eab308'],
-            ['label' => 'Revisi', 'count' => $revisionCount, 'bg' => '#f97316'],
-            ['label' => 'Menunggu Approval', 'count' => $tasks->where('status', 'pending_admin')->count(), 'bg' => '#a855f7'],
-            ['label' => 'Arbitrase', 'count' => $tasks->where('status', 'pending_arbitration')->count(), 'bg' => '#ef4444'],
-            ['label' => 'Selesai', 'count' => $done, 'bg' => '#22c55e'],
+            ['label' => 'To Do', 'count' => $tasks->where('status', TaskStatus::TODO)->count(), 'bg' => '#9ca3af'],
+            ['label' => 'In Progress', 'count' => $tasks->where('status', TaskStatus::IN_PROGRESS)->count(), 'bg' => '#6366f1'],
+            ['label' => 'Review', 'count' => $reviewCount, 'bg' => '#eab308'],
+            ['label' => 'Done', 'count' => $done, 'bg' => '#22c55e'],
+            ['label' => 'Cancelled', 'count' => $tasks->where('status', TaskStatus::CANCELLED)->count(), 'bg' => '#ef4444'],
         ];
 
         $doneTasks = Task::where('assigned_member_id', auth()->id())
-            ->where('status', 'done')
+            ->where('status', TaskStatus::DONE)
             ->where('updated_at', '>=', Carbon::now()->subDays(6)->startOfDay())
             ->get()
             ->groupBy(fn($t) => $t->updated_at->format('Y-m-d'));
@@ -145,7 +134,7 @@ class MemberDashboard extends Component
             'total' => $total,
             'done' => $done,
             'deadlineCount' => $deadlineCount,
-            'revisionCount' => $revisionCount,
+            'revisionCount' => $reviewCount,
             'chartData' => $chartData,
             'dailyChartData' => $dailyChartData,
         ]);

@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Workspace;
 use App\Models\User;
 use App\Models\Task;
+use App\Models\InboxNotification;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.pm')]
@@ -39,6 +40,16 @@ class TeamMembers extends Component
         }
 
         $workspace->members()->attach($user->id);
+
+        InboxNotification::create([
+            'user_id' => $user->id,
+            'subject' => 'Ditambahkan ke Workspace',
+            'message' => "Anda ditambahkan ke workspace \"{$workspace->name}\".",
+            'channel' => 'inbox',
+            'status' => 'sent',
+            'sent_at' => now(),
+        ]);
+
         session()->flash('message', 'Member added successfully.');
         $this->reset('inviteEmail');
     }

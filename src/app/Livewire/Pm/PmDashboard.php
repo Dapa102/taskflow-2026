@@ -2,13 +2,14 @@
 
 namespace App\Livewire\Pm;
 
+use App\Enums\TaskStatus;
 use Livewire\Component;
 use App\Models\Workspace;
 use App\Models\User;
 use App\Models\Task;
+use App\Models\Project;
 use App\Services\TaskStatusHistoryService;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\On;
 use Carbon\Carbon;
 
 #[Layout('layouts.pm')]
@@ -18,10 +19,21 @@ class PmDashboard extends Component
     public $rejectTaskId;
     public $assignTaskId;
     public $assignMemberId;
+    public $cancelTaskId;
+    public $cancelNote;
 
-    public $detailModal = false;
-    public $detailTitle = '';
-    public $detailTasks = [];
+    public $projectDetailModal = false;
+    public $projectDetail = null;
+
+    public function showProjectDetail($projectId)
+    {
+        $this->projectDetail = Project::with(['workspace', 'creator', 'tasks' => fn($q) => $q->withCount('attachments')])
+            ->withCount('tasks')
+            ->findOrFail($projectId);
+        $this->projectDetail->done_count = Task::where('project_id', $projectId)
+            ->where('status', TaskStatus::DONE)->count();
+        $this->projectDetailModal = true;
+    }
 
     public function assignToMember($taskId)
     {
@@ -31,7 +43,7 @@ class PmDashboard extends Component
         if (!$workspace) return;
 
         $task = Task::where('assigned_pm_id', auth()->id())
-            ->whereIn('status', ['assigned_pm', 'assigned_member'])
+            ->where('status', TaskStatus::TODO)
             ->findOrFail($taskId);
 
         if (!$workspace->members()->where('user_id', $this->assignMemberId)->exists()) {
@@ -45,7 +57,7 @@ class PmDashboard extends Component
         ]);
 
         app(TaskStatusHistoryService::class)->transition(
-            $task, 'assigned_member', "Ditugaskan ke {$this->assignMemberId}"
+            $task, TaskStatus::TODO, "Ditugaskan ke {$this->assignMemberId}"
         );
 
         session()->flash('message', 'Task assigned to member.');
@@ -57,14 +69,16 @@ class PmDashboard extends Component
         $workspace = auth()->user()->currentWorkspace();
         if (!$workspace) return;
 
-        $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
+        $task = Task::where('assigned_pm_id', auth()->id())
+            ->where('status', TaskStatus::REVIEW)
+            ->findOrFail($taskId);
         $task->update(['reviewed_by' => auth()->id()]);
 
         app(TaskStatusHistoryService::class)->transition(
-            $task, 'pending_admin', 'Disetujui PM, menunggu approval admin'
+            $task, TaskStatus::DONE, 'Disetujui Project Manager'
         );
 
-        session()->flash('message', 'Task approved and sent to admin.');
+        session()->flash('message', 'Task approved and marked as done.');
     }
 
     public function rejectTask($taskId)
@@ -74,52 +88,47 @@ class PmDashboard extends Component
         $workspace = auth()->user()->currentWorkspace();
         if (!$workspace) return;
 
-        $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
+        $task = Task::where('assigned_pm_id', auth()->id())
+            ->where('status', TaskStatus::REVIEW)
+            ->findOrFail($taskId);
 
         $note = $this->reviewNote;
-        $newCounter = $task->revision_counter + 1;
 
         $task->update([
             'review_note' => $note,
             'reviewed_by' => auth()->id(),
-            'revision_counter' => $newCounter,
         ]);
 
-        if ($task->isRevisiLocked() || $newCounter >= $task->max_revision_limit) {
-            app(TaskStatusHistoryService::class)->transition(
-                $task, 'pending_arbitration', "Batas revisi tercapai ({$newCounter}/{$task->max_revision_limit}): {$note}"
-            );
-            session()->flash('message', 'Batas revisi tercapai. Tugas dikirim ke arbitrase.');
-        } else {
-            app(TaskStatusHistoryService::class)->transition(
-                $task, 'revision', "Revisi ({$newCounter}/{$task->max_revision_limit}): {$note}"
-            );
-            session()->flash('message', 'Task returned for revision.');
-        }
+        app(TaskStatusHistoryService::class)->transition(
+            $task, TaskStatus::IN_PROGRESS, "Dikembalikan untuk perbaikan: {$note}"
+        );
+        session()->flash('message', 'Task returned for update.');
 
         $this->reset(['reviewNote', 'rejectTaskId']);
     }
 
-    #[On('showDetail')]
-    public function showDetail($label)
+    public function confirmCancel($taskId)
     {
-        $this->detailTitle = $label;
-        $statuses = match ($label) {
-            'Tugas Masuk' => ['assigned_pm'],
-            'Menunggu Review' => ['pending_pm'],
-            'Revisi' => ['revision'],
-            'Selesai' => ['done'],
-            'Lainnya' => ['assigned_member', 'pending_admin', 'pending_arbitration'],
-            default => [],
-        };
+        $this->cancelTaskId = $taskId;
+        $this->cancelNote = '';
+    }
 
-        $this->detailTasks = Task::with(['workspace', 'assignedMember', 'creator'])
-            ->where('assigned_pm_id', auth()->id())
-            ->whereIn('status', $statuses)
-            ->latest()
-            ->get();
+    public function cancelTask($taskId)
+    {
+        $this->validate(['cancelNote' => 'required|string|min:3|max:1000']);
 
-        $this->detailModal = true;
+        $workspace = auth()->user()->currentWorkspace();
+        if (!$workspace) return;
+
+        $task = Task::where('assigned_pm_id', auth()->id())
+            ->findOrFail($taskId);
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, TaskStatus::CANCELLED, "Dibatalkan: {$this->cancelNote}"
+        );
+
+        session()->flash('message', 'Tugas dibatalkan.');
+        $this->reset(['cancelTaskId', 'cancelNote']);
     }
 
     public function render()
@@ -134,15 +143,15 @@ class PmDashboard extends Component
                 ->get()
             : collect();
 
-        $incomingTasks = $tasks->where('status', 'assigned_pm');
-        $activeTasks = $tasks->whereIn('status', ['assigned_member', 'pending_pm', 'revision']);
-        $pendingReview = $tasks->where('status', 'pending_pm');
+        $incomingTasks = $tasks->where('status', TaskStatus::TODO);
+        $activeTasks = $tasks->whereIn('status', [TaskStatus::TODO, TaskStatus::IN_PROGRESS, TaskStatus::REVIEW]);
+        $pendingReview = $tasks->where('status', TaskStatus::REVIEW);
         $overdue = $tasks->filter(fn($t) => $t->isOverdue())->count();
 
         $total = $tasks->count();
-        $done = $tasks->where('status', 'done')->count();
+        $done = $tasks->where('status', TaskStatus::DONE)->count();
         $belumSelesai = $total - $done;
-        $deadlineCount = $tasks->filter(fn($t) => $t->deadline && $t->status !== 'done')->count();
+        $deadlineCount = $tasks->filter(fn($t) => $t->deadline && $t->status !== TaskStatus::DONE)->count();
 
         // Member workload (F-19)
         $memberWorkload = $members->map(fn($m) => [
@@ -155,35 +164,37 @@ class PmDashboard extends Component
             'total' => $total,
             'done' => $done,
             'pending_pm' => $pendingReview->count(),
-            'revision' => $tasks->where('status', 'revision')->count(),
+            'revision' => $tasks->where('status', TaskStatus::IN_PROGRESS)->count(),
             'overdue' => $overdue,
             'incoming' => $incomingTasks->count(),
         ];
 
         $incomingCount = $incomingTasks->count();
         $reviewCount = $pendingReview->count();
-        $revisionCount = $tasks->where('status', 'revision')->count();
-        $lainnya = $total - ($incomingCount + $reviewCount + $revisionCount + $done);
+        $inProgressCount = $tasks->where('status', TaskStatus::IN_PROGRESS)->count();
+        $lainnya = $total - ($incomingCount + $reviewCount + $inProgressCount + $done);
 
         $chartData = [
-            ['label' => 'Tugas Masuk', 'count' => $incomingCount, 'bg' => '#3b82f6'],
-            ['label' => 'Menunggu Review', 'count' => $reviewCount, 'bg' => '#eab308'],
-            ['label' => 'Revisi', 'count' => $revisionCount, 'bg' => '#f97316'],
-            ['label' => 'Selesai', 'count' => $done, 'bg' => '#22c55e'],
+            ['label' => 'To Do', 'count' => $incomingCount, 'bg' => '#9ca3af'],
+            ['label' => 'In Progress', 'count' => $inProgressCount, 'bg' => '#3b82f6'],
+            ['label' => 'Review', 'count' => $reviewCount, 'bg' => '#eab308'],
+            ['label' => 'Done', 'count' => $done, 'bg' => '#22c55e'],
         ];
 
-        $revisionLimitWarnings = $tasks->filter(fn($t) =>
-            $t->status === 'revision' && $t->max_revision_limit > 0
-            && $t->revision_counter >= $t->max_revision_limit - 1
-        )->map(fn($t) => [
-            'id' => $t->id,
-            'title' => $t->title,
-            'counter' => $t->revision_counter,
-            'limit' => $t->max_revision_limit,
+        $projects = $workspace ? $workspace->projects()->withCount('tasks')->get() : collect();
+        $projectCount = $projects->count();
+        $projectProgress = $projects->map(fn($p) => [
+            'id' => $p->id,
+            'name' => $p->name,
+            'total' => $p->tasks_count,
+            'done' => \App\Models\Task::where('project_id', $p->id)->where('status', TaskStatus::DONE)->count(),
+            'percentage' => $p->tasks_count > 0 ? round((\App\Models\Task::where('project_id', $p->id)->where('status', TaskStatus::DONE)->count() / $p->tasks_count) * 100) : 0,
         ]);
 
+        $revisionLimitWarnings = collect();
+
         $doneTasks = Task::where('assigned_pm_id', auth()->id())
-            ->where('status', 'done')
+            ->where('status', TaskStatus::DONE)
             ->where('updated_at', '>=', Carbon::now()->subDays(6)->startOfDay())
             ->get()
             ->groupBy(fn($t) => $t->updated_at->format('Y-m-d'));
@@ -213,6 +224,8 @@ class PmDashboard extends Component
             'dailyChartData' => $dailyChartData,
             'memberWorkload' => $memberWorkload,
             'revisionLimitWarnings' => $revisionLimitWarnings,
+            'projectCount' => $projectCount,
+            'projectProgress' => $projectProgress,
         ]);
     }
 }

@@ -25,8 +25,8 @@
                                 class="px-3 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100">
                                 Detail
                             </button>
-                            <span class="text-xs px-2 py-1 rounded-full {{ $task->status === 'done' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700' }}">
-                                {{ $task->status === 'done' ? 'Selesai' : 'Dibatalkan' }}
+                            <span class="text-xs px-2 py-1 rounded-full {{ $task->status_badge_class }}">
+                                {{ $task->status_label }}
                             </span>
                         </div>
                     </div>
@@ -47,30 +47,30 @@
                 <div class="p-4 space-y-4">
                     @if($detailTask->description)
                         <div>
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deskripsi</h4>
-                            <p class="text-sm text-gray-700 mt-1">{{ $detailTask->description }}</p>
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Deskripsi</h4>
+                            <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 border border-gray-100">{{ $detailTask->description }}</p>
                         </div>
                     @endif
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</h4>
-                            <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full {{ $detailTask->status === 'done' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                {{ $detailTask->status === 'done' ? 'Selesai' : 'Dibatalkan' }}
-                            </span>
-                        </div>
-                        @if($detailTask->deadline)
-                            <div>
-                                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</h4>
-                                <p class="mt-1">{{ $detailTask->deadline->format('d M Y') }}</p>
-                            </div>
-                        @endif
-                        @if($detailTask->assignedPm)
-                            <div>
-                                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Project Manager</h4>
-                                <p class="mt-1">{{ $detailTask->assignedPm->name }}</p>
-                            </div>
-                        @endif
-                    </div>
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr>
+                                <td class="py-2 pr-4 align-top w-[140px] text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</td>
+                                <td class="py-2"><span class="px-2 py-0.5 text-xs rounded-full {{ $detailTask->status_badge_class }}">{{ $detailTask->status_label }}</span></td>
+                            </tr>
+                            @if($detailTask->deadline)
+                            <tr>
+                                <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</td>
+                                <td class="py-2">{{ $detailTask->deadline->format('d M Y') }}</td>
+                            </tr>
+                            @endif
+                            @if($detailTask->assignedPm)
+                            <tr>
+                                <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Project Manager</td>
+                                <td class="py-2">{{ $detailTask->assignedPm->name }}</td>
+                            </tr>
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

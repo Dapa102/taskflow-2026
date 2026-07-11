@@ -87,7 +87,7 @@
                     <div class="text-2xl font-bold text-green-600">{{ $done }}</div>
                 </div>
                 <div class="bg-white shadow sm:rounded-lg p-4">
-                    <div class="text-sm text-gray-500">Perlu Revisi</div>
+                    <div class="text-sm text-gray-500">Review</div>
                     <div class="text-2xl font-bold text-orange-600">{{ $revisionCount }}</div>
                 </div>
                 <div class="bg-white shadow sm:rounded-lg p-4">
@@ -108,9 +108,6 @@
                                 <span class="w-3 h-3 rounded-full shrink-0" style="background: {{ $item['bg'] }}"></span>
                                 <span class="text-sm text-gray-600">{{ $item['label'] }}</span>
                                 <span class="ml-auto text-sm font-semibold text-gray-900">{{ $item['count'] }}</span>
-                                <button wire:click="showDetail('{{ $item['label'] }}')" class="p-1 text-gray-400 hover:text-indigo-600 transition cursor-pointer" title="Lihat detail" type="button">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                </button>
                             </div>
                         @endforeach
                     </div>
@@ -128,12 +125,12 @@
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Tugas Saya</h3>
                 <div class="space-y-4">
                     @forelse($tasks as $task)
-                        <div class="p-4 border rounded-lg {{ $task->status === 'revision' ? 'border-orange-300 bg-orange-50' : ($task->status === 'done' ? 'bg-gray-50' : ($task->status === 'pending_pm' ? 'border-yellow-200 bg-yellow-50' : ($task->status === 'assigned_member' ? 'border-blue-200 bg-blue-50' : ($task->status === 'pending_arbitration' ? 'border-red-300 bg-red-50' : 'bg-white')))) }}">
+                        <div class="p-4 border rounded-lg {{ $task->status === 'in_progress' && $task->review_note ? 'border-orange-300 bg-orange-50' : ($task->status === 'done' ? 'bg-gray-50' : ($task->status === 'review' ? 'border-yellow-200 bg-yellow-50' : ($task->status === 'in_progress' ? 'border-blue-200 bg-blue-50' : 'bg-white'))) }}">
                             <div class="flex justify-between items-start">
                                 <div class="flex-1">
                                     <div class="font-medium {{ $task->status === 'done' ? 'line-through text-gray-500' : '' }}">
                                         {{ $task->title }}
-                                        @if($task->status === 'revision')
+                                        @if($task->review_note)
                                             <span class="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">Perlu Revisi</span>
                                         @endif
                                     </div>
@@ -143,27 +140,20 @@
                                         Status:
                                         <span class="font-semibold
                                             {{ $task->status === 'done' ? 'text-green-600' : '' }}
-                                            {{ $task->status === 'assigned_member' ? 'text-blue-600' : '' }}
-                                            {{ $task->status === 'pending_pm' ? 'text-yellow-600' : '' }}
-                                            {{ $task->status === 'revision' ? 'text-orange-600' : '' }}
+                                            {{ $task->status === 'in_progress' && !$task->review_note ? 'text-blue-600' : '' }}
+                                            {{ $task->status === 'review' ? 'text-yellow-600' : '' }}
+                                            {{ $task->status === 'in_progress' && $task->review_note ? 'text-orange-600' : '' }}
                                             {{ $task->status === 'cancelled' ? 'text-gray-400' : '' }}">
                                             @switch($task->status)
-                                                @case('assigned_member') Sedang Dikerjakan @break
-                                                @case('pending_pm') Menunggu Review PM @break
-                                                @case('revision') Revisi @break
+                                                @case('todo') @if($task->assigned_member_id) Ditugaskan @else To Do @endif @break
+                                                @case('in_progress') @if($task->review_note) Revisi @else Sedang Dikerjakan @endif @break
+                                                @case('review') Menunggu Review @break
                                                 @case('done') Selesai @break
                                                 @case('cancelled') Dibatalkan @break
-                                                @case('pending_admin') Menunggu Approval Admin @break
-                                                @case('pending_arbitration') Arbitrase @break
-                                                @default {{ ucfirst($task->status) }}
+                                                @default {{ $task->status_label }}
                                             @endswitch
                                         </span>
                                     </div>
-                                    @if($task->status === 'revision' || $task->status === 'pending_arbitration')
-                                        <div class="text-xs mt-1 {{ $task->revision_counter >= $task->max_revision_limit ? 'text-red-500 font-bold' : 'text-orange-500' }}">
-                                            Revisi: {{ $task->revision_counter }}/{{ $task->max_revision_limit }}
-                                        </div>
-                                    @endif
                                     @if($task->deadline)
                                         <div class="text-sm {{ $task->isOverdue() ? 'text-red-500 font-bold' : 'text-gray-500' }}">
                                             Deadline: {{ $task->deadline->format('Y-m-d') }}
@@ -194,7 +184,22 @@
                                             Detail
                                         </button>
                                     </div>
-                                    @if($task->status === 'assigned_member' || $task->status === 'revision')
+                                    @if($task->status === 'todo')
+                                        <button wire:click="startTask({{ $task->id }})"
+                                            wire:loading.attr="disabled"
+                                            class="px-3 py-1 text-xs bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 w-full mb-2">
+                                            Mulai
+                                        </button>
+                                        <div class="space-y-2">
+                                            <input type="file" wire:model="upload.{{ $task->id }}" accept=".pdf,.doc,.docx,.zip,.xlsx,.xls,.jpg,.jpeg,.png" class="text-xs w-40">
+                                            @error("upload.{$task->id}") <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
+                                            <button wire:click="submitTask({{ $task->id }})"
+                                                wire:loading.attr="disabled"
+                                                class="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 w-full">
+                                                Upload & Ajukan Review
+                                            </button>
+                                        </div>
+                                    @elseif($task->status === 'in_progress')
                                         <div class="space-y-2">
                                             <input type="file" wire:model="upload.{{ $task->id }}" accept=".pdf,.doc,.docx,.zip,.xlsx,.xls,.jpg,.jpeg,.png" class="text-xs w-40">
                                             @error("upload.{$task->id}") <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
@@ -204,21 +209,12 @@
                                                 Selesai & Upload
                                             </button>
                                         </div>
-                                    @endif
-                                    @if($task->status === 'pending_pm')
+                                    @elseif($task->status === 'review')
                                         <span class="text-xs text-yellow-600 font-medium">Menunggu Review PM</span>
-                                    @endif
-                                    @if($task->status === 'pending_admin')
-                                        <span class="text-xs text-purple-600 font-medium">Menunggu Approval Admin</span>
-                                    @endif
-                                    @if($task->status === 'done')
+                                    @elseif($task->status === 'done')
                                         <span class="text-xs text-green-600 font-medium">✓ Selesai</span>
-                                    @endif
-                                    @if($task->status === 'cancelled')
+                                    @elseif($task->status === 'cancelled')
                                         <span class="text-xs text-gray-400 font-medium">✕ Dibatalkan</span>
-                                    @endif
-                                    @if($task->status === 'pending_arbitration')
-                                        <span class="text-xs text-red-600 font-medium">Arbitrase</span>
                                     @endif
                                 </div>
                             </div>
@@ -233,54 +229,6 @@
 
     </div>
 
-    @if($detailModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" wire:click.self="$set('detailModal', false)">
-        <div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 max-h-[70vh] overflow-y-auto">
-            <div class="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10">
-                <h3 class="text-lg font-semibold text-gray-900">Detail: {{ $detailTitle }}</h3>
-                <button wire:click="$set('detailModal', false)" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
-            </div>
-            <div class="p-4 space-y-2">
-                @forelse($detailTasks as $task)
-                <div class="p-3 rounded-lg border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 transition">
-                    <div class="flex items-center justify-between">
-                        <div class="font-medium text-sm text-gray-900">{{ $task->title }}</div>
-                        <span class="text-xs px-2 py-0.5 rounded-full font-medium
-                            @switch($task->status)
-                                @case('assigned_member') bg-indigo-100 text-indigo-700 @break
-                                @case('pending_pm') bg-yellow-100 text-yellow-700 @break
-                                @case('revision') bg-orange-100 text-orange-700 @break
-                                @case('pending_admin') bg-purple-100 text-purple-700 @break
-                                @case('pending_arbitration') bg-red-100 text-red-700 @break
-                                @case('done') bg-green-100 text-green-700 @break
-                                @default bg-gray-100 text-gray-600
-                            @endswitch
-                        ">
-                            @switch($task->status)
-                                @case('assigned_member') Dikerjakan @break
-                                @case('pending_pm') Review PM @break
-                                @case('revision') Revisi @break
-                                @case('pending_admin') Approval @break
-                                @case('pending_arbitration') Arbitrase @break
-                                @case('done') Selesai @break
-                                @default {{ $task->status }}
-                            @endswitch
-                        </span>
-                    </div>
-                    <div class="text-xs text-gray-500 mt-1">
-                        @if($task->assignedPm) PM: {{ $task->assignedPm->name }} · @endif
-                        @if($task->workspace) {{ $task->workspace->name }} · @endif
-                        {{ $task->created_at->format('d M Y') }}
-                    </div>
-                </div>
-                @empty
-                <p class="text-gray-400 text-sm text-center py-6">Tidak ada tugas dengan status ini.</p>
-                @endforelse
-            </div>
-        </div>
-    </div>
-    @endif
-
     @if($detailTaskModal && $detailTask)
     @php $task = $detailTask; @endphp
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" wire:click.self="$set('detailTaskModal', false)">
@@ -292,68 +240,48 @@
             <div class="p-4 space-y-4">
                 @if($task->description)
                 <div>
-                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deskripsi</h4>
-                    <p class="text-sm text-gray-700 mt-1">{{ $task->description }}</p>
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Deskripsi</h4>
+                    <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 border border-gray-100">{{ $task->description }}</p>
                 </div>
                 @endif
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</h4>
-                        <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full
-                            @switch($task->status)
-                                @case('assigned_member') bg-blue-100 text-blue-700 @break
-                                @case('pending_pm') bg-purple-100 text-purple-700 @break
-                                @case('revision') bg-orange-100 text-orange-700 @break
-                                @case('pending_admin') bg-indigo-100 text-indigo-700 @break
-                                @case('pending_arbitration') bg-red-100 text-red-700 @break
-                                @case('done') bg-green-100 text-green-700 @break
-                                @default bg-gray-100 text-gray-600
-                            @endswitch
-                        ">
-                            @switch($task->status)
-                                @case('assigned_member') Dikerjakan @break
-                                @case('pending_pm') Review PM @break
-                                @case('revision') Revisi @break
-                                @case('pending_admin') Approval @break
-                                @case('pending_arbitration') Arbitrase @break
-                                @case('done') Selesai @break
-                                @default {{ $task->status }}
-                            @endswitch
-                        </span>
-                    </div>
-                    @if($task->priority)
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Prioritas</h4>
-                        <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full {{ $task->priority === 'high' ? 'bg-red-50 text-red-600' : ($task->priority === 'medium' ? 'bg-yellow-50 text-yellow-600' : 'bg-gray-50 text-gray-500') }}">
-                            {{ ucfirst($task->priority) }}
-                        </span>
-                    </div>
-                    @endif
-                    @if($task->deadline)
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</h4>
-                        <p class="mt-1">{{ $task->deadline->format('d M Y') }}</p>
-                    </div>
-                    @endif
-                    @if($task->assignedPm)
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Project Manager</h4>
-                        <p class="mt-1">{{ $task->assignedPm->name }}</p>
-                    </div>
-                    @endif
-                    @if($task->workspace)
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Workspace</h4>
-                        <p class="mt-1">{{ $task->workspace->name }}</p>
-                    </div>
-                    @endif
-                    @if($task->review_note)
-                    <div class="col-span-2">
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Catatan Review</h4>
-                        <p class="mt-1 p-2 bg-orange-50 rounded text-sm text-orange-800">{{ $task->review_note }}</p>
-                    </div>
-                    @endif
-                </div>
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr>
+                            <td class="py-2 pr-4 align-top w-[140px] text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</td>
+                            <td class="py-2"><span class="px-2 py-0.5 text-xs rounded-full {{ $task->status_badge_class }}">{{ $task->status_label }}</span></td>
+                        </tr>
+                        @if($task->priority)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Prioritas</td>
+                            <td class="py-2"><span class="px-2 py-0.5 text-xs rounded-full {{ $task->priority === 'high' ? 'bg-red-50 text-red-600' : ($task->priority === 'medium' ? 'bg-yellow-50 text-yellow-600' : 'bg-gray-50 text-gray-500') }}">{{ ucfirst($task->priority) }}</span></td>
+                        </tr>
+                        @endif
+                        @if($task->deadline)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</td>
+                            <td class="py-2">{{ $task->deadline->format('d M Y') }}</td>
+                        </tr>
+                        @endif
+                        @if($task->assignedPm)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Project Manager</td>
+                            <td class="py-2">{{ $task->assignedPm->name }}</td>
+                        </tr>
+                        @endif
+                        @if($task->workspace)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Workspace</td>
+                            <td class="py-2">{{ $task->workspace->name }}</td>
+                        </tr>
+                        @endif
+                        @if($task->review_note)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Catatan Review</td>
+                            <td class="py-2"><span class="inline-block p-2 bg-orange-50 rounded text-sm text-orange-800">{{ $task->review_note }}</span></td>
+                        </tr>
+                        @endif
+                    </tbody>
+                </table>
                 @if($task->attachments->count())
                 <div>
                     <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Lampiran</h4>

@@ -113,56 +113,42 @@
                 </button>
             </div>
             <div class="px-6 py-5 space-y-6">
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Judul</label>
-                            <p class="mt-1 text-sm font-medium text-gray-900">{{ $selectedTask->title }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</label>
-                            <p class="mt-1 text-sm text-gray-700">{{ $selectedTask->description ?? '-' }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Workspace</label>
-                            <p class="mt-1 text-sm text-gray-900">{{ $selectedTask->workspace->name ?? '-' }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Assignee</label>
-                            <p class="mt-1 text-sm text-gray-900">{{ $selectedTask->assignee->name ?? 'Unassigned' }}</p>
-                        </div>
-                    </div>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</label>
-                            <span class="mt-1 inline-flex px-2.5 py-1 text-xs font-semibold rounded-full
-                                {{ $selectedTask->status === 'done' ? 'bg-green-100 text-green-800' : '' }}
-                                {{ $selectedTask->status === 'on_progress' ? 'bg-blue-100 text-blue-800' : '' }}
-                                {{ $selectedTask->status === 'pending_pm' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                {{ $selectedTask->status === 'pending_admin' ? 'bg-purple-100 text-purple-800' : '' }}
-                                {{ $selectedTask->status === 'revision' ? 'bg-orange-100 text-orange-800' : '' }}
-                                {{ $selectedTask->status === 'todo' ? 'bg-gray-100 text-gray-800' : '' }}">
-                                {{ $selectedTask->status === 'done' ? 'Selesai' : ($selectedTask->status === 'on_progress' ? 'Dikerjakan' : ($selectedTask->status === 'pending_pm' ? 'Review PM' : ($selectedTask->status === 'pending_admin' ? 'Review Admin' : ($selectedTask->status === 'revision' ? 'Revisi' : 'Menunggu')))) }}
-                            </span>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Priority</label>
-                            <span class="mt-1 inline-flex text-xs font-medium px-2.5 py-1 rounded {{ $selectedTask->priority === 'high' ? 'bg-red-50 text-red-700' : ($selectedTask->priority === 'medium' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-50 text-gray-600') }}">
-                                {{ $selectedTask->priority === 'high' ? 'Tinggi' : ($selectedTask->priority === 'medium' ? 'Sedang' : 'Rendah') }}
-                            </span>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Deadline</label>
-                            <p class="mt-1 text-sm {{ $selectedTask->isOverdue() ? 'text-red-600 font-bold' : 'text-gray-900' }}">
-                                {{ $selectedTask->deadline?->format('Y-m-d') ?? '-' }}
-                            </p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Dibuat Oleh</label>
-                            <p class="mt-1 text-sm text-gray-900">{{ $selectedTask->creator->name ?? '-' }}</p>
-                        </div>
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Deskripsi</label>
+                    <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 border border-gray-100">{{ $selectedTask->description ?? '-' }}</p>
                 </div>
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr>
+                            <td class="py-2 pr-4 align-top w-[140px] text-xs font-semibold text-gray-500 uppercase tracking-wider">Judul</td>
+                            <td class="py-2 font-medium text-gray-900">{{ $selectedTask->title }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</td>
+                            <td class="py-2"><span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full {{ $selectedTask->status === 'done' ? 'bg-green-100 text-green-800' : '' }} {{ $selectedTask->status === 'on_progress' ? 'bg-blue-100 text-blue-800' : '' }} {{ $selectedTask->status === 'pending_pm' ? 'bg-yellow-100 text-yellow-800' : '' }} {{ $selectedTask->status === 'pending_admin' ? 'bg-purple-100 text-purple-800' : '' }} {{ $selectedTask->status === 'revision' ? 'bg-orange-100 text-orange-800' : '' }} {{ $selectedTask->status === 'todo' ? 'bg-gray-100 text-gray-800' : '' }}">{{ $selectedTask->status === 'done' ? 'Selesai' : ($selectedTask->status === 'on_progress' ? 'Dikerjakan' : ($selectedTask->status === 'pending_pm' ? 'Review PM' : ($selectedTask->status === 'pending_admin' ? 'Review Admin' : ($selectedTask->status === 'revision' ? 'Revisi' : 'Menunggu')))) }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wider">Priority</td>
+                            <td class="py-2"><span class="inline-flex text-xs font-medium px-2.5 py-1 rounded {{ $selectedTask->priority === 'high' ? 'bg-red-50 text-red-700' : ($selectedTask->priority === 'medium' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-50 text-gray-600') }}">{{ $selectedTask->priority === 'high' ? 'Tinggi' : ($selectedTask->priority === 'medium' ? 'Sedang' : 'Rendah') }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wider">Deadline</td>
+                            <td class="py-2 {{ $selectedTask->isOverdue() ? 'text-red-600 font-bold' : 'text-gray-900' }}">{{ $selectedTask->deadline?->format('Y-m-d') ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wider">Workspace</td>
+                            <td class="py-2 text-gray-900">{{ $selectedTask->workspace->name ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wider">Assignee</td>
+                            <td class="py-2 text-gray-900">{{ $selectedTask->assignee->name ?? 'Unassigned' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wider">Dibuat Oleh</td>
+                            <td class="py-2 text-gray-900">{{ $selectedTask->creator->name ?? '-' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
 
                 <div class="border-t border-gray-100 pt-5">
                     <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">File Lampiran</h4>

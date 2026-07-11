@@ -16,9 +16,8 @@
                             <span class="text-xs px-2 py-0.5 rounded bg-indigo-50 text-indigo-600 mt-2 inline-block">{{ $task->project->name }}</span>
                         @endif
                     </div>
-                    <span class="text-xs px-2 py-1 rounded-full
-                        match($task->status) { 'done' => 'bg-green-50 text-green-700', 'pending_pm' => 'bg-purple-50 text-purple-700', 'assigned_member' => 'bg-yellow-50 text-yellow-700', default => 'bg-gray-100 text-gray-500' }">
-                        {{ str_replace('_', ' ', $task->status) }}
+                    <span class="text-xs px-2 py-1 rounded-full {{ $task->status_badge_class }}">
+                        {{ $task->status_label }}
                     </span>
                 </div>
 
@@ -76,9 +75,9 @@
                         @foreach($task->statusHistories as $h)
                             <div class="text-sm flex gap-2 text-gray-600">
                                 <span class="text-gray-400 w-24 flex-shrink-0">{{ $h->created_at->format('d M H:i') }}</span>
-                                <span class="px-1.5 py-0.5 rounded bg-gray-100 text-xs">{{ $h->from_status }}</span>
+                                <span class="px-1.5 py-0.5 rounded bg-gray-100 text-xs">{{ \App\Enums\TaskStatus::label($h->from_status) }}</span>
                                 <span>&rarr;</span>
-                                <span class="px-1.5 py-0.5 rounded bg-gray-100 text-xs">{{ $h->to_status }}</span>
+                                <span class="px-1.5 py-0.5 rounded bg-gray-100 text-xs">{{ \App\Enums\TaskStatus::label($h->to_status) }}</span>
                                 @if($h->note)
                                     <span class="text-gray-400">— {{ $h->note }}</span>
                                 @endif

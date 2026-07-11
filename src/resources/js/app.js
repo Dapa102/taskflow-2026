@@ -14,14 +14,6 @@ const COLORS = {
     red: ['#ef4444', '#f87171', '#fca5a5'],
 };
 
-function getGradient(ctx, chartArea, colorTop, colorBottom) {
-    if (!chartArea) return colorTop;
-    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-    gradient.addColorStop(0, colorTop);
-    gradient.addColorStop(1, colorBottom);
-    return gradient;
-}
-
 function hexToRgba(hex, alpha) {
     const c = hex.replace('#', '');
     const r = parseInt(c.slice(0,2), 16);
@@ -48,7 +40,6 @@ function initDonutCharts() {
             bg: item.bg,
         }));
 
-        el.__chartLabels = data.map(d => d.label);
         el.__chartInstance = new Chart(el, {
             type: 'doughnut',
             data: {
@@ -95,15 +86,6 @@ function initDonutCharts() {
                             },
                         },
                     },
-                },
-                onClick: (e, elements) => {
-                    if (elements.length > 0) {
-                        const idx = elements[0].index;
-                        const labels = el.__chartLabels;
-                        if (labels && labels[idx] && typeof Livewire !== 'undefined') {
-                            Livewire.dispatch('showDetail', { label: labels[idx] });
-                        }
-                    }
                 },
             },
             plugins: [{
@@ -153,16 +135,7 @@ function initBarCharts() {
                 datasets: [{
                     label: 'Selesai',
                     data: data.map(d => d.count),
-                    backgroundColor: function(context) {
-                        const chart = context.chart;
-                        const { ctx, chartArea } = chart;
-                        if (!chartArea) return data[context.dataIndex]?.bg || '#6366f1';
-                        return getGradient(
-                            ctx, chartArea,
-                            hexToRgba(data[context.dataIndex]?.bg || '#6366f1', 0.9),
-                            hexToRgba(data[context.dataIndex]?.bg || '#6366f1', 0.3)
-                        );
-                    },
+                    backgroundColor: data.map(d => hexToRgba(d.bg, 0.85)),
                     borderRadius: 8,
                     borderSkipped: false,
                     hoverBackgroundColor: data.map(d => hexToRgba(d.bg, 0.85)),

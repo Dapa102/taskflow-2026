@@ -12,12 +12,12 @@ class UserSeeder extends Seeder
     {
         User::firstOrCreate(
             ['email' => 'admin@admin.com'],
-            ['name' => 'Super Admin', 'password' => Hash::make('password'), 'role' => 'super_admin']
+            ['name' => 'Super Admin', 'password' => Hash::make('password'), 'role' => 'super_admin', 'is_active' => true]
         );
 
         User::firstOrCreate(
             ['email' => 'pm1@test.com'],
-            ['name' => 'Budi Santoso', 'password' => Hash::make('password'), 'role' => 'pm']
+            ['name' => 'Budi Santoso', 'password' => Hash::make('password'), 'role' => 'pm', 'is_active' => true]
         );
 
         $members = [
@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
         foreach ($members as $m) {
             User::firstOrCreate(
                 ['email' => $m['email']],
-                ['name' => $m['name'], 'password' => Hash::make('password'), 'role' => 'member']
+                ['name' => $m['name'], 'password' => Hash::make('password'), 'role' => 'member', 'is_active' => true]
             );
         }
     }

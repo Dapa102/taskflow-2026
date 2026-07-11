@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pm;
 
+use App\Enums\TaskStatus;
 use Livewire\Component;
 use App\Models\Task;
 use App\Models\User;
@@ -46,13 +47,13 @@ class CreateTask extends Component
             'assigned_to' => $this->assignMemberId,
             'title' => $this->title,
             'description' => $this->description,
-            'status' => 'assigned_member',
+            'status' => TaskStatus::TODO,
             'priority' => $this->priority,
             'deadline' => $this->deadline ?: null,
         ]);
 
         app(TaskStatusHistoryService::class)->record(
-            $task, 'assigned_member', 'assigned_member', 'Tugas dibuat oleh PM dan ditugaskan ke anggota'
+            $task, TaskStatus::TODO, TaskStatus::TODO, 'Tugas dibuat oleh PM dan ditugaskan ke anggota'
         );
 
         session()->flash('message', 'Tugas berhasil dibuat dan ditugaskan.');

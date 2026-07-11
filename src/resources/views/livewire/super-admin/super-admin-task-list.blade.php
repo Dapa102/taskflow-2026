@@ -155,73 +155,71 @@
             <div class="p-4 space-y-4">
                 @if($detailTask->description)
                     <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deskripsi</h4>
-                        <p class="text-sm text-gray-700 mt-1">{{ $detailTask->description }}</p>
+                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Deskripsi</h4>
+                        <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 border border-gray-100">{{ $detailTask->description }}</p>
                     </div>
                 @endif
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</h4>
-                        <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full
-                            @switch($detailTask->status)
-                                @case('draft') bg-gray-100 text-gray-700 @break
-                                @case('assigned_pm') bg-blue-100 text-blue-700 @break
-                                @case('assigned_member') bg-indigo-100 text-indigo-700 @break
-                                @case('pending_pm') bg-yellow-100 text-yellow-700 @break
-                                @case('revision') bg-orange-100 text-orange-700 @break
-                                @case('pending_arbitration') bg-red-100 text-red-700 @break
-                                @case('pending_admin') bg-purple-100 text-purple-700 @break
-                                @case('done') bg-green-100 text-green-700 @break
-                                @case('cancelled') bg-slate-100 text-slate-500 @break
-                                @default bg-gray-100 text-gray-700
-                            @endswitch
-                        ">
-                            {{ app(\App\Livewire\SuperAdmin\SuperAdminTaskList::class)->getStatusLabel($detailTask->status) }}
-                        </span>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Prioritas</h4>
-                        <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full {{ $detailTask->priority === 'high' ? 'bg-red-50 text-red-700' : ($detailTask->priority === 'medium' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-50 text-gray-600') }}">
-                            {{ $detailTask->priority === 'high' ? 'Tinggi' : ($detailTask->priority === 'medium' ? 'Sedang' : 'Rendah') }}
-                        </span>
-                    </div>
-                    @if($detailTask->deadline)
-                        <div>
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</h4>
-                            <p class="mt-1">{{ $detailTask->deadline->format('d M Y') }}</p>
-                        </div>
-                    @endif
-                    @if($detailTask->assignedPm)
-                        <div>
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Project Manager</h4>
-                            <p class="mt-1">{{ $detailTask->assignedPm->name }}</p>
-                        </div>
-                    @endif
-                    @if($detailTask->assignedMember)
-                        <div>
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Anggota</h4>
-                            <p class="mt-1">{{ $detailTask->assignedMember->name }}</p>
-                        </div>
-                    @endif
-                    @if($detailTask->workspace)
-                        <div>
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Workspace</h4>
-                            <p class="mt-1">{{ $detailTask->workspace->name }}</p>
-                        </div>
-                    @endif
-                    @if($detailTask->review_note)
-                        <div class="col-span-2">
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Catatan Review</h4>
-                            <p class="mt-1 p-2 bg-orange-50 rounded text-sm text-orange-800">{{ $detailTask->review_note }}</p>
-                        </div>
-                    @endif
-                    @if($detailTask->escalated_at)
-                        <div class="col-span-2">
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Eskalasi PM</h4>
-                            <p class="mt-1 text-sm text-red-600">{{ $detailTask->escalated_at->format('d M Y H:i') }}</p>
-                        </div>
-                    @endif
-                </div>
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr>
+                            <td class="py-2 pr-4 align-top w-[140px] text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</td>
+                            <td class="py-2"><span class="px-2 py-0.5 text-xs rounded-full
+                                @switch($detailTask->status)
+                                    @case('draft') bg-gray-100 text-gray-700 @break
+                                    @case('assigned_pm') bg-blue-100 text-blue-700 @break
+                                    @case('assigned_member') bg-indigo-100 text-indigo-700 @break
+                                    @case('pending_pm') bg-yellow-100 text-yellow-700 @break
+                                    @case('revision') bg-orange-100 text-orange-700 @break
+                                    @case('pending_arbitration') bg-red-100 text-red-700 @break
+                                    @case('pending_admin') bg-purple-100 text-purple-700 @break
+                                    @case('done') bg-green-100 text-green-700 @break
+                                    @case('cancelled') bg-slate-100 text-slate-500 @break
+                                    @default bg-gray-100 text-gray-700
+                                @endswitch
+                            ">{{ app(\App\Livewire\SuperAdmin\SuperAdminTaskList::class)->getStatusLabel($detailTask->status) }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Prioritas</td>
+                            <td class="py-2"><span class="px-2 py-0.5 text-xs rounded-full {{ $detailTask->priority === 'high' ? 'bg-red-50 text-red-700' : ($detailTask->priority === 'medium' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-50 text-gray-600') }}">{{ $detailTask->priority === 'high' ? 'Tinggi' : ($detailTask->priority === 'medium' ? 'Sedang' : 'Rendah') }}</span></td>
+                        </tr>
+                        @if($detailTask->deadline)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</td>
+                            <td class="py-2">{{ $detailTask->deadline->format('d M Y') }}</td>
+                        </tr>
+                        @endif
+                        @if($detailTask->assignedPm)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Project Manager</td>
+                            <td class="py-2">{{ $detailTask->assignedPm->name }}</td>
+                        </tr>
+                        @endif
+                        @if($detailTask->assignedMember)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Anggota</td>
+                            <td class="py-2">{{ $detailTask->assignedMember->name }}</td>
+                        </tr>
+                        @endif
+                        @if($detailTask->workspace)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Workspace</td>
+                            <td class="py-2">{{ $detailTask->workspace->name }}</td>
+                        </tr>
+                        @endif
+                        @if($detailTask->review_note)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Catatan Review</td>
+                            <td class="py-2"><span class="inline-block p-2 bg-orange-50 rounded text-sm text-orange-800">{{ $detailTask->review_note }}</span></td>
+                        </tr>
+                        @endif
+                        @if($detailTask->escalated_at)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Eskalasi PM</td>
+                            <td class="py-2 text-red-600">{{ $detailTask->escalated_at->format('d M Y H:i') }}</td>
+                        </tr>
+                        @endif
+                    </tbody>
+                </table>
                 @if($detailTask->attachments->count())
                     <div>
                         <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Lampiran</h4>

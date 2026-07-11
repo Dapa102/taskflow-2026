@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Member;
 
+use App\Enums\TaskStatus;
 use Livewire\Component;
 use App\Models\Task;
 use App\Services\TaskStatusHistoryService;
@@ -18,6 +19,19 @@ class Tasks extends Component
     public $detailTitle = '';
     public $detailTasks = [];
 
+    public function startTask($taskId): void
+    {
+        $task = Task::where('assigned_member_id', auth()->id())
+            ->where('status', TaskStatus::TODO)
+            ->findOrFail($taskId);
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, TaskStatus::IN_PROGRESS, 'Tugas mulai dikerjakan oleh anggota'
+        );
+
+        session()->flash('message', 'Status tugas diubah menjadi In Progress.');
+    }
+
     public function submitTask($taskId)
     {
         $this->validate([
@@ -25,7 +39,7 @@ class Tasks extends Component
         ]);
 
         $task = Task::where('assigned_member_id', auth()->id())
-            ->whereIn('status', ['assigned_member', 'revision'])
+            ->whereIn('status', [TaskStatus::TODO, TaskStatus::IN_PROGRESS])
             ->findOrFail($taskId);
 
         $file = $this->upload[$taskId];
@@ -40,7 +54,7 @@ class Tasks extends Component
         ]);
 
         app(TaskStatusHistoryService::class)->transition(
-            $task, 'pending_pm', 'Tugas diserahkan oleh anggota'
+            $task, TaskStatus::REVIEW, 'Tugas diserahkan oleh anggota untuk review'
         );
 
         $task->update(['submitted_at' => now()]);

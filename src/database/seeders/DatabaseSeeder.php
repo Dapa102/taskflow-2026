@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Enums\TaskStatus;
 use App\Models\User;
 use App\Models\Workspace;
+use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Database\Seeder;
 
@@ -29,10 +31,19 @@ class DatabaseSeeder extends Seeder
         );
         $ws->members()->syncWithoutDetaching([$member1->id, $member2->id]);
 
+        $project = Project::firstOrCreate(
+            ['workspace_id' => $ws->id, 'name' => 'MVP TaskFlow'],
+            [
+                'description' => 'Project demo untuk validasi alur MVP TaskFlow',
+                'deadline' => now()->addMonth(),
+                'created_by' => $pm->id,
+            ]
+        );
+
         $tasks = [
-            ['title' => 'Testing fitur notifikasi', 'desc' => 'Pastikan notifikasi berjalan', 'status' => 'pending_pm', 'priority' => 'medium', 'deadline' => 1, 'assign' => $member1->id],
-            ['title' => 'Buat halaman profil user', 'desc' => 'Edit profil + avatar', 'status' => 'pending_admin', 'priority' => 'medium', 'deadline' => -1, 'assign' => $member2->id],
-            ['title' => 'Implementasi dark mode', 'desc' => 'Toggle theme', 'status' => 'revision', 'priority' => 'low', 'deadline' => 3, 'assign' => $member1->id],
+            ['title' => 'Siapkan struktur dashboard Member', 'desc' => 'Buat tampilan daftar task pribadi', 'status' => TaskStatus::TODO, 'priority' => 'medium', 'deadline' => 3, 'assign' => $member1->id],
+            ['title' => 'Update status task demo', 'desc' => 'Validasi perubahan status task ke In Progress', 'status' => TaskStatus::IN_PROGRESS, 'priority' => 'medium', 'deadline' => 5, 'assign' => $member2->id],
+            ['title' => 'Review lampiran hasil kerja', 'desc' => 'Task demo menunggu review Project Manager', 'status' => TaskStatus::REVIEW, 'priority' => 'low', 'deadline' => 7, 'assign' => $member1->id],
         ];
 
         foreach ($tasks as $t) {
@@ -43,6 +54,7 @@ class DatabaseSeeder extends Seeder
                     'assigned_to' => $t['assign'],
                     'assigned_member_id' => $t['assign'],
                     'assigned_pm_id' => $pm->id,
+                    'project_id' => $project->id,
                     'description' => $t['desc'],
                     'status' => $t['status'],
                     'priority' => $t['priority'],

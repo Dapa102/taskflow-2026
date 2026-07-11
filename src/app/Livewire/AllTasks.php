@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Enums\TaskStatus;
 use Livewire\Component;
 use App\Models\Task;
 use Livewire\WithPagination;
@@ -39,13 +40,13 @@ class AllTasks extends Component
         }
 
         if ($this->statusFilter === 'done') {
-            $query->where('status', 'done');
+            $query->where('status', TaskStatus::DONE);
         } elseif ($this->statusFilter === 'pending') {
-            $query->where('status', '!=', 'done');
+            $query->whereNotIn('status', [TaskStatus::DONE, TaskStatus::CANCELLED]);
         } elseif ($this->statusFilter === 'overdue') {
             $query->whereNotNull('deadline')
                   ->where('deadline', '<', now())
-                  ->where('status', '!=', 'done');
+                  ->whereNotIn('status', [TaskStatus::DONE, TaskStatus::CANCELLED]);
         }
 
         return view('livewire.all-tasks', [

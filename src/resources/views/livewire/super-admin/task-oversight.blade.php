@@ -102,44 +102,45 @@
 
             <div class="p-6 space-y-5">
                 <div>
-                    <label class="text-xs text-gray-500 uppercase font-semibold">Deskripsi</label>
-                    <p class="mt-1 text-sm text-gray-700">{{ $detailTask->description ?? '—' }}</p>
+                    <label class="text-xs text-gray-500 uppercase font-semibold mb-1">Deskripsi</label>
+                    <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 border border-gray-100">{{ $detailTask->description ?? '—' }}</p>
                 </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-semibold">Status</label>
-                        <p class="mt-1 text-sm font-medium">
-                            @if(is_null($detailTask->assigned_to))
-                            <span class="text-yellow-600">Belum Diberikan</span>
-                            @elseif($detailTask->status === 'done')
-                            <span class="text-green-600">Selesai</span>
-                            @else
-                            <span class="text-blue-600">Sudah Diberikan</span>
-                            @endif
-                        </p>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-semibold">Dari Atasan</label>
-                        <p class="mt-1 text-sm font-medium">{{ $detailTask->creator->name ?? '—' }}</p>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-semibold">Priority</label>
-                        <p class="mt-1 text-sm font-medium">{{ ucfirst($detailTask->priority) }}</p>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-semibold">Deadline</label>
-                        <p class="mt-1 text-sm">{{ $detailTask->deadline?->format('Y-m-d') ?? '—' }}</p>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-semibold">Workspace</label>
-                        <p class="mt-1 text-sm">{{ $detailTask->workspace->name ?? '—' }}</p>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-semibold">Assignee</label>
-                        <p class="mt-1 text-sm">{{ $detailTask->assignee->name ?? '—' }}</p>
-                    </div>
-                </div>
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr>
+                            <td class="py-2 pr-4 align-top w-[140px] text-xs text-gray-500 uppercase font-semibold">Status</td>
+                            <td class="py-2 font-medium">
+                                @if(is_null($detailTask->assigned_to))
+                                <span class="text-yellow-600">Belum Diberikan</span>
+                                @elseif($detailTask->status === 'done')
+                                <span class="text-green-600">Selesai</span>
+                                @else
+                                <span class="text-blue-600">Sudah Diberikan</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs text-gray-500 uppercase font-semibold">Dari Atasan</td>
+                            <td class="py-2 font-medium">{{ $detailTask->creator->name ?? '—' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs text-gray-500 uppercase font-semibold">Priority</td>
+                            <td class="py-2 font-medium">{{ ucfirst($detailTask->priority) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs text-gray-500 uppercase font-semibold">Deadline</td>
+                            <td class="py-2">{{ $detailTask->deadline?->format('Y-m-d') ?? '—' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs text-gray-500 uppercase font-semibold">Workspace</td>
+                            <td class="py-2">{{ $detailTask->workspace->name ?? '—' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs text-gray-500 uppercase font-semibold">Assignee</td>
+                            <td class="py-2">{{ $detailTask->assignee->name ?? '—' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
 
                 <div class="border-t pt-4">
                     <label class="text-xs text-gray-500 uppercase font-semibold">Assign ke Project Manager</label>

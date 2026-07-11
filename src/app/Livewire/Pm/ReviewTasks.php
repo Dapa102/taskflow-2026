@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pm;
 
+use App\Enums\TaskStatus;
 use Livewire\Component;
 use App\Models\Task;
 use App\Services\TaskStatusHistoryService;
@@ -26,11 +27,13 @@ class ReviewTasks extends Component
     public function approve($taskId)
     {
         $task = Task::where('assigned_pm_id', auth()->id())
-            ->where('status', 'pending_pm')
+            ->where('status', TaskStatus::REVIEW)
             ->findOrFail($taskId);
 
+        $task->update(['reviewed_by' => auth()->id()]);
+
         app(TaskStatusHistoryService::class)->transition(
-            $task, 'pending_admin', $this->reviewNote ?: 'Disetujui PM, menunggu approval admin'
+            $task, TaskStatus::DONE, $this->reviewNote ?: 'Disetujui Project Manager'
         );
 
         $this->reviewNote = '';
@@ -42,24 +45,17 @@ class ReviewTasks extends Component
         $this->validate(['reviewNote' => 'required|min:3|max:1000']);
 
         $task = Task::where('assigned_pm_id', auth()->id())
-            ->where('status', 'pending_pm')
+            ->where('status', TaskStatus::REVIEW)
             ->findOrFail($taskId);
 
-        $newCounter = $task->revision_counter + 1;
         $task->update([
             'review_note' => $this->reviewNote,
-            'revision_counter' => $newCounter,
+            'reviewed_by' => auth()->id(),
         ]);
 
-        if ($task->isRevisiLocked() || $newCounter >= $task->max_revision_limit) {
-            app(TaskStatusHistoryService::class)->transition(
-                $task, 'pending_arbitration', "Batas revisi tercapai ({$newCounter}/{$task->max_revision_limit}): {$this->reviewNote}"
-            );
-        } else {
-            app(TaskStatusHistoryService::class)->transition(
-                $task, 'revision', "Revisi ({$newCounter}/{$task->max_revision_limit}): {$this->reviewNote}"
-            );
-        }
+        app(TaskStatusHistoryService::class)->transition(
+            $task, TaskStatus::IN_PROGRESS, "Dikembalikan untuk perbaikan: {$this->reviewNote}"
+        );
 
         $this->reviewNote = '';
         $this->showDetailModal = false;
@@ -68,6 +64,7 @@ class ReviewTasks extends Component
     public function render()
     {
         $tasks = Task::where('assigned_pm_id', auth()->id())
+            ->where('status', TaskStatus::REVIEW)
             ->with(['project', 'assignedMember', 'creator'])
             ->latest()
             ->get();

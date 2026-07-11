@@ -44,8 +44,8 @@
                                 <td class="px-4 py-3 text-sm text-gray-500">{{ $task->assignee->name ?? 'Unassigned' }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-500">{{ $task->creator->name ?? '-' }}</td>
                                 <td class="px-4 py-3">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $task->status === 'done' ? 'bg-green-100 text-green-800' : ($task->status === 'on_progress' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800') }}">
-                                        {{ $task->status === 'done' ? 'Selesai' : ($task->status === 'on_progress' ? 'Dikerjakan' : 'Menunggu') }}
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $task->status_badge_class }}">
+                                        {{ $task->status_label }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3">
@@ -87,64 +87,44 @@
             <div class="p-4 space-y-4">
                 @if($task->description)
                 <div>
-                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deskripsi</h4>
-                    <p class="text-sm text-gray-700 mt-1">{{ $task->description }}</p>
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Deskripsi</h4>
+                    <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 border border-gray-100">{{ $task->description }}</p>
                 </div>
                 @endif
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</h4>
-                        <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full
-                            @switch($task->status)
-                                @case('assigned_member') bg-blue-100 text-blue-700 @break
-                                @case('pending_pm') bg-purple-100 text-purple-700 @break
-                                @case('revision') bg-orange-100 text-orange-700 @break
-                                @case('pending_admin') bg-indigo-100 text-indigo-700 @break
-                                @case('pending_arbitration') bg-red-100 text-red-700 @break
-                                @case('done') bg-green-100 text-green-700 @break
-                                @default bg-gray-100 text-gray-600
-                            @endswitch
-                        ">
-                            @switch($task->status)
-                                @case('assigned_member') Dikerjakan @break
-                                @case('pending_pm') Review PM @break
-                                @case('revision') Revisi @break
-                                @case('pending_admin') Approval @break
-                                @case('pending_arbitration') Arbitrase @break
-                                @case('done') Selesai @break
-                                @default {{ $task->status }}
-                            @endswitch
-                        </span>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Prioritas</h4>
-                        <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full {{ $task->priority === 'high' ? 'bg-red-50 text-red-600' : ($task->priority === 'medium' ? 'bg-yellow-50 text-yellow-600' : 'bg-gray-50 text-gray-500') }}">
-                            {{ ucfirst($task->priority) }}
-                        </span>
-                    </div>
-                    @if($task->deadline)
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</h4>
-                        <p class="mt-1 {{ $task->isOverdue() ? 'text-red-600 font-bold' : '' }}">{{ $task->deadline->format('d M Y') }}</p>
-                    </div>
-                    @endif
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Workspace</h4>
-                        <p class="mt-1">{{ $task->workspace->name ?? '-' }}</p>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Assignee</h4>
-                        <p class="mt-1">{{ $task->assignee->name ?? '-' }}</p>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Dibuat Oleh</h4>
-                        <p class="mt-1">{{ $task->creator->name ?? '-' }}</p>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tanggal Dibuat</h4>
-                        <p class="mt-1">{{ $task->created_at->format('d M Y H:i') }}</p>
-                    </div>
-                </div>
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr>
+                            <td class="py-2 pr-4 align-top w-[140px] text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</td>
+                            <td class="py-2"><span class="px-2 py-0.5 text-xs rounded-full {{ $task->status_badge_class }}">{{ $task->status_label }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Prioritas</td>
+                            <td class="py-2"><span class="px-2 py-0.5 text-xs rounded-full {{ $task->priority === 'high' ? 'bg-red-50 text-red-600' : ($task->priority === 'medium' ? 'bg-yellow-50 text-yellow-600' : 'bg-gray-50 text-gray-500') }}">{{ ucfirst($task->priority) }}</span></td>
+                        </tr>
+                        @if($task->deadline)
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</td>
+                            <td class="py-2"><span class="{{ $task->isOverdue() ? 'text-red-600 font-bold' : '' }}">{{ $task->deadline->format('d M Y') }}</span></td>
+                        </tr>
+                        @endif
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Workspace</td>
+                            <td class="py-2">{{ $task->workspace->name ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Assignee</td>
+                            <td class="py-2">{{ $task->assignee->name ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Dibuat Oleh</td>
+                            <td class="py-2">{{ $task->creator->name ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Tanggal Dibuat</td>
+                            <td class="py-2">{{ $task->created_at->format('d M Y H:i') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
                 @if($task->attachments->count())
                 <div>
                     <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Lampiran</h4>
