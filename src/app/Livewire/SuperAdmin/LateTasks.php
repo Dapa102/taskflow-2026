@@ -24,7 +24,9 @@ class LateTasks extends Component
     {
         $tasks = $this->getLateTasksQuery()->get();
         $pdf = Pdf::loadView('pdf.late-tasks', ['tasks' => $tasks]);
-        return response()->streamDownload(fn() => print($pdf->output()), 'late-tasks.pdf');
+        $path = tempnam(sys_get_temp_dir(), 'pdf') . '.pdf';
+        file_put_contents($path, $pdf->output());
+        return response()->download($path, 'late-tasks.pdf')->deleteFileAfterSend();
     }
 
     public function render()

@@ -37,3 +37,10 @@ it('shows member metrics correctly', function () {
         ->assertSee('2')
         ->assertSee('1');
 });
+
+it('exports member performance PDF', function () {
+    $this->actingAs($this->sa);
+    Livewire::test(MemberPerformance::class)
+        ->call('exportPdf')
+        ->assertFileDownloaded('member-performance.pdf');
+});

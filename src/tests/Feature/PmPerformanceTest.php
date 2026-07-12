@@ -37,3 +37,10 @@ it('shows PM metrics correctly', function () {
         ->assertSee('3')
         ->assertSee('1');
 });
+
+it('exports PM performance PDF', function () {
+    $this->actingAs($this->sa);
+    Livewire::test(PmPerformance::class)
+        ->call('exportPdf')
+        ->assertFileDownloaded('pm-performance.pdf');
+});

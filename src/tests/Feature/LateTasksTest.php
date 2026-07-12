@@ -56,3 +56,10 @@ it('searches by title', function () {
         ->assertSee('Overdue Task A')
         ->assertDontSee('Future Task');
 });
+
+it('exports late tasks PDF', function () {
+    $this->actingAs($this->sa);
+    Livewire::test(LateTasks::class)
+        ->call('exportPdf')
+        ->assertFileDownloaded('late-tasks.pdf');
+});

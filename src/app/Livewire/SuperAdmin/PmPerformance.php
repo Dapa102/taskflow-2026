@@ -21,7 +21,9 @@ class PmPerformance extends Component
     {
         $data = $this->getPerformance();
         $pdf = Pdf::loadView('pdf.pm-performance', ['pms' => $data]);
-        return response()->streamDownload(fn() => print($pdf->output()), 'pm-performance.pdf');
+        $path = tempnam(sys_get_temp_dir(), 'pdf') . '.pdf';
+        file_put_contents($path, $pdf->output());
+        return response()->download($path, 'pm-performance.pdf')->deleteFileAfterSend();
     }
 
     public function render()

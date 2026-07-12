@@ -21,7 +21,9 @@ class MemberPerformance extends Component
     {
         $data = $this->getPerformance();
         $pdf = Pdf::loadView('pdf.member-performance', ['members' => $data]);
-        return response()->streamDownload(fn() => print($pdf->output()), 'member-performance.pdf');
+        $path = tempnam(sys_get_temp_dir(), 'pdf') . '.pdf';
+        file_put_contents($path, $pdf->output());
+        return response()->download($path, 'member-performance.pdf')->deleteFileAfterSend();
     }
 
     public function render()
