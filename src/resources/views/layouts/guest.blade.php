@@ -14,8 +14,8 @@
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 relative">
-            <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100 -z-10"></div>
-            <div class="absolute inset-0 opacity-[0.03] -z-10" style="background-image: radial-gradient(circle, #1e293b 1px, transparent 1px); background-size: 24px 24px;"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50/30 to-slate-100 -z-10"></div>
+            <div class="absolute inset-0 opacity-[0.04] -z-10" style="background-image: radial-gradient(circle, #4f46e5 1px, transparent 1px); background-size: 24px 24px;"></div>
 
             <div class="w-full sm:max-w-md px-6">
                 <a href="/" class="flex flex-col items-center mb-10 group">
@@ -28,7 +28,7 @@
                     </div>
                 </a>
 
-                <div class="bg-white/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 border border-slate-100 rounded-2xl px-10 py-10">
+                <div class="bg-white/90 backdrop-blur-sm shadow-xl shadow-indigo-200/30 border border-indigo-100/50 rounded-2xl px-10 py-10">
                     {{ $slot }}
                 </div>
 

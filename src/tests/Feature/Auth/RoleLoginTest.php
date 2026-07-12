@@ -5,7 +5,7 @@ use App\Models\User;
 beforeEach(function () {
     $this->superAdmin = User::factory()->create([
         'name' => 'Super Admin',
-        'email' => 'super@admin.com',
+        'email' => 'super.admin@gmail.com',
         'password' => bcrypt('password'),
         'role' => 'super_admin',
         'is_active' => true,
@@ -13,7 +13,7 @@ beforeEach(function () {
 
     $this->pm = User::factory()->create([
         'name' => 'Project Manager',
-        'email' => 'pm@test.com',
+        'email' => 'pm@gmail.com',
         'password' => bcrypt('password'),
         'role' => 'pm',
         'is_active' => true,
@@ -21,7 +21,7 @@ beforeEach(function () {
 
     $this->member = User::factory()->create([
         'name' => 'Team Member',
-        'email' => 'member@test.com',
+        'email' => 'member@gmail.com',
         'password' => bcrypt('password'),
         'role' => 'member',
         'is_active' => true,
@@ -41,7 +41,7 @@ describe('Web Login', function () {
 
     it('super_admin can login via web and redirects to dashboard', function () {
         $response = $this->post('/login', [
-            'email' => 'super@admin.com',
+            'email' => 'super.admin@gmail.com',
             'password' => 'password',
         ]);
 
@@ -52,7 +52,7 @@ describe('Web Login', function () {
 
     it('pm can login via web and redirects to dashboard', function () {
         $response = $this->post('/login', [
-            'email' => 'pm@test.com',
+            'email' => 'pm@gmail.com',
             'password' => 'password',
         ]);
 
@@ -63,7 +63,7 @@ describe('Web Login', function () {
 
     it('member can login via web and redirects to dashboard', function () {
         $response = $this->post('/login', [
-            'email' => 'member@test.com',
+            'email' => 'member@gmail.com',
             'password' => 'password',
         ]);
 
@@ -74,7 +74,7 @@ describe('Web Login', function () {
 
     it('rejects invalid credentials', function () {
         $response = $this->post('/login', [
-            'email' => 'super@admin.com',
+            'email' => 'super.admin@gmail.com',
             'password' => 'wrong-password',
         ]);
 
@@ -108,7 +108,7 @@ describe('Web Login', function () {
 describe('API Login', function () {
     it('super_admin can login via API', function () {
         $response = $this->postJson('/api/login', [
-            'email' => 'super@admin.com',
+            'email' => 'super.admin@gmail.com',
             'password' => 'password',
         ]);
 
@@ -120,7 +120,7 @@ describe('API Login', function () {
 
     it('pm can login via API', function () {
         $response = $this->postJson('/api/login', [
-            'email' => 'pm@test.com',
+            'email' => 'pm@gmail.com',
             'password' => 'password',
         ]);
 
@@ -132,7 +132,7 @@ describe('API Login', function () {
 
     it('member can login via API', function () {
         $response = $this->postJson('/api/login', [
-            'email' => 'member@test.com',
+            'email' => 'member@gmail.com',
             'password' => 'password',
         ]);
 
@@ -144,7 +144,7 @@ describe('API Login', function () {
 
     it('rejects invalid API credentials', function () {
         $response = $this->postJson('/api/login', [
-            'email' => 'super@admin.com',
+            'email' => 'super.admin@gmail.com',
             'password' => 'wrong-password',
         ]);
 

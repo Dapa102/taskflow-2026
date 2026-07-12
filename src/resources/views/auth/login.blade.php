@@ -12,12 +12,17 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('login') }}" class="space-y-6">
+    <form method="POST" action="{{ route('login') }}" class="space-y-6" id="loginForm" novalidate>
         @csrf
 
         <div>
             <x-input-label for="email" :value="__('Email')" class="text-sm font-semibold text-gray-700" />
-            <x-text-input id="email" class="block mt-2 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-gray-300 focus:ring-0 transition-all" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="nama@perusahaan.com" />
+            <x-text-input id="email"
+                class="block mt-2 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-gray-300 focus:ring-0 transition-all"
+                type="email" name="email" :value="old('email')" required autofocus autocomplete="username"
+                placeholder="email@gmail.com"
+                oninput="validateEmail()" />
+            <p id="emailError" class="mt-2 text-sm text-red-600 hidden"></p>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
@@ -30,7 +35,7 @@
                     name="password"
                     required autocomplete="current-password"
                     placeholder="Masukkan password"
- />
+                    oninput="validatePassword()" />
                 <button type="button"
                     onclick="togglePassword()"
                     class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
@@ -44,6 +49,7 @@
                     </svg>
                 </button>
             </div>
+            <p id="passwordError" class="mt-2 text-sm text-red-600 hidden"></p>
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
@@ -68,6 +74,48 @@
 
     @push('scripts')
     <script>
+        function validateEmail() {
+            const input = document.getElementById('email');
+            const error = document.getElementById('emailError');
+            const val = input.value.trim();
+
+            if (val.length === 0) {
+                error.classList.add('hidden');
+                input.classList.remove('border-red-400', 'bg-red-50');
+                return;
+            }
+
+            if (!val.endsWith('@gmail.com')) {
+                error.textContent = 'Email harus menggunakan @gmail.com';
+                error.classList.remove('hidden');
+                input.classList.add('border-red-400', 'bg-red-50');
+            } else {
+                error.classList.add('hidden');
+                input.classList.remove('border-red-400', 'bg-red-50');
+            }
+        }
+
+        function validatePassword() {
+            const input = document.getElementById('password');
+            const error = document.getElementById('passwordError');
+            const val = input.value;
+
+            if (val.length === 0) {
+                error.classList.add('hidden');
+                input.classList.remove('border-red-400', 'bg-red-50');
+                return;
+            }
+
+            if (val.length < 8) {
+                error.textContent = 'Password minimal 8 karakter';
+                error.classList.remove('hidden');
+                input.classList.add('border-red-400', 'bg-red-50');
+            } else {
+                error.classList.add('hidden');
+                input.classList.remove('border-red-400', 'bg-red-50');
+            }
+        }
+
         function togglePassword() {
             const input = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');
@@ -83,6 +131,18 @@
                 eyeOffIcon.classList.add('hidden');
             }
         }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            validateEmail();
+            validatePassword();
+
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+
+            if (!emailError.classList.contains('hidden') || !passwordError.classList.contains('hidden')) {
+                e.preventDefault();
+            }
+        });
     </script>
     @endpush
 </x-guest-layout>
