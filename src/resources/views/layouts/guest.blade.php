@@ -13,24 +13,24 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
-            <div class="w-full sm:max-w-md px-8">
-                <a href="/" class="flex flex-col items-center mb-8 group">
-                    <div class="w-16 h-16 mb-3 opacity-90 group-hover:opacity-100 transition-opacity">
-                        <img src="{{ asset('images/TaskflowLogo.svg') }}" alt="Soulmatters" class="w-full h-full">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-slate-50 to-slate-100">
+            <div class="w-full sm:max-w-md px-6">
+                <a href="/" class="flex flex-col items-center mb-10 group">
+                    <div class="w-20 h-20 mb-4 opacity-90 group-hover:opacity-100 transition-opacity">
+                        <img src="{{ asset('images/TaskflowLogo.svg') }}" alt="TaskFlow" class="w-full h-full">
                     </div>
                     <div class="text-center">
-                        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Soulmatters</h1>
-                        <p class="text-sm text-gray-500 font-medium tracking-wide uppercase">Task Management</p>
+                        <h1 class="text-3xl font-bold text-gray-900 tracking-tight">TaskFlow</h1>
+                        <p class="text-sm text-gray-500 font-medium mt-1">Kolaborasi Tugas, Wujudkan Produktivitas</p>
                     </div>
                 </a>
 
-                <div class="bg-white/80 backdrop-blur-sm shadow-xl shadow-gray-200/50 border border-gray-100 rounded-2xl px-8 py-8">
+                <div class="bg-white shadow-lg shadow-slate-200/60 border border-slate-100 rounded-2xl px-10 py-10">
                     {{ $slot }}
                 </div>
 
-                <p class="text-center mt-8 text-xs text-gray-400">
-                    &copy; {{ date('Y') }} Soulmatters. All rights reserved.
+                <p class="text-center mt-10 text-xs text-gray-400">
+                    &copy; {{ date('Y') }} TaskFlow. All rights reserved.
                 </p>
             </div>
         </div>

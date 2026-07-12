@@ -33,9 +33,9 @@ describe('Web Login', function () {
         $response = $this->get('/login');
 
         $response->assertStatus(200);
-        $response->assertSee('Sign in');
-        $response->assertSee('Soulmatters');
-        $response->assertDontSee('Selamat Datang');
+        $response->assertSee('Masuk');
+        $response->assertSee('TaskFlow');
+        $response->assertSee('Selamat Datang');
         $response->assertDontSee('bg-gray-100');
     });
 
