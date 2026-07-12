@@ -19,7 +19,8 @@
             @endphp
             <div class="h-16 flex items-center px-6 border-b border-gray-200">
                 <a href="{{ route("{$routePrefix}.dashboard") }}" class="flex items-center gap-2.5">
-                    <img src="{{ asset('images/TaskflowLogo.svg') }}" alt="TaskFlow" class="h-7">
+                    <img src="{{ asset('images/TaskflowLogo.svg') }}" alt="TaskFlow" class="h-8">
+                    <span class="font-bold text-lg text-gray-900">TaskFlow</span>
                 </a>
             </div>
 
