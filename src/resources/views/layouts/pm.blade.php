@@ -101,16 +101,16 @@
                     <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Yakin ingin logout?</h3>
-                    <p class="text-sm text-gray-500 mb-6">Anda akan keluar dari sesi saat ini.</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Konfirmasi Logout</h3>
+                    <p class="text-sm text-gray-500 mb-6">Apakah Anda yakin ingin keluar dari aplikasi? Sesi Anda akan berakhir dan perlu melakukan login kembali untuk mengakses aplikasi.</p>
                     <div class="flex gap-3">
                         <button type="button" onclick="document.getElementById('logout-modal').classList.add('hidden')" class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                            Tidak
+                            Batal
                         </button>
                         <form method="POST" action="{{ route('logout') }}" class="flex-1 m-0">
                             @csrf
                             <button type="submit" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors">
-                                Iya, Logout
+                                Ya, Logout
                             </button>
                         </form>
                     </div>
