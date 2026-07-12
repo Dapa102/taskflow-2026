@@ -29,7 +29,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/dashboard', PmDashboard::class)->name('dashboard');
         Route::get('/compose-email', \App\Livewire\Pm\ComposeEmail::class)->name('compose.email');
         Route::get('/team-members', \App\Livewire\Pm\TeamMembers::class)->name('team.members');
-        Route::get('/workspace', \App\Livewire\Pm\WorkspaceDetail::class)->name('workspace');
+        Route::get('/workspaces', \App\Livewire\Pm\Workspaces::class)->name('workspaces');
         Route::get('/projects', \App\Livewire\Pm\Projects::class)->name('projects');
         Route::get('/create-task', \App\Livewire\Pm\CreateTask::class)->name('create-task');
         Route::get('/review-tasks', \App\Livewire\Pm\ReviewTasks::class)->name('review-tasks');
