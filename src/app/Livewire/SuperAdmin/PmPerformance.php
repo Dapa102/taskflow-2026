@@ -19,7 +19,7 @@ class PmPerformance extends Component
 
     public function exportPdf()
     {
-        $this->js("window.location.href = '" . route('export.pm-performance') . "'");
+        $this->dispatch('download-pdf', url: route('export.pm-performance'));
     }
 
     public function render()

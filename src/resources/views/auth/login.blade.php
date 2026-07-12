@@ -20,7 +20,7 @@
             <x-text-input id="email"
                 class="block mt-2 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-gray-300 focus:ring-0 transition-all"
                 type="email" name="email" :value="old('email')" required autofocus autocomplete="username"
-                placeholder="admin@admin.com"
+                placeholder="email@kamu.com"
                 oninput="validateEmail()" />
             <p id="emailError" class="mt-2 text-sm text-red-600 hidden"></p>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />

@@ -19,7 +19,7 @@ class MemberPerformance extends Component
 
     public function exportPdf()
     {
-        $this->js("window.location.href = '" . route('export.member-performance') . "'");
+        $this->dispatch('download-pdf', url: route('export.member-performance'));
     }
 
     public function render()

@@ -205,6 +205,7 @@ fi
 # Step 6: Create necessary folders and set permissions
 echo "🔧 Fixing permissions..."
 mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache
+mkdir -p /var/www/html/storage/fonts
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 

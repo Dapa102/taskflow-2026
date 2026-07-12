@@ -21,7 +21,7 @@ class LateTasks extends Component
 
     public function exportPdf()
     {
-        $this->js("window.location.href = '" . route('export.late-tasks') . "'");
+        $this->dispatch('download-pdf', url: route('export.late-tasks'));
     }
 
     public function render()

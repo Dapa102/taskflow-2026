@@ -4,35 +4,115 @@
     <meta charset="utf-8">
     <title>PM Performance Report</title>
     <style>
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1e293b; margin: 0; padding: 30px; }
-        .header { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #2563eb; padding-bottom: 16px; margin-bottom: 24px; }
-        .header img { width: 36px; height: 36px; }
-        .header h1 { font-size: 20px; font-weight: 700; color: #0f172a; margin: 0; }
-        .header .sub { font-size: 10px; color: #64748b; margin: 0; }
-        .meta { display: flex; justify-content: space-between; font-size: 10px; color: #64748b; margin-bottom: 16px; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #2563eb; color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 8px; text-align: left; }
-        td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
-        tr:nth-child(even) td { background: #f8fafc; }
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 400;
+            src: url('{{ storage_path('fonts/Inter-Regular.ttf') }}') format('truetype');
+        }
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 700;
+            src: url('{{ storage_path('fonts/Inter-Bold.ttf') }}') format('truetype');
+        }
+        body {
+            font-family: 'Inter', 'DejaVu Sans', sans-serif;
+            font-size: 10px;
+            color: #1e293b;
+            margin: 0;
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .header img {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 4px;
+        }
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 4px 0 0;
+        }
+        .header .app-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: #2563eb;
+            margin: 0;
+        }
+        .header .sub {
+            font-size: 9px;
+            color: #64748b;
+            margin: 2px 0 0;
+        }
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #cbd5e1;
+        }
+        td {
+            padding: 7px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+        }
         .text-center { text-align: center; }
-        .footer { position: fixed; bottom: 20px; left: 30px; right: 30px; text-align: center; font-size: 9px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
-        .badge-green { background: #dcfce7; color: #166534; }
-        .badge-red { background: #fee2e2; color: #991b1b; }
+        .text-right { text-align: right; }
+        .fw-bold { font-weight: 700; }
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 30px;
+            right: 30px;
+            text-align: center;
+            font-size: 8px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 8px;
+        }
+        .report-title {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <img src="{{ public_path('images/TaskflowLogo.svg') }}" alt="TaskFlow">
-        <div>
-            <h1>PM Performance Report</h1>
-            <p class="sub">TaskFlow — Platform Kolaborasi Tugas Antar Tim</p>
-        </div>
+        <img src="{{ public_path('images/TaskflowLogo.svg') }}" alt="TaskFlow" width="36" height="36">
+        <p class="app-name">TaskFlow</p>
+        <p class="sub">Platform Kolaborasi Tugas Antar Tim</p>
     </div>
 
+    <div class="report-title">PM Performance Report</div>
+
     <div class="meta">
-        <span>Generated: {{ now()->format('d F Y H:i') }}</span>
-        <span>{{ count($pms) }} PM(s)</span>
+        <span>Tanggal: {{ now()->format('d F Y H:i') }}</span>
+        <span>{{ count($pms) }} PM</span>
     </div>
 
     <table>
@@ -43,33 +123,28 @@
                 <th class="text-center">Total</th>
                 <th class="text-center">Done</th>
                 <th class="text-center">Overdue</th>
-                <th class="text-center">Rate</th>
+                <th class="text-right">Rate</th>
             </tr>
         </thead>
         <tbody>
             @foreach($pms as $pm)
             <tr>
-                <td><strong>{{ $pm->name }}</strong><br><span style="font-size:10px;color:#64748b;">{{ $pm->email }}</span></td>
+                <td>
+                    <span class="fw-bold">{{ $pm->name }}</span><br>
+                    <span style="font-size:9px;color:#64748b;">{{ $pm->email }}</span>
+                </td>
                 <td>{{ $pm->workspace->name ?? '-' }}</td>
                 <td class="text-center">{{ $pm->total_tasks }}</td>
                 <td class="text-center">{{ $pm->done_tasks }}</td>
-                <td class="text-center">
-                    @if($pm->overdue_tasks > 0)
-                        <span class="badge badge-red">{{ $pm->overdue_tasks }}</span>
-                    @else
-                        {{ $pm->overdue_tasks }}
-                    @endif
-                </td>
-                <td class="text-center">
-                    <span class="badge {{ $pm->on_time_rate >= 80 ? 'badge-green' : 'badge-red' }}">{{ $pm->on_time_rate }}%</span>
-                </td>
+                <td class="text-center">{{ $pm->overdue_tasks }}</td>
+                <td class="text-right">{{ $pm->on_time_rate }}%</td>
             </tr>
             @endforeach
         </tbody>
     </table>
 
     <div class="footer">
-        TaskFlow &copy; {{ date('Y') }} — Confidential
+        TaskFlow &copy; {{ date('Y') }} — Laporan ini bersifat rahasia
     </div>
 </body>
 </html>

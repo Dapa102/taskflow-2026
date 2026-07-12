@@ -11,6 +11,45 @@ use Illuminate\Support\Facades\Cache;
 
 class ExportController extends Controller
 {
+    private function registerInterFont(\Dompdf\Dompdf $dompdf): void
+    {
+        $fontDir = storage_path('fonts');
+        $regular = $fontDir . '/Inter-Regular.ttf';
+        $bold = $fontDir . '/Inter-Bold.ttf';
+        $metrics = $dompdf->getFontMetrics();
+
+        if (isset($metrics->getFontFamilies()['inter'])) {
+            return;
+        }
+
+        if (!is_dir($fontDir)) {
+            mkdir($fontDir, 0755, true);
+        }
+
+        if (file_exists($regular)) {
+            try {
+                $metrics->registerFont([
+                    'family' => 'Inter',
+                    'style' => 'normal',
+                    'weight' => 'normal',
+                ], $regular);
+            } catch (\Exception $e) {
+                logger()->warning('Inter font registration failed (regular): ' . $e->getMessage());
+            }
+        }
+        if (file_exists($bold)) {
+            try {
+                $metrics->registerFont([
+                    'family' => 'Inter',
+                    'style' => 'normal',
+                    'weight' => 'bold',
+                ], $bold);
+            } catch (\Exception $e) {
+                logger()->warning('Inter font registration failed (bold): ' . $e->getMessage());
+            }
+        }
+    }
+
     public function pmPerformance(Request $request)
     {
         if ($request->user()->role !== 'super_admin') {
@@ -49,6 +88,7 @@ class ExportController extends Controller
         });
 
         $pdf = Pdf::loadView('pdf.pm-performance', ['pms' => $pms]);
+        $this->registerInterFont($pdf->getDomPDF());
         return $pdf->download('pm-performance.pdf');
     }
 
@@ -103,6 +143,7 @@ class ExportController extends Controller
         });
 
         $pdf = Pdf::loadView('pdf.member-performance', ['members' => $members]);
+        $this->registerInterFont($pdf->getDomPDF());
         return $pdf->download('member-performance.pdf');
     }
 
@@ -123,6 +164,7 @@ class ExportController extends Controller
         });
 
         $pdf = Pdf::loadView('pdf.late-tasks', ['tasks' => $tasks]);
+        $this->registerInterFont($pdf->getDomPDF());
         return $pdf->download('late-tasks.pdf');
     }
 }
