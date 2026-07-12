@@ -14,7 +14,7 @@
 <body class="font-sans antialiased">
     <div class="min-h-screen flex bg-gray-100">
         <!-- Sidebar -->
-        <aside class="w-72 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0" x-data="{ showLogoutModal: false }">
+        <aside class="w-72 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0">
             <div class="h-16 flex items-center px-6 border-b border-gray-200">
                 <a href="{{ route('pm.dashboard') }}" class="flex items-center gap-2.5">
                     <img src="{{ asset('images/TaskflowLogo.svg') }}" alt="TaskFlow" class="h-8">
@@ -86,7 +86,7 @@
                         <a href="{{ route('profile.edit') }}" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Profile">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                         </a>
-                        <button type="button" @click="showLogoutModal = true" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Logout">
+                        <button type="button" onclick="document.getElementById('logout-modal').classList.remove('hidden')" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Logout">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                         </button>
                     </div>
@@ -95,8 +95,8 @@
         </aside>
 
         <!-- Logout Confirmation Modal -->
-        <div x-show="showLogoutModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showLogoutModal = false">
-            <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4" @click.stop>
+        <div id="logout-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40" onclick="if(event.target===this) this.classList.add('hidden')">
+            <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
                 <div class="text-center">
                     <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
@@ -104,7 +104,7 @@
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Yakin ingin logout?</h3>
                     <p class="text-sm text-gray-500 mb-6">Anda akan keluar dari sesi saat ini.</p>
                     <div class="flex gap-3">
-                        <button type="button" @click="showLogoutModal = false" class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                        <button type="button" onclick="document.getElementById('logout-modal').classList.add('hidden')" class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
                             Tidak
                         </button>
                         <form method="POST" action="{{ route('logout') }}" class="flex-1 m-0">
