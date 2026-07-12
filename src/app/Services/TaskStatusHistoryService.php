@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Notification;
 
 class TaskStatusHistoryService
 {
+    public function __construct(
+        protected AuditService $audit,
+    ) {}
+
     public function record(Task $task, string $fromStatus, string $toStatus, ?string $notes = null): TaskStatusHistory
     {
         return TaskStatusHistory::create([
@@ -34,6 +38,14 @@ class TaskStatusHistoryService
             $task->update(['status' => $newStatus]);
 
             $this->record($task, $oldStatus, $newStatus, $notes);
+
+            $this->audit->log(
+                action: "task_{$newStatus}",
+                description: "Task \"{$task->title}\" status changed from {$oldStatus} to {$newStatus}" . ($notes ? ": {$notes}" : ''),
+                entity: $task,
+                oldValues: ['status' => $oldStatus],
+                newValues: ['status' => $newStatus, 'notes' => $notes],
+            );
         });
 
         $fresh = $task->fresh();

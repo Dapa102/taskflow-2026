@@ -246,7 +246,7 @@ BRD menyebut aktivitas penting pengguna harus dicatat untuk audit dan monitoring
 - Filter berdasarkan aktor dan tanggal.
 
 **Status**
-Planned setelah MVP.
+Done.
 
 ---
 
@@ -282,6 +282,7 @@ Fitur berikut tetap di luar MVP dan tidak dikerjakan sampai backlog next update 
 | 2026-07-12 | NU-07 | Notifikasi WhatsApp Fonnte API | Done | FonnteChannel + FonnteService + 3 notif classes + HubungiTeam |
 | 2026-07-12 | NU-09 | Deadline Reminder & Overdue | Done | SendDeadlineReminders command + overdue badge + filter all pages |
 | 2026-07-12 | NU-08 | Report Lanjutan | Done | PmPerformance + MemberPerformance + LateTasks + PDF export + filter |
+| 2026-07-12 | NU-10 | Audit Log Global | Done | AuditLog model + migration + AuditService + SA audit page + filter |
 
 ---
 
@@ -292,7 +293,7 @@ NU-01 -> NU-02 -> NU-03 -> NU-04 -> NU-05
 ✅ Done    ✅ Done    ✅ Done    ✅ Done    ✅ Done
 
 NU-06 -> NU-07 -> NU-09 -> NU-08 -> NU-10
-✅ Done    ✅ Done    ✅ Done    ✅ Done    Planned
+✅ Done    ✅ Done    ✅ Done    ✅ Done    ✅ Done
 ```
 
 ---
