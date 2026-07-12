@@ -46,7 +46,13 @@ class User extends Authenticatable
 
     public function currentWorkspace()
     {
-        return $this->workspaces()->first();
+        $ws = $this->workspaces()->first();
+        if ($ws) return $ws;
+
+        $ws = \App\Models\Workspace::where('deputy_pm_id', $this->id)->first();
+        if ($ws) return $ws;
+
+        return $this->memberWorkspaces()->first();
     }
 
     public function memberWorkspaces(): BelongsToMany

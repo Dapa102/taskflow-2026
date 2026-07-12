@@ -128,7 +128,6 @@
                             <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Revisi</td>
                             <td class="py-2"><span class="{{ $detailTask->isRevisiLocked() ? 'text-red-600 font-bold' : '' }}">{{ $detailTask->revision_counter }}/{{ $detailTask->max_revision_limit }}</span></td>
                         </tr>
-                        @endif
                         <tr>
                             <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Project Manager</td>
                             <td class="py-2">{{ $detailTask->assignedPm?->name ?? '-' }}</td>
