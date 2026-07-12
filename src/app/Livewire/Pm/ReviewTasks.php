@@ -33,7 +33,7 @@ class ReviewTasks extends Component
         $task->update(['reviewed_by' => auth()->id()]);
 
         app(TaskStatusHistoryService::class)->transition(
-            $task, TaskStatus::DONE, $this->reviewNote ?: 'Disetujui Project Manager'
+            $task, TaskStatus::PENDING_ADMIN, $this->reviewNote ?: 'Disetujui Project Manager, menunggu approval Super Admin'
         );
 
         $this->reviewNote = '';

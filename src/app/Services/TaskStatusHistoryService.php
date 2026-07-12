@@ -74,6 +74,14 @@ class TaskStatusHistoryService
             TaskStatus::REVIEW . '->' . TaskStatus::IN_PROGRESS => [
                 ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Perlu Perbaikan', 'message' => "Tugas \"{$task->title}\" perlu diperbaiki. Catatan: {$notes}"],
             ],
+            TaskStatus::REVIEW . '->' . TaskStatus::PENDING_ADMIN => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Menunggu Approval', 'message' => "Tugas \"{$task->title}\" telah disetujui PM, menunggu approval Super Admin."],
+                ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Menunggu Approval SA', 'message' => "Tugas \"{$task->title}\" sedang menunggu approval Super Admin."],
+            ],
+            TaskStatus::PENDING_ADMIN . '->' . TaskStatus::DONE => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Selesai', 'message' => "Tugas \"{$task->title}\" telah disetujui Super Admin."],
+                ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Selesai', 'message' => "Tugas \"{$task->title}\" telah mendapatkan persetujuan akhir Super Admin."],
+            ],
             TaskStatus::REVIEW . '->' . TaskStatus::DONE => [
                 ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Selesai', 'message' => "Tugas \"{$task->title}\" telah disetujui Project Manager."],
             ],

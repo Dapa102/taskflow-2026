@@ -27,7 +27,7 @@ class SuperAdminDashboard extends Component
         $draft = (clone $baseQuery)->where('status', TaskStatus::TODO)->count();
         $assignedPm = (clone $baseQuery)->where('status', TaskStatus::IN_PROGRESS)->count();
         $inProgress = (clone $baseQuery)->where('status', TaskStatus::IN_PROGRESS)->count();
-        $pendingAdmin = (clone $baseQuery)->where('status', TaskStatus::REVIEW)->count();
+        $pendingAdmin = (clone $baseQuery)->where('status', TaskStatus::PENDING_ADMIN)->count();
         $pendingArbitration = (clone $baseQuery)->where('status', TaskStatus::CANCELLED)->count();
         $done = (clone $baseQuery)->where('status', TaskStatus::DONE)->count();
         $deadlineCount = (clone $baseQuery)
@@ -38,7 +38,8 @@ class SuperAdminDashboard extends Component
         $chartData = [
             ['label' => 'To Do', 'count' => $draft, 'bg' => '#9ca3af'],
             ['label' => 'In Progress', 'count' => $inProgress, 'bg' => '#6366f1'],
-            ['label' => 'Review', 'count' => $pendingAdmin, 'bg' => '#eab308'],
+            ['label' => 'Review', 'count' => (clone $baseQuery)->where('status', TaskStatus::REVIEW)->count(), 'bg' => '#eab308'],
+            ['label' => 'Menunggu Approval', 'count' => $pendingAdmin, 'bg' => '#a855f7'],
             ['label' => 'Cancelled', 'count' => $pendingArbitration, 'bg' => '#ef4444'],
             ['label' => 'Done', 'count' => $done, 'bg' => '#22c55e'],
         ];
@@ -56,8 +57,10 @@ class SuperAdminDashboard extends Component
                 'workspace_count' => $pm->workspaces->count(),
                 'active_tasks' => Task::where('assigned_pm_id', $pm->id)
                     ->whereNotIn('status', [TaskStatus::DONE, TaskStatus::CANCELLED])->count(),
-                'pending_pm' => Task::where('assigned_pm_id', $pm->id)
-                    ->where('status', TaskStatus::REVIEW)->count(),
+            'pending_pm' => Task::where('assigned_pm_id', $pm->id)
+                ->where('status', TaskStatus::REVIEW)->count(),
+            'pending_admin' => Task::where('assigned_pm_id', $pm->id)
+                ->where('status', TaskStatus::PENDING_ADMIN)->count(),
                 'overdue' => Task::where('assigned_pm_id', $pm->id)
                     ->whereNotIn('status', [TaskStatus::DONE, TaskStatus::CANCELLED])
                     ->whereNotNull('deadline')

@@ -62,10 +62,18 @@
                                 <td class="px-4 py-3 text-sm {{ $task->isOverdue() ? 'text-red-600 font-bold' : 'text-gray-500' }}">
                                     {{ $task->deadline?->format('Y-m-d') ?? '-' }}
                                 </td>
-                                <td class="px-4 py-3">
+                                <td class="px-4 py-3 flex gap-1">
                                     <button wire:click="showDetail({{ $task->id }})"
                                         class="px-3 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100">
                                         Detail
+                                    </button>
+                                    <button wire:click="editTask({{ $task->id }})"
+                                        class="px-3 py-1 text-xs font-medium text-amber-600 bg-amber-50 rounded-md hover:bg-amber-100">
+                                        Edit
+                                    </button>
+                                    <button wire:click="confirmDelete({{ $task->id }})" wire:confirm="Hapus tugas ini?"
+                                        class="px-3 py-1 text-xs font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100">
+                                        Hapus
                                     </button>
                                 </td>
                             </tr>
@@ -165,6 +173,72 @@
                         </div>
                     @endif
                 </div>
+            </div>
+        </div>
+        @endif
+
+        {{-- Modal Edit --}}
+        @if($showEditModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" wire:click.self="$set('showEditModal', false)">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10">
+                    <h3 class="text-lg font-semibold text-gray-900">Edit Tugas</h3>
+                    <button wire:click="$set('showEditModal', false)" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+                </div>
+                <form wire:submit="updateTask" class="p-4 space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Project</label>
+                        <select wire:model="editProjectId" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
+                            <option value="">Pilih Project</option>
+                            @foreach($projects as $project)
+                            <option value="{{ $project->id }}">{{ $project->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('editProjectId') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Judul</label>
+                        <input type="text" wire:model="editTitle" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
+                        @error('editTitle') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Deskripsi</label>
+                        <textarea wire:model="editDescription" rows="3" class="w-full border-gray-300 rounded-md shadow-sm text-sm"></textarea>
+                        @error('editDescription') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Prioritas</label>
+                            <select wire:model="editPriority" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                <option value="low">Rendah</option>
+                                <option value="medium">Sedang</option>
+                                <option value="high">Tinggi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Deadline</label>
+                            <input type="date" wire:model="editDeadline" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
+                            @error('editDeadline') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Anggota</label>
+                        <select wire:model="editAssigneeId" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
+                            <option value="">Pilih Anggota</option>
+                            @php $ws = auth()->user()->currentWorkspace(); @endphp
+                            @if($ws)
+                                @foreach($ws->members as $member)
+                                <option value="{{ $member->id }}">{{ $member->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        @error('editAssigneeId') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="flex justify-end gap-2 pt-2 border-t">
+                        <button type="button" wire:click="$set('showEditModal', false)" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900">Batal</button>
+                        <button type="submit" class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">Simpan</button>
+                    </div>
+                </form>
             </div>
         </div>
         @endif

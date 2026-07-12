@@ -56,6 +56,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/create-task', \App\Livewire\SuperAdmin\CreateTask::class)->name('create-task');
         Route::get('/assign-task', \App\Livewire\SuperAdmin\AssignTask::class)->name('assign-task');
         Route::get('/task-oversight', \App\Livewire\SuperAdmin\TaskOversight::class)->name('task-oversight');
+        Route::get('/task-approval', \App\Livewire\SuperAdmin\TaskApproval::class)->name('task-approval');
     });
 });
 

@@ -75,10 +75,10 @@ class PmDashboard extends Component
         $task->update(['reviewed_by' => auth()->id()]);
 
         app(TaskStatusHistoryService::class)->transition(
-            $task, TaskStatus::DONE, 'Disetujui Project Manager'
+            $task, TaskStatus::PENDING_ADMIN, 'Disetujui Project Manager, menunggu approval Super Admin'
         );
 
-        session()->flash('message', 'Task approved and marked as done.');
+        session()->flash('message', 'Tugas disetujui, menunggu approval Super Admin.');
     }
 
     public function rejectTask($taskId)

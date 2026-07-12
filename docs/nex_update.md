@@ -51,7 +51,7 @@ BRD menyebut Super Admin dapat memberikan persetujuan akhir untuk tugas yang tel
 - Tambah notifikasi ke PM dan Member.
 
 **Status**
-Planned setelah MVP.
+In Progress.
 
 ---
 
@@ -254,6 +254,7 @@ Fitur berikut tetap di luar MVP dan tidak dikerjakan sampai backlog next update 
 | Tanggal | Kode | Perubahan | Status | Catatan |
 |---|---|---|---|---|
 | 2026-07-12 | INIT | Dokumen next update dibuat | Open | Menunggu MVP selesai |
+| 2026-07-12 | NU-01 | Approval Final Super Admin | In Progress | Implementasi: status pending_admin, SA approval page, PM approve → pending_admin |
 
 ---
 

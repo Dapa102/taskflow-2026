@@ -29,6 +29,16 @@ class PmAllTasks extends Component
     public $reviewNote;
     public $rejectTaskId;
 
+    public $deleteTaskId;
+    public $showEditModal = false;
+    public $editTaskId;
+    public $editProjectId;
+    public $editTitle;
+    public $editDescription;
+    public $editPriority;
+    public $editDeadline;
+    public $editAssigneeId;
+
     public function showDetail($taskId)
     {
         $this->detailTask = Task::with(['workspace', 'assignedMember', 'creator', 'attachments'])
@@ -46,11 +56,11 @@ class PmAllTasks extends Component
         $task->update(['reviewed_by' => auth()->id()]);
 
         app(\App\Services\TaskStatusHistoryService::class)->transition(
-            $task, TaskStatus::DONE, 'Disetujui Project Manager'
+            $task, TaskStatus::PENDING_ADMIN, 'Disetujui Project Manager, menunggu approval Super Admin'
         );
 
         $this->showDetailModal = false;
-        session()->flash('message', 'Tugas berhasil disetujui.');
+        session()->flash('message', 'Tugas disetujui, menunggu approval Super Admin.');
     }
 
     public function rejectTask($taskId)
@@ -72,6 +82,66 @@ class PmAllTasks extends Component
 
         $this->reset(['reviewNote', 'rejectTaskId', 'showDetailModal']);
         session()->flash('message', 'Tugas dikembalikan untuk revisi.');
+    }
+
+    public function confirmDelete($taskId)
+    {
+        $this->deleteTaskId = $taskId;
+    }
+
+    public function deleteTask($taskId)
+    {
+        $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
+        $task->delete();
+        $this->deleteTaskId = null;
+        session()->flash('message', 'Tugas berhasil dihapus.');
+    }
+
+    public function editTask($taskId)
+    {
+        $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($taskId);
+        $this->editTaskId = $task->id;
+        $this->editProjectId = (string) $task->project_id;
+        $this->editTitle = $task->title;
+        $this->editDescription = $task->description;
+        $this->editPriority = $task->priority;
+        $this->editDeadline = $task->deadline?->format('Y-m-d');
+        $this->editAssigneeId = (string) $task->assigned_member_id;
+        $this->showEditModal = true;
+    }
+
+    public function updateTask()
+    {
+        $this->validate([
+            'editProjectId' => 'required|exists:projects,id',
+            'editTitle' => 'required|min:3|max:255',
+            'editDescription' => 'nullable|max:2000',
+            'editPriority' => 'required|in:low,medium,high',
+            'editDeadline' => 'nullable|date',
+            'editAssigneeId' => 'required|exists:users,id',
+        ]);
+
+        $task = Task::where('assigned_pm_id', auth()->id())->findOrFail($this->editTaskId);
+        $oldStatus = $task->status;
+
+        $task->update([
+            'project_id' => $this->editProjectId,
+            'title' => $this->editTitle,
+            'description' => $this->editDescription,
+            'priority' => $this->editPriority,
+            'deadline' => $this->editDeadline ?: null,
+            'assigned_member_id' => $this->editAssigneeId,
+            'assigned_to' => $this->editAssigneeId,
+        ]);
+
+        if ($oldStatus === $task->status) {
+            app(\App\Services\TaskStatusHistoryService::class)->record(
+                $task, $oldStatus, $task->status, 'Tugas diubah oleh PM'
+            );
+        }
+
+        $this->reset(['showEditModal', 'editTaskId', 'editProjectId', 'editTitle', 'editDescription', 'editPriority', 'editDeadline', 'editAssigneeId']);
+        session()->flash('message', 'Tugas berhasil diperbarui.');
     }
 
     public function render()

@@ -17,7 +17,9 @@ class WorkspaceFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'pm_id' => \App\Models\User::factory(['role' => 'pm']),
+            'name' => fake()->company(),
+            'description' => fake()->sentence(),
         ];
     }
 }
