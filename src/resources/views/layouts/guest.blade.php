@@ -7,29 +7,31 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/" class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center flex-shrink-0">
-                        <span class="text-white font-bold text-lg">T</span>
+    <body class="font-sans antialiased">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
+            <div class="w-full sm:max-w-md px-8">
+                <a href="/" class="flex flex-col items-center mb-8 group">
+                    <div class="w-16 h-16 mb-3 opacity-90 group-hover:opacity-100 transition-opacity">
+                        <img src="{{ asset('images/TaskflowLogo.svg') }}" alt="Soulmatters" class="w-full h-full">
                     </div>
-                    <div class="text-left">
-                        <h1 class="text-xl font-bold text-gray-900">TaskFlow</h1>
-                        <p class="text-sm text-gray-500">Daily Task Management</p>
+                    <div class="text-center">
+                        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Soulmatters</h1>
+                        <p class="text-sm text-gray-500 font-medium tracking-wide uppercase">Task Management</p>
                     </div>
                 </a>
-            </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
+                <div class="bg-white/80 backdrop-blur-sm shadow-xl shadow-gray-200/50 border border-gray-100 rounded-2xl px-8 py-8">
+                    {{ $slot }}
+                </div>
+
+                <p class="text-center mt-8 text-xs text-gray-400">
+                    &copy; {{ date('Y') }} Soulmatters. All rights reserved.
+                </p>
             </div>
         </div>
     </body>

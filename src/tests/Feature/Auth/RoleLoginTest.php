@@ -33,8 +33,8 @@ describe('Web Login', function () {
         $response = $this->get('/login');
 
         $response->assertStatus(200);
-        $response->assertSee('Sign In');
-        $response->assertSee('TaskFlow');
+        $response->assertSee('Sign in');
+        $response->assertSee('Soulmatters');
         $response->assertDontSee('Selamat Datang');
         $response->assertDontSee('bg-gray-100');
     });
