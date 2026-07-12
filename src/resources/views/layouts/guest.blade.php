@@ -13,7 +13,10 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-slate-50 to-slate-100">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100 -z-10"></div>
+            <div class="absolute inset-0 opacity-[0.03] -z-10" style="background-image: radial-gradient(circle, #1e293b 1px, transparent 1px); background-size: 24px 24px;"></div>
+
             <div class="w-full sm:max-w-md px-6">
                 <a href="/" class="flex flex-col items-center mb-10 group">
                     <div class="w-20 h-20 mb-4 opacity-90 group-hover:opacity-100 transition-opacity">
@@ -21,11 +24,11 @@
                     </div>
                     <div class="text-center">
                         <h1 class="text-3xl font-bold text-gray-900 tracking-tight">TaskFlow</h1>
-                        <p class="text-sm text-gray-500 font-medium mt-1">Kolaborasi Tugas, Wujudkan Produktivitas</p>
+                        <p class="text-sm text-gray-400 font-medium mt-1.5 tracking-wide">Platform Kolaborasi Tugas Profesional</p>
                     </div>
                 </a>
 
-                <div class="bg-white shadow-lg shadow-slate-200/60 border border-slate-100 rounded-2xl px-10 py-10">
+                <div class="bg-white/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 border border-slate-100 rounded-2xl px-10 py-10">
                     {{ $slot }}
                 </div>
 
@@ -34,5 +37,7 @@
                 </p>
             </div>
         </div>
+
+        @stack('scripts')
     </body>
 </html>
