@@ -69,6 +69,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::prefix('export')->name('export.')->group(function () {
+        Route::get('/pm-performance', [\App\Http\Controllers\ExportController::class, 'pmPerformance'])->name('pm-performance');
+        Route::get('/member-performance', [\App\Http\Controllers\ExportController::class, 'memberPerformance'])->name('member-performance');
+        Route::get('/late-tasks', [\App\Http\Controllers\ExportController::class, 'lateTasks'])->name('late-tasks');
+    });
 });
 
 require __DIR__.'/auth.php';

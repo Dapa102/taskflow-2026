@@ -42,5 +42,12 @@ it('exports member performance PDF', function () {
     $this->actingAs($this->sa);
     Livewire::test(MemberPerformance::class)
         ->call('exportPdf')
-        ->assertFileDownloaded('member-performance.pdf');
+        ->assertRedirect(route('export.member-performance'));
+});
+
+it('downloads member performance PDF via export route', function () {
+    $this->actingAs($this->sa);
+    $response = $this->get(route('export.member-performance'));
+    $response->assertStatus(200);
+    $response->assertHeader('Content-Type', 'application/pdf');
 });

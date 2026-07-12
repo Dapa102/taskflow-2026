@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Task;
 use App\Models\Workspace;
 use Livewire\Attributes\Layout;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
 #[Layout('layouts.super-admin')]
@@ -19,11 +18,7 @@ class MemberPerformance extends Component
 
     public function exportPdf()
     {
-        $data = $this->getPerformance();
-        $pdf = Pdf::loadView('pdf.member-performance', ['members' => $data]);
-        $path = tempnam(sys_get_temp_dir(), 'pdf') . '.pdf';
-        file_put_contents($path, $pdf->output());
-        return response()->download($path, 'member-performance.pdf')->deleteFileAfterSend();
+        return redirect()->route('export.member-performance');
     }
 
     public function render()

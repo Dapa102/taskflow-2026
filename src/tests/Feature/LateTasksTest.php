@@ -61,5 +61,12 @@ it('exports late tasks PDF', function () {
     $this->actingAs($this->sa);
     Livewire::test(LateTasks::class)
         ->call('exportPdf')
-        ->assertFileDownloaded('late-tasks.pdf');
+        ->assertRedirect(route('export.late-tasks'));
+});
+
+it('downloads late tasks PDF via export route', function () {
+    $this->actingAs($this->sa);
+    $response = $this->get(route('export.late-tasks'));
+    $response->assertStatus(200);
+    $response->assertHeader('Content-Type', 'application/pdf');
 });

@@ -7,7 +7,6 @@ use App\Models\Task;
 use App\Models\Workspace;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
 #[Layout('layouts.super-admin')]
@@ -22,11 +21,7 @@ class LateTasks extends Component
 
     public function exportPdf()
     {
-        $tasks = $this->getLateTasksQuery()->get();
-        $pdf = Pdf::loadView('pdf.late-tasks', ['tasks' => $tasks]);
-        $path = tempnam(sys_get_temp_dir(), 'pdf') . '.pdf';
-        file_put_contents($path, $pdf->output());
-        return response()->download($path, 'late-tasks.pdf')->deleteFileAfterSend();
+        return redirect()->route('export.late-tasks');
     }
 
     public function render()
