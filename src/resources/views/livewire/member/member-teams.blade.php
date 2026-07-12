@@ -4,10 +4,28 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
-
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
             @if($myTeams->isEmpty())
-            <div class="text-center text-gray-400 text-sm py-16">Belum tergabung dalam tim.</div>
+                <div class="text-center text-gray-400 text-sm py-16">Belum tergabung dalam tim.</div>
+            @else
+                <div class="bg-white shadow sm:rounded-lg p-6">
+                    <div class="space-y-3">
+                        @foreach($myTeams as $tm)
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ $tm->team->name }}</p>
+                                @if($tm->team->owner)
+                                <p class="text-sm text-gray-500 mt-1">PM: {{ $tm->team->owner->name }}</p>
+                                @endif
+                            </div>
+                            <button wire:click="showDetail({{ $tm->team->id }})"
+                                class="px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100">
+                                Detail
+                            </button>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
             @endif
         </div>
     </div>
