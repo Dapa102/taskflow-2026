@@ -111,6 +111,11 @@ class User extends Authenticatable
         return $this->role === 'super_admin';
     }
 
+    public function routeNotificationForMail(): string
+    {
+        return $this->email;
+    }
+
     public function isPm(): bool
     {
         return $this->role === 'pm';

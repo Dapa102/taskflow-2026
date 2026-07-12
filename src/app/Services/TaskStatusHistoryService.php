@@ -7,7 +7,10 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\TaskStatusHistory;
 use App\Models\InboxNotification;
+use App\Notifications\TaskMailNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class TaskStatusHistoryService
 {
@@ -42,7 +45,7 @@ class TaskStatusHistoryService
 
     public function sendInboxNotification(Task $task, int $userId, string $subject, string $message): InboxNotification
     {
-        return InboxNotification::create([
+        $notification = InboxNotification::create([
             'user_id' => $userId,
             'task_id' => $task->id,
             'channel' => 'inbox',
@@ -51,6 +54,28 @@ class TaskStatusHistoryService
             'status' => 'sent',
             'sent_at' => now(),
         ]);
+
+        $this->sendMailFallback($task, $userId, $subject, $message);
+
+        return $notification;
+    }
+
+    protected function sendMailFallback(Task $task, int $userId, string $subject, string $message): void
+    {
+        try {
+            $user = User::find($userId);
+            if ($user && $user->email) {
+                Notification::send($user, new TaskMailNotification(
+                    task: $task,
+                    subject: $subject,
+                    message: $message,
+                    actionText: 'Lihat Tugas',
+                    actionUrl: url('/login'),
+                ));
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Gagal kirim email notifikasi ke user #{$userId}: {$e->getMessage()}");
+        }
     }
 
     public function notifyTransition(Task $task, string $oldStatus, string $newStatus, ?string $notes = null): void

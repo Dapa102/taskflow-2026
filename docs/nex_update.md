@@ -51,7 +51,7 @@ BRD menyebut Super Admin dapat memberikan persetujuan akhir untuk tugas yang tel
 - Tambah notifikasi ke PM dan Member.
 
 **Status**
-In Progress.
+Done.
 
 ---
 
@@ -149,7 +149,7 @@ BRD dan PRD menyebut email sebagai media notifikasi.
 - Fallback ke inbox internal jika email gagal.
 
 **Status**
-Planned setelah notifikasi internal MVP stabil.
+Done.
 
 ---
 
@@ -259,6 +259,7 @@ Fitur berikut tetap di luar MVP dan tidak dikerjakan sampai backlog next update 
 | 2026-07-12 | NU-03 | Arbitrase Task | Done | Auto-escalation on max revision + PM request button |
 | 2026-07-12 | NU-04 | Eskalasi Otomatis Review PM | Done | Command tasks:check-pm-escalation, 48h window, SA filter |
 | 2026-07-12 | NU-05 | Deputy Project Manager | Done | SA workspace edit: pilih Deputy PM + notifikasi + policy akses |
+| 2026-07-12 | NU-06 | Notifikasi Email SMTP | Done | TaskMailNotification + mail fallback di TaskStatusHistoryService |
 
 ---
 
@@ -269,7 +270,7 @@ NU-01 -> NU-02 -> NU-03 -> NU-04 -> NU-05
 ✅ Done    ✅ Done    ✅ Done    ✅ Done    ✅ Done
 
 NU-06 -> NU-07 -> NU-08 -> NU-09 -> NU-10
-Planned   Planned   Planned   Planned   Planned
+✅ Done    Planned   Planned   Planned   Planned
 ```
 
 ---
