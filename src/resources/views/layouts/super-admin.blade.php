@@ -5,160 +5,149 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Laravel') }}</title>
-    <link rel="icon" href="{{ asset('images/logo.svg?v=2') }}" type="image/svg+xml">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="icon" href="{{ asset('images/TaskflowLogo.svg') }}" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
 <body class="font-sans antialiased">
-    <div class="min-h-screen flex bg-gray-100">
-        <aside class="w-72 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0">
-            @php
-                $routePrefix = 'super-admin';
-            @endphp
-            <div class="h-16 flex items-center px-6 border-b border-gray-200">
+    @php $routePrefix = 'super-admin'; @endphp
+    <div class="flex min-h-screen">
+        <aside class="taskflow-sidebar">
+            <div class="h-14 flex items-center px-5 border-b border-border shrink-0">
                 <a href="{{ route("{$routePrefix}.dashboard") }}" class="flex items-center gap-2.5">
-                    <img src="{{ asset('images/TaskflowLogo.svg') }}" alt="TaskFlow" class="h-8">
-                    <span class="font-bold text-lg text-gray-900">TaskFlow</span>
+                    <img src="{{ asset('images/TaskflowLogo.svg') }}" alt="TaskFlow" class="h-7 w-7">
+                    <span class="font-bold text-base text-text-primary">TaskFlow</span>
                 </a>
             </div>
 
-            <nav class="flex-1 overflow-y-auto px-4 pt-4 pb-2 space-y-1">
+            <nav class="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
                 <a href="{{ route("{$routePrefix}.dashboard") }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs("{$routePrefix}.dashboard") ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                   class="sidebar-link {{ request()->routeIs("{$routePrefix}.dashboard") ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>
                     Dashboard
                 </a>
                 <a href="{{ route('super-admin.workspaces') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('super-admin.workspaces') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                   class="sidebar-link {{ request()->routeIs('super-admin.workspaces') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Z"/></svg>
                     Workspace
                 </a>
                 <a href="{{ route('super-admin.users') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('super-admin.users') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="8" r="5"/>
-                        <path d="M4 20a8 8 0 0 1 16 0"/>
-                    </svg>
+                   class="sidebar-link {{ request()->routeIs('super-admin.users') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
                     Pengguna
                 </a>
                 <a href="{{ route('super-admin.tasks') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('super-admin.tasks') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                   class="sidebar-link {{ request()->routeIs('super-admin.tasks') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"/></svg>
                     Semua Tugas
                 </a>
                 <a href="{{ route('super-admin.task-approval') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('super-admin.task-approval') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                   class="sidebar-link {{ request()->routeIs('super-admin.task-approval') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                     Approval Tugas
                 </a>
 
                 @if(Auth::user()->role === 'super_admin')
-                <div class="pt-3 pb-1">
-                    <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Laporan</p>
-                </div>
+                <div class="sidebar-section">Laporan</div>
                 <a href="{{ route('super-admin.performa-pm') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('super-admin.performa-pm') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                   class="sidebar-link {{ request()->routeIs('super-admin.performa-pm') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>
                     Performa PM
                 </a>
                 <a href="{{ route('super-admin.member-performance') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('super-admin.member-performance') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                   class="sidebar-link {{ request()->routeIs('super-admin.member-performance') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
                     Performa Member
                 </a>
                 <a href="{{ route('super-admin.late-tasks') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('super-admin.late-tasks') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                   class="sidebar-link {{ request()->routeIs('super-admin.late-tasks') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                     Tugas Terlambat
                 </a>
-                <div class="pt-3 pb-1">
-                    <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Sistem</p>
-                </div>
+
+                <div class="sidebar-section">Sistem</div>
                 <a href="{{ route('super-admin.audit-logs') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('super-admin.audit-logs') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                   class="sidebar-link {{ request()->routeIs('super-admin.audit-logs') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
                     Audit Log
                 </a>
                 <a href="{{ route('super-admin.arbitration-recap') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('super-admin.arbitration-recap') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                   class="sidebar-link {{ request()->routeIs('super-admin.arbitration-recap') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"/></svg>
                     Laporan Arbitrase
                 </a>
                 @endif
             </nav>
 
-            <div class="border-t border-gray-200 p-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+            <div class="border-t border-border p-3 shrink-0">
+                <div class="flex items-center gap-3 px-2 py-1.5">
+                    <div class="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white text-sm font-semibold shrink-0">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="text-sm font-medium text-gray-900 truncate">{{ Auth::user()->name }}</div>
-                        <div class="text-xs text-gray-500 capitalize truncate">{{ str_replace('_', ' ', Auth::user()->role) }}</div>
+                        <div class="text-sm font-medium text-text-primary truncate">{{ Auth::user()->name }}</div>
+                        <div class="text-xs text-text-secondary truncate capitalize">{{ str_replace('_', ' ', Auth::user()->role) }}</div>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <a href="{{ route('profile.edit') }}" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Profile">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    <div class="flex items-center gap-0.5">
+                        <a href="{{ route('profile.edit') }}" class="btn-ghost p-1.5 rounded-lg" title="Profile">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                         </a>
-                        <button type="button" onclick="document.getElementById('logout-modal').classList.remove('hidden')" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Logout">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        <button type="button" onclick="document.getElementById('logout-modal').classList.remove('hidden')" class="btn-ghost p-1.5 rounded-lg" title="Logout">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
                         </button>
                     </div>
                 </div>
             </div>
         </aside>
 
-        <!-- Logout Confirmation Modal -->
-        <div id="logout-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40" onclick="if(event.target===this) this.classList.add('hidden')">
-            <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
-                <div class="text-center">
+        <div id="logout-modal" class="modal-overlay hidden" onclick="if(event.target===this) this.classList.add('hidden')">
+            <div class="modal-panel max-w-sm">
+                <div class="modal-body text-center py-8">
                     <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Konfirmasi Logout</h3>
-                    <p class="text-sm text-gray-500 mb-6">Apakah Anda yakin ingin keluar dari aplikasi? Sesi Anda akan berakhir dan perlu melakukan login kembali untuk mengakses aplikasi.</p>
+                    <h3 class="text-base font-semibold text-text-primary mb-1">Konfirmasi Logout</h3>
+                    <p class="text-sm text-text-secondary mb-6">Apakah Anda yakin ingin keluar? Sesi Anda akan berakhir.</p>
                     <div class="flex gap-3">
-                        <button type="button" onclick="document.getElementById('logout-modal').classList.add('hidden')" class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                            Batal
-                        </button>
-                        <form method="POST" action="{{ route('logout') }}" class="flex-1 m-0">
+                        <button type="button" onclick="document.getElementById('logout-modal').classList.add('hidden')" class="btn-secondary flex-1">Batal</button>
+                        <form method="POST" action="{{ route('logout') }}" class="flex-1">
                             @csrf
-                            <button type="submit" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors">
-                                Ya, Logout
-                            </button>
+                            <button type="submit" class="btn-primary w-full">Ya, Logout</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col min-w-0">
-            <header class="bg-white border-b border-gray-200 h-16 flex items-center px-6">
-                        <div class="flex-1">
-                            @isset($header)
-                                {{ $header }}
-                            @endisset
-                        </div>
-                        @livewire('notification-bell')
+        <div class="flex-1 flex flex-col min-w-0 ml-sidebar">
+            <header class="taskflow-topbar flex items-center gap-4">
+                <div class="flex items-center gap-2 flex-1">
+                    <div class="relative max-w-md w-full">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                        <input type="text" placeholder="Cari tugas..." class="input-field pl-9 max-w-xs">
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    @livewire('notification-bell')
+                </div>
             </header>
 
-            <main class="flex-1 overflow-y-auto">
-                @if (session()->has('message'))
-                    <div class="max-w-7xl mx-auto pt-4 px-6">
-                        <div class="p-4 text-sm text-green-800 rounded-lg bg-green-50">{{ session('message') }}</div>
-                    </div>
-                @endif
-                @if (session()->has('error'))
-                    <div class="max-w-7xl mx-auto pt-4 px-6">
-                        <div class="p-4 text-sm text-red-800 rounded-lg bg-red-50">{{ session('error') }}</div>
-                    </div>
-                @endif
-                {{ $slot }}
+            <main class="taskflow-content">
+                <div class="max-w-7xl mx-auto px-6 py-6">
+                    @if (session()->has('message'))
+                        <div class="mb-4 p-3 text-sm text-emerald-800 rounded-lg bg-emerald-50 border border-emerald-100">{{ session('message') }}</div>
+                    @endif
+                    @if (session()->has('error'))
+                        <div class="mb-4 p-3 text-sm text-red-800 rounded-lg bg-red-50 border border-red-100">{{ session('error') }}</div>
+                    @endif
+                    {{ $slot }}
+                </div>
             </main>
         </div>
     </div>
-@livewireScripts
+    @livewireScripts
 </body>
 </html>
