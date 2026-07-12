@@ -22,14 +22,7 @@
         </div>
 
         <div>
-            <div class="flex items-center justify-between">
-                <x-input-label for="password" :value="__('Password')" class="text-sm font-semibold text-gray-700" />
-                @if (Route::has('password.request'))
-                    <a class="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors" href="{{ route('password.request') }}">
-                        {{ __('Lupa password?') }}
-                    </a>
-                @endif
-            </div>
+            <x-input-label for="password" :value="__('Password')" class="text-sm font-semibold text-gray-700" />
             <div class="relative mt-2">
                 <x-text-input id="password"
                     class="block w-full px-4 py-3 pr-11 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-gray-300 focus:ring-0 transition-all"
@@ -59,6 +52,11 @@
                 <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-gray-700 shadow-sm focus:ring-gray-400 focus:ring-offset-0 cursor-pointer" name="remember">
                 <span class="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">{{ __('Ingat saya') }}</span>
             </label>
+            @if (Route::has('password.request'))
+                <a class="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors" href="{{ route('password.request') }}">
+                    {{ __('Lupa password?') }}
+                </a>
+            @endif
         </div>
 
         <div>
