@@ -16,7 +16,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 relative" style="background-color: #F8FAFC; background-image: linear-gradient(rgba(37, 99, 235, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.03) 1px, transparent 1px); background-size: 48px 48px;">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 relative" style="background-color: #F8FAFC;">
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute w-[500px] h-[500px] rounded-full bg-primary-500/5 blur-[100px] -top-24 -right-24"></div>
                 <div class="absolute w-[400px] h-[400px] rounded-full bg-primary-600/4 blur-[100px] -bottom-20 -left-20"></div>

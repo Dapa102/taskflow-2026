@@ -28,10 +28,6 @@
     .taskflow-content {
         @apply min-h-screen;
         background-color: #F8FAFC;
-        background-image:
-            linear-gradient(rgba(37, 99, 235, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(37, 99, 235, 0.03) 1px, transparent 1px);
-        background-size: 48px 48px;
         position: relative;
     }
 
