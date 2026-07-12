@@ -1,6 +1,6 @@
 <div>
     <x-slot name="header">
-        <div class="flex space-x-4 items-center">
+        <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('PM Performance Metrics') }}
             </h2>
@@ -10,11 +10,35 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div class="bg-white shadow sm:rounded-lg p-4">
+                <form class="flex flex-wrap gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Workspace</label>
+                        <select wire:model.live="workspaceFilter" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <option value="">Semua Workspace</option>
+                            @foreach($workspaces as $w)
+                                <option value="{{ $w->id }}">{{ $w->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Dari Tanggal</label>
+                        <input type="date" wire:model.live="startDate" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Sampai Tanggal</label>
+                        <input type="date" wire:model.live="endDate" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    </div>
+                    <div>
+                        <button wire:click="exportPdf" class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Export PDF
+                        </button>
+                    </div>
+                </form>
+            </div>
             
             <div class="bg-white shadow sm:rounded-lg p-6">
-                <div class="mb-4 text-sm text-gray-500">
-                    <i class="fa fa-info-circle"></i> Data is cached for 5 minutes.
-                </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -48,11 +72,9 @@
                                     {{ $pm->overdue_tasks }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <div class="flex items-center justify-center">
-                                        <span class="text-sm font-medium mr-2 {{ $pm->on_time_rate > 70 ? 'text-green-600' : ($pm->on_time_rate < 30 && $pm->total_tasks > 0 ? 'text-red-600' : 'text-yellow-600') }}">
-                                            {{ $pm->on_time_rate }}%
-                                        </span>
-                                    </div>
+                                    <span class="text-sm font-medium {{ $pm->on_time_rate > 70 ? 'text-green-600' : ($pm->on_time_rate < 30 && $pm->total_tasks > 0 ? 'text-red-600' : 'text-yellow-600') }}">
+                                        {{ $pm->on_time_rate }}%
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button x-data @click="$dispatch('open-modal', 'contact-pm-{{ $pm->id }}')"
@@ -60,7 +82,6 @@
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                                         Hubungi
                                     </button>
-
                                     <x-modal name="contact-pm-{{ $pm->id }}" maxWidth="md">
                                         <div class="p-6">
                                             <div class="flex items-center justify-between mb-4">
@@ -95,7 +116,6 @@
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

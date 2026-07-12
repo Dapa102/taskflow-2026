@@ -11,7 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
 #[Layout('layouts.super-admin')]
-class PmPerformance extends Component
+class MemberPerformance extends Component
 {
     public $workspaceFilter = '';
     public $startDate = '';
@@ -20,23 +20,23 @@ class PmPerformance extends Component
     public function exportPdf()
     {
         $data = $this->getPerformance();
-        $pdf = Pdf::loadView('pdf.pm-performance', ['pms' => $data]);
-        return response()->streamDownload(fn() => print($pdf->output()), 'pm-performance.pdf');
+        $pdf = Pdf::loadView('pdf.member-performance', ['members' => $data]);
+        return response()->streamDownload(fn() => print($pdf->output()), 'member-performance.pdf');
     }
 
     public function render()
     {
-        return view('livewire.super-admin.performa-pm', [
-            'pms' => $this->getPerformance(),
+        return view('livewire.super-admin.member-performance', [
+            'members' => $this->getPerformance(),
             'workspaces' => Workspace::orderBy('name')->get(),
         ]);
     }
 
     private function getPerformance()
     {
-        $query = User::where('role', 'pm')->with('workspaces');
+        $query = User::where('role', 'member');
 
-        $pmsList = $query->get();
+        $members = $query->with('workspaces')->get();
 
         $taskQuery = Task::query();
         if ($this->workspaceFilter) {
@@ -49,19 +49,21 @@ class PmPerformance extends Component
             $taskQuery->whereDate('created_at', '<=', Carbon::parse($this->endDate));
         }
 
-        foreach ($pmsList as $pm) {
-            $tasks = (clone $taskQuery)->where('assigned_pm_id', $pm->id)->get();
+        foreach ($members as $member) {
+            $tasks = (clone $taskQuery)->where('assigned_member_id', $member->id)->get();
 
-            $pm->total_tasks = $tasks->count();
-            $pm->done_tasks = $tasks->where('status', 'done')->count();
-            $pm->overdue_tasks = $tasks->filter(fn($t) =>
+            $member->total_tasks = $tasks->count();
+            $member->done_tasks = $tasks->where('status', 'done')->count();
+            $member->in_progress = $tasks->where('status', 'in_progress')->count();
+            $member->review_tasks = $tasks->where('status', 'review')->count();
+            $member->overdue_tasks = $tasks->filter(fn($t) =>
                 $t->deadline && $t->deadline < now() && $t->status !== 'done'
             )->count();
-            $pm->on_time_rate = $pm->total_tasks > 0
-                ? round(($pm->done_tasks / $pm->total_tasks) * 100, 2)
+            $member->completion_rate = $member->total_tasks > 0
+                ? round(($member->done_tasks / $member->total_tasks) * 100, 2)
                 : 0;
         }
 
-        return $pmsList;
+        return $members;
     }
 }

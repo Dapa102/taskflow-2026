@@ -48,6 +48,8 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/dashboard', SuperAdminDashboard::class)->name('dashboard');
         Route::get('/users', UserManagement::class)->name('users');
         Route::get('/performa-pm', PmPerformance::class)->name('performa-pm');
+        Route::get('/member-performance', \App\Livewire\SuperAdmin\MemberPerformance::class)->name('member-performance');
+        Route::get('/late-tasks', \App\Livewire\SuperAdmin\LateTasks::class)->name('late-tasks');
         Route::get('/arbitration-recap', \App\Livewire\SuperAdmin\ArbitrationRecap::class)->name('arbitration-recap');
         Route::get('/hubungi-team', \App\Livewire\SuperAdmin\HubungiTeam::class)->name('hubungi-team');
         Route::get('/compose-email', \App\Livewire\SuperAdmin\ComposeEmail::class)->name('compose-email');
