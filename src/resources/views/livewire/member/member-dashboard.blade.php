@@ -274,6 +274,10 @@
                             <td class="py-2">{{ $task->workspace->name }}</td>
                         </tr>
                         @endif
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Revisi</td>
+                            <td class="py-2"><span class="{{ $task->isRevisiLocked() ? 'text-red-600 font-bold' : '' }}">{{ $task->revision_counter }}/{{ $task->max_revision_limit }}</span></td>
+                        </tr>
                         @if($task->review_note)
                         <tr>
                             <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Catatan Review</td>

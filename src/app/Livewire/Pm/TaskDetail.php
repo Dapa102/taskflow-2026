@@ -26,7 +26,7 @@ class TaskDetail extends Component
         ]);
 
         $this->comment = '';
-        $this->dispatch('comment-added');
+        $this->dispatch('$refresh');
     }
 
     public function render()

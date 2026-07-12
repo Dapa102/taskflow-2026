@@ -56,6 +56,11 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'user_id');
+    }
+
     public function assignedTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'assigned_to');
@@ -82,6 +87,11 @@ class User extends Authenticatable
     }
 
     public function teams(): HasMany
+    {
+        return $this->hasMany(Team::class, 'owner_id');
+    }
+
+    public function ownedTeams(): HasMany
     {
         return $this->hasMany(Team::class, 'owner_id');
     }

@@ -15,6 +15,7 @@ class TaskPolicy
     public function view(User $user, Task $task): bool
     {
         if ($user->role === 'super_admin') return true;
+        if ($user->id === $task->user_id) return true;
         if ($user->role === 'pm') {
             return $task->workspace && $task->workspace->pm_id === $user->id;
         }
@@ -23,12 +24,13 @@ class TaskPolicy
 
     public function create(User $user): bool
     {
-        return in_array($user->role, ['super_admin', 'pm']);
+        return $user->role === 'super_admin' || $user->role === 'pm';
     }
 
     public function update(User $user, Task $task): bool
     {
         if ($user->role === 'super_admin') return true;
+        if ($user->id === $task->user_id) return true;
         if ($user->role === 'pm') {
             return $task->workspace && $task->workspace->pm_id === $user->id;
         }
@@ -38,6 +40,7 @@ class TaskPolicy
     public function delete(User $user, Task $task): bool
     {
         if ($user->role === 'super_admin') return true;
+        if ($user->id === $task->user_id) return true;
         if ($user->role === 'pm') {
             return $task->workspace && $task->workspace->pm_id === $user->id;
         }

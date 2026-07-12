@@ -82,6 +82,26 @@ class TaskStatusHistoryService
                 ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Selesai', 'message' => "Tugas \"{$task->title}\" telah disetujui Super Admin."],
                 ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Selesai', 'message' => "Tugas \"{$task->title}\" telah mendapatkan persetujuan akhir Super Admin."],
             ],
+            TaskStatus::PENDING_ADMIN . '->' . TaskStatus::IN_PROGRESS => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Dikembalikan', 'message' => "Tugas \"{$task->title}\" dikembalikan oleh Super Admin. Catatan: {$notes}"],
+                ['user_id' => $task->assigned_pm_id, 'subject' => 'Tugas Dikembalikan SA', 'message' => "Tugas \"{$task->title}\" dikembalikan oleh Super Admin."],
+            ],
+            'pending_arbitration' . '->' . 'pending_admin' => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Arbitrase Disetujui', 'message' => "Tugas \"{$task->title}\" telah disetujui melalui arbitrase."],
+                ['user_id' => $task->assigned_pm_id, 'subject' => 'Arbitrase Disetujui', 'message' => "Tugas \"{$task->title}\" telah disetujui melalui arbitrase, menunggu approval SA."],
+            ],
+            'pending_arbitration' . '->' . 'revision' => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Arbitrase Ditolak', 'message' => "Tugas \"{$task->title}\" ditolak dalam arbitrase. Catatan: {$notes}"],
+                ['user_id' => $task->assigned_pm_id, 'subject' => 'Arbitrase Ditolak', 'message' => "Tugas \"{$task->title}\" ditolak dalam arbitrase."],
+            ],
+            'pending_pm' . '->' . 'done' => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Eskalasi Disetujui', 'message' => "Tugas \"{$task->title}\" telah disetujui langsung oleh Super Admin."],
+                ['user_id' => $task->assigned_pm_id, 'subject' => 'Eskalasi Disetujui', 'message' => "Tugas \"{$task->title}\" disetujui langsung oleh Super Admin (bypass PM)."],
+            ],
+            'pending_pm' . '->' . 'revision' => [
+                ['user_id' => $task->assigned_member_id, 'subject' => 'Eskalasi Ditolak', 'message' => "Tugas \"{$task->title}\" ditolak saat eskalasi."],
+                ['user_id' => $task->assigned_pm_id, 'subject' => 'Eskalasi Ditolak', 'message' => "Tugas \"{$task->title}\" ditolak saat eskalasi."],
+            ],
             TaskStatus::REVIEW . '->' . TaskStatus::DONE => [
                 ['user_id' => $task->assigned_member_id, 'subject' => 'Tugas Selesai', 'message' => "Tugas \"{$task->title}\" telah disetujui Project Manager."],
             ],

@@ -20,7 +20,7 @@ class TaskResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected static bool $isDiscovered = false;
+    protected static bool $isDiscovered = true;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 

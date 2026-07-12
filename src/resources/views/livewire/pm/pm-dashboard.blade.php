@@ -170,6 +170,7 @@
                             @if($task->deadline)
                             <div class="text-xs {{ $task->isOverdue() ? 'text-red-500' : 'text-gray-500' }}">Deadline: {{ $task->deadline->format('Y-m-d') }}</div>
                             @endif
+                            <div class="text-xs text-gray-500">Revisi: <span class="{{ $task->isRevisiLocked() ? 'text-red-600 font-bold' : '' }}">{{ $task->revision_counter }}/{{ $task->max_revision_limit }}</span></div>
                         </div>
                         <button wire:click="$set('assignTaskId', {{ $task->id }})"
                             class="px-3 py-1 text-xs bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
@@ -230,6 +231,9 @@
                                                         Deadline: {{ $task->deadline->format('Y-m-d') }}
                                                     </div>
                                                 @endif
+                                                <div class="text-sm text-gray-500">
+                                                    Revisi: <span class="{{ $task->isRevisiLocked() ? 'text-red-600 font-bold' : '' }}">{{ $task->revision_counter }}/{{ $task->max_revision_limit }}</span>
+                                                </div>
                                                 @if($task->review_note)
                                                     <div class="mt-1 text-xs text-orange-600 bg-orange-50 p-1 rounded">
                                                         Catatan Revisi: {{ $task->review_note }}
@@ -266,6 +270,12 @@
                                                     <button wire:click="$set('rejectTaskId', {{ $task->id }})"
                                                         class="px-3 py-1 text-xs bg-orange-600 text-white rounded-md hover:bg-orange-700">
                                                         Revisi
+                                                    </button>
+                                                @endif
+                                                @if($task->status === 'in_progress' && $task->review_note)
+                                                    <button wire:click="requestArbitration({{ $task->id }})"
+                                                        class="px-3 py-1 text-xs bg-red-700 text-white rounded-md hover:bg-red-800">
+                                                        Ajukan Arbitrase
                                                     </button>
                                                 @endif
                                                 @if(in_array($task->status, ['todo', 'in_progress', 'review']))

@@ -33,6 +33,7 @@
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Anggota</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prioritas</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deadline</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revisi</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
                         </tr>
                     </thead>
@@ -54,6 +55,11 @@
                             <td class="px-4 py-3 text-sm {{ $task->isOverdue() ? 'text-red-600 font-bold' : 'text-gray-500' }}">
                                 {{ $task->deadline?->format('Y-m-d') ?? '-' }}
                             </td>
+                            <td class="px-4 py-3 text-sm">
+                                <span class="{{ $task->isRevisiLocked() ? 'text-red-600 font-bold' : 'text-gray-500' }}">
+                                    {{ $task->revision_counter }}/{{ $task->max_revision_limit }}
+                                </span>
+                            </td>
                             <td class="px-4 py-3 flex gap-1">
                                 <button wire:click="viewDetail({{ $task->id }})"
                                     class="px-3 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100">
@@ -74,7 +80,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">Tidak ada tugas menunggu approval.</td></tr>
+                        <tr><td colspan="8" class="px-4 py-8 text-center text-gray-400">Tidak ada tugas menunggu approval.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -116,6 +122,11 @@
                         <tr>
                             <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</td>
                             <td class="py-2">{{ $detailTask->deadline->format('d M Y') }}</td>
+                        </tr>
+                        @endif
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Revisi</td>
+                            <td class="py-2"><span class="{{ $detailTask->isRevisiLocked() ? 'text-red-600 font-bold' : '' }}">{{ $detailTask->revision_counter }}/{{ $detailTask->max_revision_limit }}</span></td>
                         </tr>
                         @endif
                         <tr>

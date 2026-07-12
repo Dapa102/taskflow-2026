@@ -62,10 +62,14 @@ class TaskApproval extends Component
 
         $task = Task::where('status', TaskStatus::PENDING_ADMIN)->findOrFail($this->rejectTaskId);
 
-        $task->update(['review_note' => $this->rejectNote]);
+        $newCounter = $task->revision_counter + 1;
+        $task->update([
+            'review_note' => $this->rejectNote,
+            'revision_counter' => $newCounter,
+        ]);
 
         app(TaskStatusHistoryService::class)->transition(
-            $task, TaskStatus::IN_PROGRESS, "Dikembalikan oleh Super Admin: {$this->rejectNote}"
+            $task, TaskStatus::IN_PROGRESS, "Dikembalikan oleh Super Admin: {$this->rejectNote} ({$newCounter}/{$task->max_revision_limit})"
         );
 
         $this->reset(['rejectTaskId', 'rejectNote', 'showRejectModal', 'showDetailModal']);

@@ -70,7 +70,7 @@ BRD menyebut pemantauan penghitung revisi saat task dalam proses perbaikan. PRD 
 - Tampilkan riwayat revisi untuk PM, Member, dan Super Admin.
 
 **Status**
-Planned setelah MVP.
+Done.
 
 ---
 
@@ -90,7 +90,7 @@ PRD menyebut proses arbitrase apabila diperlukan.
 - Kirim notifikasi ke pihak terkait.
 
 **Status**
-Planned setelah revision counter.
+In Progress.
 
 ---
 
@@ -255,6 +255,8 @@ Fitur berikut tetap di luar MVP dan tidak dikerjakan sampai backlog next update 
 |---|---|---|---|---|
 | 2026-07-12 | INIT | Dokumen next update dibuat | Open | Menunggu MVP selesai |
 | 2026-07-12 | NU-01 | Approval Final Super Admin | In Progress | Implementasi: status pending_admin, SA approval page, PM approve → pending_admin |
+| 2026-07-12 | NU-02 | Revision Counter | Done | Display counter + increment on reject + auto-escalation ke arbitrase |
+| 2026-07-12 | NU-03 | Arbitrase Task | In Progress | Auto-escalation on max revision + PM request button |
 
 ---
 
@@ -262,7 +264,7 @@ Fitur berikut tetap di luar MVP dan tidak dikerjakan sampai backlog next update 
 
 ```text
 NU-01 -> NU-02 -> NU-03 -> NU-04 -> NU-05
-Approval   Revision   Arbitrase   Eskalasi   Deputy PM
+✅ Done    ✅ Done    🔄 In Progress   Planned   Planned
 
 NU-06 -> NU-07 -> NU-08 -> NU-09 -> NU-10
 Email      WhatsApp   Report      Deadline   Audit Log

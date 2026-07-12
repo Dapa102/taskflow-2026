@@ -48,14 +48,22 @@ class ReviewTasks extends Component
             ->where('status', TaskStatus::REVIEW)
             ->findOrFail($taskId);
 
+        $newCounter = $task->revision_counter + 1;
         $task->update([
             'review_note' => $this->reviewNote,
             'reviewed_by' => auth()->id(),
+            'revision_counter' => $newCounter,
         ]);
 
-        app(TaskStatusHistoryService::class)->transition(
-            $task, TaskStatus::IN_PROGRESS, "Dikembalikan untuk perbaikan: {$this->reviewNote}"
-        );
+        if ($newCounter >= $task->max_revision_limit) {
+            app(TaskStatusHistoryService::class)->transition(
+                $task, TaskStatus::PENDING_ARBITRATION, "Batas revisi tercapai, masuk arbitrase: {$this->reviewNote} ({$newCounter}/{$task->max_revision_limit})"
+            );
+        } else {
+            app(TaskStatusHistoryService::class)->transition(
+                $task, TaskStatus::IN_PROGRESS, "Dikembalikan untuk perbaikan: {$this->reviewNote} ({$newCounter}/{$task->max_revision_limit})"
+            );
+        }
 
         $this->reviewNote = '';
         $this->showDetailModal = false;

@@ -29,6 +29,7 @@
                     <div><span class="text-gray-400">Anggota:</span> <span class="font-medium">{{ $task->assignedMember?->name ?? '—' }}</span></div>
                     <div><span class="text-gray-400">Prioritas:</span> <span class="font-medium">{{ ucfirst($task->priority) }}</span></div>
                     <div><span class="text-gray-400">Deadline:</span> <span class="font-medium">{{ $task->deadline?->format('d M Y') ?? '—' }}</span></div>
+                    <div><span class="text-gray-400">Revisi:</span> <span class="font-medium {{ $task->isRevisiLocked() ? 'text-red-600 font-bold' : '' }}">{{ $task->revision_counter }}/{{ $task->max_revision_limit }}</span></div>
                 </div>
 
                 @if($task->review_note)
@@ -78,8 +79,8 @@
                                 <span class="px-1.5 py-0.5 rounded bg-gray-100 text-xs">{{ \App\Enums\TaskStatus::label($h->from_status) }}</span>
                                 <span>&rarr;</span>
                                 <span class="px-1.5 py-0.5 rounded bg-gray-100 text-xs">{{ \App\Enums\TaskStatus::label($h->to_status) }}</span>
-                                @if($h->note)
-                                    <span class="text-gray-400">— {{ $h->note }}</span>
+                                @if($h->notes)
+                                    <span class="text-gray-400">— {{ $h->notes }}</span>
                                 @endif
                             </div>
                         @endforeach

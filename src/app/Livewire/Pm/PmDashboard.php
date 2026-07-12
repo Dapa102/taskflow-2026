@@ -94,17 +94,39 @@ class PmDashboard extends Component
 
         $note = $this->reviewNote;
 
+        $newCounter = $task->revision_counter + 1;
         $task->update([
             'review_note' => $note,
             'reviewed_by' => auth()->id(),
+            'revision_counter' => $newCounter,
         ]);
 
-        app(TaskStatusHistoryService::class)->transition(
-            $task, TaskStatus::IN_PROGRESS, "Dikembalikan untuk perbaikan: {$note}"
-        );
-        session()->flash('message', 'Task returned for update.');
+        if ($newCounter >= $task->max_revision_limit) {
+            app(TaskStatusHistoryService::class)->transition(
+                $task, TaskStatus::PENDING_ARBITRATION, "Batas revisi tercapai, masuk arbitrase: {$note} ({$newCounter}/{$task->max_revision_limit})"
+            );
+            session()->flash('message', 'Batas revisi tercapai. Task masuk arbitrase.');
+        } else {
+            app(TaskStatusHistoryService::class)->transition(
+                $task, TaskStatus::IN_PROGRESS, "Dikembalikan untuk perbaikan: {$note} ({$newCounter}/{$task->max_revision_limit})"
+            );
+            session()->flash('message', 'Task returned for update.');
+        }
 
         $this->reset(['reviewNote', 'rejectTaskId']);
+    }
+
+    public function requestArbitration($taskId)
+    {
+        $task = Task::where('assigned_pm_id', auth()->id())
+            ->where('status', TaskStatus::IN_PROGRESS)
+            ->where('revision_counter', '>', 0)
+            ->findOrFail($taskId);
+
+        app(TaskStatusHistoryService::class)->transition(
+            $task, TaskStatus::PENDING_ARBITRATION, 'Diminta arbitrase oleh Project Manager'
+        );
+        session()->flash('message', 'Task diajukan ke arbitrase.');
     }
 
     public function confirmCancel($taskId)

@@ -12,9 +12,15 @@ class Task extends Model
 {
     use HasFactory;
 
+    protected $attributes = [
+        'status' => 'todo',
+        'priority' => 'medium',
+    ];
+
     protected $fillable = [
         'workspace_id',
         'project_id',
+        'user_id',
         'created_by',
         'assigned_to',
         'recommended_pm_id',
@@ -39,12 +45,33 @@ class Task extends Model
     ];
 
     protected $casts = [
-        'deadline' => 'date',
+        'deadline' => 'date:Y-m-d',
         'submitted_at' => 'datetime',
         'escalated_at' => 'datetime',
         'revision_counter' => 'integer',
         'max_revision_limit' => 'integer',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function scopeByStatus($query, $status)
+    {
+        if ($status) {
+            return $query->where('status', $status);
+        }
+        return $query;
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        if ($search) {
+            return $query->where('title', 'like', '%' . $search . '%');
+        }
+        return $query;
+    }
 
     public function workspace(): BelongsTo
     {
@@ -86,6 +113,16 @@ class Task extends Model
         return $this->belongsTo(Team::class);
     }
 
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function subtasks(): HasMany
+    {
+        return $this->hasMany(Subtask::class);
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
@@ -114,7 +151,7 @@ class Task extends Model
     public function isOverdue(): bool
     {
         return $this->deadline && $this->deadline->isPast()
-            && !in_array($this->status, [TaskStatus::DONE, TaskStatus::CANCELLED]);
+            && !in_array($this->status, [TaskStatus::DONE, TaskStatus::CANCELLED, TaskStatus::REVIEW, TaskStatus::PENDING_ADMIN]);
     }
 
     public function isRevisiLocked(): bool
@@ -130,5 +167,10 @@ class Task extends Model
     public function getStatusBadgeClassAttribute(): string
     {
         return TaskStatus::badgeClass($this->status);
+    }
+
+    public function getProgressAttribute(): ?string
+    {
+        return null;
     }
 }

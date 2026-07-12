@@ -27,6 +27,7 @@
                                 @if($task->project)<span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-600">{{ $task->project->name }}</span>@endif
                                 <span>Oleh: {{ $task->assignedMember?->name ?? '—' }}</span>
                                 <span class="px-2 py-0.5 rounded {{ $task->priority === 'high' ? 'bg-red-50 text-red-600' : ($task->priority === 'medium' ? 'bg-yellow-50 text-yellow-600' : 'bg-gray-50 text-gray-500') }}">{{ ucfirst($task->priority) }}</span>
+                                <span class="px-2 py-0.5 rounded {{ $task->isRevisiLocked() ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600' }}">Revisi: {{ $task->revision_counter }}/{{ $task->max_revision_limit }}</span>
                             </div>
                         </div>
                         <span class="text-xs px-2 py-1 rounded-full {{ $task->status_badge_class }}">{{ $task->status_label }}</span>
@@ -71,6 +72,7 @@
                                 <div>
                                     <span class="text-sm font-medium text-gray-900">{{ $task->title }}</span>
                                     <span class="text-xs text-gray-400 ml-2">— {{ $task->assignedMember?->name ?? '—' }}</span>
+                                    <span class="text-xs text-gray-400 ml-2">Revisi: {{ $task->revision_counter }}/{{ $task->max_revision_limit }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <button wire:click="showDetail({{ $task->id }})"
@@ -118,6 +120,10 @@
                             <td class="py-2">{{ $detailTask->deadline->format('d M Y') }}</td>
                         </tr>
                         @endif
+                        <tr>
+                            <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Revisi</td>
+                            <td class="py-2"><span class="{{ $detailTask->isRevisiLocked() ? 'text-red-600 font-bold' : '' }}">{{ $detailTask->revision_counter }}/{{ $detailTask->max_revision_limit }}</span></td>
+                        </tr>
                         <tr>
                             <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Anggota</td>
                             <td class="py-2">{{ $detailTask->assignedMember?->name ?? '—' }}</td>

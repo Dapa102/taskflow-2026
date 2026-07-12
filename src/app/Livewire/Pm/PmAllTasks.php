@@ -71,17 +71,26 @@ class PmAllTasks extends Component
             ->where('status', TaskStatus::REVIEW)
             ->findOrFail($taskId);
 
+        $newCounter = $task->revision_counter + 1;
         $task->update([
             'review_note' => $this->reviewNote,
             'reviewed_by' => auth()->id(),
+            'revision_counter' => $newCounter,
         ]);
 
-        app(\App\Services\TaskStatusHistoryService::class)->transition(
-            $task, TaskStatus::IN_PROGRESS, "Dikembalikan untuk perbaikan: {$this->reviewNote}"
-        );
+        if ($newCounter >= $task->max_revision_limit) {
+            app(\App\Services\TaskStatusHistoryService::class)->transition(
+                $task, 'pending_arbitration', "Batas revisi tercapai, masuk arbitrase: {$this->reviewNote} ({$newCounter}/{$task->max_revision_limit})"
+            );
+            session()->flash('message', 'Batas revisi tercapai. Task masuk arbitrase.');
+        } else {
+            app(\App\Services\TaskStatusHistoryService::class)->transition(
+                $task, TaskStatus::IN_PROGRESS, "Dikembalikan untuk perbaikan: {$this->reviewNote} ({$newCounter}/{$task->max_revision_limit})"
+            );
+            session()->flash('message', 'Tugas dikembalikan untuk revisi.');
+        }
 
         $this->reset(['reviewNote', 'rejectTaskId', 'showDetailModal']);
-        session()->flash('message', 'Tugas dikembalikan untuk revisi.');
     }
 
     public function confirmDelete($taskId)

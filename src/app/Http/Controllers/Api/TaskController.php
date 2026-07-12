@@ -57,6 +57,8 @@ class TaskController extends Controller
             Gate::authorize('view', $team);
         }
 
+        $validated['created_by'] = $request->user()->id;
+
         $task = $request->user()->tasks()->create($validated);
 
         return response()->json([
