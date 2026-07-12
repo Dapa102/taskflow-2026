@@ -51,7 +51,14 @@
                                             <option value="{{ $pm->id }}">{{ $pm->name }}</option>
                                         @endforeach
                                     </select>
-                                    <div class="flex gap-2 md:col-span-3">
+                                    <select wire:model="editDeputyPmId"
+                                        class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 text-sm">
+                                        <option value="">Deputy PM (opsional)</option>
+                                        @foreach($pms as $pm)
+                                            <option value="{{ $pm->id }}">{{ $pm->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="flex gap-2 md:col-span-4">
                                         <button type="submit" class="px-3 py-1 text-xs bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Simpan</button>
                                         <button type="button" wire:click="$set('editId', null)" class="px-3 py-1 text-xs text-gray-600 hover:text-gray-900">Batal</button>
                                     </div>
@@ -65,6 +72,9 @@
                                         @endif
                                         <div class="text-xs text-gray-400 mt-1">
                                             PM: <span class="font-medium text-gray-700">{{ $ws['pm']?->name ?? '—' }}</span>
+                                            @if($ws['deputy_pm'])
+                                            &middot; Deputy: <span class="font-medium text-gray-700">{{ $ws['deputy_pm']->name }}</span>
+                                            @endif
                                             &middot; {{ $ws['project_count'] }} project &middot; {{ $ws['task_count'] }} tugas
                                             &middot; {{ $ws['member_count'] }} anggota
                                             &middot; Dibuat {{ $ws['created_at']?->format('d M Y') }}

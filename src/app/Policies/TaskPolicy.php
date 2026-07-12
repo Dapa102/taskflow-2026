@@ -17,7 +17,7 @@ class TaskPolicy
         if ($user->role === 'super_admin') return true;
         if ($user->id === $task->user_id) return true;
         if ($user->role === 'pm') {
-            return $task->workspace && $task->workspace->pm_id === $user->id;
+            return $task->workspace && ($task->workspace->pm_id === $user->id || $task->workspace->deputy_pm_id === $user->id);
         }
         return $task->assigned_member_id === $user->id;
     }
@@ -32,7 +32,7 @@ class TaskPolicy
         if ($user->role === 'super_admin') return true;
         if ($user->id === $task->user_id) return true;
         if ($user->role === 'pm') {
-            return $task->workspace && $task->workspace->pm_id === $user->id;
+            return $task->workspace && ($task->workspace->pm_id === $user->id || $task->workspace->deputy_pm_id === $user->id);
         }
         return false;
     }
@@ -42,7 +42,7 @@ class TaskPolicy
         if ($user->role === 'super_admin') return true;
         if ($user->id === $task->user_id) return true;
         if ($user->role === 'pm') {
-            return $task->workspace && $task->workspace->pm_id === $user->id;
+            return $task->workspace && ($task->workspace->pm_id === $user->id || $task->workspace->deputy_pm_id === $user->id);
         }
         return false;
     }

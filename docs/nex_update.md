@@ -90,7 +90,7 @@ PRD menyebut proses arbitrase apabila diperlukan.
 - Kirim notifikasi ke pihak terkait.
 
 **Status**
-In Progress.
+Done.
 
 ---
 
@@ -110,7 +110,7 @@ BRD menyebut kebutuhan mekanisme agar alur penyelesaian tidak berhenti saat Proj
 - Tambah halaman daftar eskalasi.
 
 **Status**
-Planned setelah MVP stabil.
+Done.
 
 ---
 
@@ -129,7 +129,7 @@ BRD menyebut tidak adanya pengalihan otomatis saat Project Manager cuti atau sak
 - Tambah notifikasi saat Deputy PM aktif.
 
 **Status**
-Planned setelah eskalasi otomatis.
+Done.
 
 ---
 
@@ -256,7 +256,9 @@ Fitur berikut tetap di luar MVP dan tidak dikerjakan sampai backlog next update 
 | 2026-07-12 | INIT | Dokumen next update dibuat | Open | Menunggu MVP selesai |
 | 2026-07-12 | NU-01 | Approval Final Super Admin | In Progress | Implementasi: status pending_admin, SA approval page, PM approve → pending_admin |
 | 2026-07-12 | NU-02 | Revision Counter | Done | Display counter + increment on reject + auto-escalation ke arbitrase |
-| 2026-07-12 | NU-03 | Arbitrase Task | In Progress | Auto-escalation on max revision + PM request button |
+| 2026-07-12 | NU-03 | Arbitrase Task | Done | Auto-escalation on max revision + PM request button |
+| 2026-07-12 | NU-04 | Eskalasi Otomatis Review PM | Done | Command tasks:check-pm-escalation, 48h window, SA filter |
+| 2026-07-12 | NU-05 | Deputy Project Manager | Done | SA workspace edit: pilih Deputy PM + notifikasi + policy akses |
 
 ---
 
@@ -264,10 +266,10 @@ Fitur berikut tetap di luar MVP dan tidak dikerjakan sampai backlog next update 
 
 ```text
 NU-01 -> NU-02 -> NU-03 -> NU-04 -> NU-05
-✅ Done    ✅ Done    🔄 In Progress   Planned   Planned
+✅ Done    ✅ Done    ✅ Done    ✅ Done    ✅ Done
 
 NU-06 -> NU-07 -> NU-08 -> NU-09 -> NU-10
-Email      WhatsApp   Report      Deadline   Audit Log
+Planned   Planned   Planned   Planned   Planned
 ```
 
 ---
