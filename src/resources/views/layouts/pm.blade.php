@@ -14,13 +14,10 @@
 <body class="font-sans antialiased">
     <div class="min-h-screen flex bg-gray-100">
         <!-- Sidebar -->
-        <aside class="w-72 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0">
+        <aside class="w-72 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0" x-data="{ showLogoutModal: false }">
             <div class="h-16 flex items-center px-6 border-b border-gray-200">
                 <a href="{{ route('pm.dashboard') }}" class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <span class="text-white font-bold text-sm">T</span>
-                    </div>
-                    <span class="font-bold text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">TaskFlow</span>
+                    <img src="{{ asset('images/TaskflowLogo.svg') }}" alt="TaskFlow" class="h-7">
                 </a>
             </div>
 
@@ -85,19 +82,40 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-1">
-                        <a href="{{ route('profile.edit') }}" class="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-gray-100 transition-colors" title="Profile">
+                        <a href="{{ route('profile.edit') }}" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Profile">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                         </a>
-                        <form method="POST" action="{{ route('logout') }}" class="m-0">
+                        <button type="button" @click="showLogoutModal = true" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Logout">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Logout Confirmation Modal -->
+        <div x-show="showLogoutModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showLogoutModal = false">
+            <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4" @click.stop>
+                <div class="text-center">
+                    <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Yakin ingin logout?</h3>
+                    <p class="text-sm text-gray-500 mb-6">Anda akan keluar dari sesi saat ini.</p>
+                    <div class="flex gap-3">
+                        <button type="button" @click="showLogoutModal = false" class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                            Tidak
+                        </button>
+                        <form method="POST" action="{{ route('logout') }}" class="flex-1 m-0">
                             @csrf
-                            <button type="submit" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            <button type="submit" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors">
+                                Iya, Logout
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
-        </aside>
+        </div>
 
         <div class="flex-1 flex flex-col min-w-0">
             <header class="bg-white border-b border-gray-200 h-16 flex items-center px-6">

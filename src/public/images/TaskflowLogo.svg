@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" fill="none">
+  <!-- Icon: geometric check-flow -->
+  <rect x="2" y="10" width="30" height="30" rx="6" stroke="#1e293b" stroke-width="2.5" fill="none"/>
+  <path d="M14 26l5 4 10-12" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 16v8" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/>
+  <!-- Text: TaskFlow -->
+  <text x="42" y="32" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="22" font-weight="700" fill="#1e293b" letter-spacing="-0.5">TaskFlow</text>
+</svg>
