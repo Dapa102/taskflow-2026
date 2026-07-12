@@ -1,129 +1,37 @@
-# TaskFlow — Collaborative Task Management System
+# TaskFlow — Panduan Dokumentasi
 
-## Deskripsi
-Sistem manajemen tugas kolaboratif 4-level hierarki: **Atasan → Super Admin → Project Manager → Anggota**. Berbasis Laravel 11 + Livewire 3 + Tailwind CSS + Alpine.js.
-
-Setiap role punya sidebar navigasi sendiri, tugas mengalir dari Atasan turun ke anggota dengan review di setiap level.
+Repositori ini berisi dokumentasi lengkap sistem **TaskFlow**, aplikasi manajemen tugas kolaboratif multi-level.
 
 ---
 
-## Role & Alur
+## Daftar Dokumen
 
-| Role | Tanggung Jawab |
-|------|---------------|
-| **Atasan** | Buat tugas → kirim ke Super Admin. Pantau status tugas (sudah/belum diberikan). |
-| **Super Admin** | Terima tugas dari Atasan (Global Tasks). Assign PM. Final approve tugas selesai. |
-| **Project Manager** | Kelola tim. Assign tugas ke anggota. Approve/reject hasil kerja. |
-| **Anggota** | Kerjakan tugas. Upload file. Terima revisi. |
-
-Alur:
-```
-Atasan → Super Admin (Global Tasks) → PM (Daftar Tugas) → Anggota
-```
+| File | Isi |
+|------|-----|
+| [`README.md`](../README.md) | README utama proyek — role, fitur, cara install, struktur |
+| [`BRD.md`](BRD.md) | Business Requirements Document — kebutuhan bisnis & fungsional |
+| [`PRD.md`](PRD.md) | Product Requirements Document — spesifikasi produk & teknis |
+| [`implementation_plan.md`](implementation_plan.md) | Rencana implementasi MVP & milestone |
+| [`nex_update.md`](nex_update.md) | Track record fitur lanjutan setelah MVP (NU-01 s.d. NU-10) |
 
 ---
 
-## Tech Stack
+## Gambaran Cepat
 
-- **Backend:** PHP 8.2+, Laravel 11
-- **Frontend:** Blade, Tailwind CSS 3.4, Alpine.js 3.0, Livewire 3
-- **Database:** MariaDB 10.6 (InnoDB)
-- **Auth:** Laravel Breeze (session-based)
-- **Build:** Vite
-
----
-
-## User Demo
-
-| Role | Email | Password |
-|------|-------|----------|
-| Atasan | atasan@test.com | password |
-| Super Admin | admin@admin.com | password |
-| PM | pm1@test.com | password |
-| Anggota | member1@test.com | password |
-| Anggota | member2@test.com | password |
-
-Login di `/login`.
+| Item | Detail |
+|------|--------|
+| **Stack** | Laravel 12, Livewire 3, Tailwind CSS, Alpine.js, MariaDB/MySQL |
+| **Role** | Super Admin, Project Manager, Anggota |
+| **Workflow** | 9 status: draft → assigned_pm → assigned_member → pending_pm → revision (max 3×) → pending_admin → done (dengan arbitrase & eskalasi) |
+| **Notifikasi** | Inbox database, Email SMTP, WhatsApp Fonnte |
+| **Fitur Lanjutan** | Approval SA, arbitrase, eskalasi, deputy PM, deadline reminder, laporan + export PDF, audit log |
+| **Testing** | Pest PHP — 20+ test files, 62+ test cases |
 
 ---
 
-## Struktur Direktori (Key)
-
-```
-app/
-├── Livewire/
-│   ├── Admin/          # Super Admin components
-│   ├── Atasan/         # Atasan components
-│   ├── Pm/             # PM components
-│   ├── Member/         # Member components
-│   └── AllTasks.php    # Read-only all tasks
-├── Models/
-│   ├── User.php
-│   ├── Task.php
-│   ├── Workspace.php
-│   ├── Team.php
-│   ├── TeamMember.php
-│   └── Attachment.php
-├── Http/Middleware/
-│   ├── CheckRole.php   # Filter by role
-│   └── CheckActive.php # Block inactive users
-resources/views/
-├── layouts/
-│   ├── admin.blade.php
-│   ├── atasan.blade.php
-│   ├── pm.blade.php
-│   └── member.blade.php
-├── livewire/
-│   ├── admin/
-│   ├── atasan/
-│   ├── pm/
-│   └── member/
-└── auth/               # Breeze auth views
-```
-
----
-
-## Routes
-
-| Prefix | Role | Halaman |
-|--------|------|---------|
-| `/atasan` | atasan | Dashboard, Buat Tugas, Tugas Saya |
-| `/admin` | admin | Dashboard, Daftar Tugas, Global Tasks, PM Performance, Hubungi Team |
-| `/pm` | pm | Dashboard |
-| `/member` | member | Dashboard |
-| `/tasks` | all | Read-only all tasks |
-
----
-
-## Status Task
-
-### Workflow Status
-```
-todo → on_progress → pending_pm → pending_admin → done
-                  ↘ revision ↗
-```
-
-| Status | Arti |
-|--------|------|
-| todo | Menunggu |
-| on_progress | Dikerjakan |
-| pending_pm | Review PM |
-| pending_admin | Review Admin |
-| revision | Revisi |
-| done | Selesai |
-
-### Global Tasks Status (Admin)
-| Status | Arti |
-|--------|------|
-| Belum Diberikan | Tugas dari Atasan, belum di-assign ke PM |
-| Sudah Diberikan | Tugas dari Atasan, sudah di-assign ke PM |
-
----
-
-## Cara Install
+## Cara Memulai
 
 ```bash
-git clone <repo-url>
 cd src
 cp .env.example .env
 composer install
@@ -132,16 +40,29 @@ php artisan key:generate
 php artisan migrate --seed
 php artisan storage:link
 npm run build
+# atau: php artisan project:init
 ```
 
-Pastikan DB MariaDB running, sesuaikan `.env`.
+Akses `/login`. Demo user ada di README utama.
 
 ---
 
-## Migrasi & Seeder
+## Untuk Kontributor
 
-```bash
-php artisan migrate:fresh --seed
+1. Baca `BRD.md` & `PRD.md` untuk memahami konteks bisnis
+2. Lihat `implementation_plan.md` untuk arsitektur & milestone
+3. Cek `nex_update.md` untuk track record fitur yang sudah/belum dikerjakan
+4. Jalankan `php artisan test` sebelum pull request
+
+---
+
+## Struktur Direktori Dokumentasi
+
 ```
-
-Seeder bawaan: 1 atasan, 1 admin, 2 PM (Budi, Siti), 2 member (Ahmad, Dewi), 3 workspace, 10+ tasks.
+docs/
+├── BRD.md                  # Business requirements
+├── PRD.md                  # Product requirements & spesifikasi
+├── implementation_plan.md  # Rencana implementasi
+├── nex_update.md           # Track record fitur lanjutan
+└── README.md               # Dokumen ini
+```
