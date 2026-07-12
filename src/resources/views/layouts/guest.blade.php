@@ -24,7 +24,7 @@
                     </div>
                     <div class="text-center">
                         <h1 class="text-3xl font-bold text-gray-900 tracking-tight">TaskFlow</h1>
-                        <p class="text-sm text-gray-400 font-medium mt-1.5 tracking-wide">Kelola Tugas. Satukan Tim. Raih Hasil.</p>
+                        <p class="text-sm text-gray-400 font-medium mt-1.5 tracking-wide">Platform Kolaborasi Tugas Antar Tim</p>
                     </div>
                 </a>
 
