@@ -72,21 +72,21 @@
                         </tr>
                         <tr>
                             <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Tugas</td>
-                            <td class="py-2">{{ Task::where('workspace_id', $selectedWorkspace->id)->count() }}</td>
+                            <td class="py-2">{{ \App\Models\Task::where('workspace_id', $selectedWorkspace->id)->count() }}</td>
                         </tr>
                         <tr>
                             <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Active</td>
-                            <td class="py-2">{{ Task::where('workspace_id', $selectedWorkspace->id)->whereNotIn('status', ['done','cancelled'])->count() }}</td>
+                            <td class="py-2">{{ \App\Models\Task::where('workspace_id', $selectedWorkspace->id)->whereNotIn('status', ['done','cancelled'])->count() }}</td>
                         </tr>
                         <tr>
                             <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Selesai</td>
-                            <td class="py-2">{{ Task::where('workspace_id', $selectedWorkspace->id)->where('status', 'done')->count() }}</td>
+                            <td class="py-2">{{ \App\Models\Task::where('workspace_id', $selectedWorkspace->id)->where('status', 'done')->count() }}</td>
                         </tr>
                         <tr>
                             <td class="py-2 pr-4 align-top text-xs font-semibold text-gray-500 uppercase tracking-wide">Terlambat</td>
                             <td class="py-2">
                                 @php
-                                    $lateCount = Task::where('workspace_id', $selectedWorkspace->id)
+                                    $lateCount = \App\Models\Task::where('workspace_id', $selectedWorkspace->id)
                                         ->whereNotIn('status', ['done','cancelled'])
                                         ->whereNotNull('deadline')
                                         ->where('deadline', '<', now())
