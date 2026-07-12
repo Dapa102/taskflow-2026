@@ -20,7 +20,7 @@
             <x-text-input id="email"
                 class="block mt-2 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-gray-300 focus:ring-0 transition-all"
                 type="email" name="email" :value="old('email')" required autofocus autocomplete="username"
-                placeholder="email@gmail.com"
+                placeholder="admin@admin.com"
                 oninput="validateEmail()" />
             <p id="emailError" class="mt-2 text-sm text-red-600 hidden"></p>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
@@ -85,8 +85,8 @@
                 return;
             }
 
-            if (!val.endsWith('@gmail.com')) {
-                error.textContent = 'Email harus menggunakan @gmail.com';
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                error.textContent = 'Format email tidak valid';
                 error.classList.remove('hidden');
                 input.classList.add('border-red-400', 'bg-red-50');
             } else {
