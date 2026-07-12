@@ -25,10 +25,10 @@ class SuperAdminDashboard extends Component
 
         $total = (clone $baseQuery)->count();
         $draft = (clone $baseQuery)->where('status', TaskStatus::TODO)->count();
-        $assignedPm = (clone $baseQuery)->where('status', TaskStatus::IN_PROGRESS)->count();
         $inProgress = (clone $baseQuery)->where('status', TaskStatus::IN_PROGRESS)->count();
+        $review = (clone $baseQuery)->where('status', TaskStatus::REVIEW)->count();
         $pendingAdmin = (clone $baseQuery)->where('status', TaskStatus::PENDING_ADMIN)->count();
-        $pendingArbitration = (clone $baseQuery)->where('status', TaskStatus::CANCELLED)->count();
+        $cancelled = (clone $baseQuery)->where('status', TaskStatus::CANCELLED)->count();
         $done = (clone $baseQuery)->where('status', TaskStatus::DONE)->count();
         $deadlineCount = (clone $baseQuery)
             ->whereNotNull('deadline')
@@ -38,9 +38,9 @@ class SuperAdminDashboard extends Component
         $chartData = [
             ['label' => 'To Do', 'count' => $draft, 'bg' => '#9ca3af'],
             ['label' => 'In Progress', 'count' => $inProgress, 'bg' => '#6366f1'],
-            ['label' => 'Review', 'count' => (clone $baseQuery)->where('status', TaskStatus::REVIEW)->count(), 'bg' => '#eab308'],
+            ['label' => 'Review', 'count' => $review, 'bg' => '#eab308'],
             ['label' => 'Menunggu Approval', 'count' => $pendingAdmin, 'bg' => '#a855f7'],
-            ['label' => 'Cancelled', 'count' => $pendingArbitration, 'bg' => '#ef4444'],
+            ['label' => 'Cancelled', 'count' => $cancelled, 'bg' => '#ef4444'],
             ['label' => 'Done', 'count' => $done, 'bg' => '#22c55e'],
         ];
 
@@ -98,10 +98,10 @@ class SuperAdminDashboard extends Component
         return view('livewire.super-admin.super-admin-dashboard', [
             'total' => $total,
             'draft' => $draft,
-            'assignedPm' => $assignedPm,
             'inProgress' => $inProgress,
+            'review' => $review,
+            'cancelled' => $cancelled,
             'pendingAdmin' => $pendingAdmin,
-            'pendingArbitration' => $pendingArbitration,
             'done' => $done,
             'deadlineCount' => $deadlineCount,
             'chartData' => $chartData,

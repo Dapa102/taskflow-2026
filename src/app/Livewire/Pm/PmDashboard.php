@@ -203,6 +203,10 @@ class PmDashboard extends Component
             ['label' => 'Done', 'count' => $done, 'bg' => '#22c55e'],
         ];
 
+        if ($lainnya > 0) {
+            $chartData[] = ['label' => 'Cancelled', 'count' => $lainnya, 'bg' => '#ef4444'];
+        }
+
         $projects = $workspace ? $workspace->projects()->withCount('tasks')->get() : collect();
         $projectCount = $projects->count();
         $projectProgress = $projects->map(fn($p) => [

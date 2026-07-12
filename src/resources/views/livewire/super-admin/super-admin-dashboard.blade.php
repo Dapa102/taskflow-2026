@@ -27,12 +27,20 @@
                     <p class="text-3xl font-bold text-gray-900 mt-1">{{ $total }}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                    <p class="text-sm text-gray-500 font-medium">To Do</p>
+                    <p class="text-3xl font-bold text-gray-500 mt-1">{{ $draft }}</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
                     <p class="text-sm text-gray-500 font-medium">Sedang Dikerjakan</p>
                     <p class="text-3xl font-bold text-indigo-600 mt-1">{{ $inProgress }}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
                     <p class="text-sm text-gray-500 font-medium">Review</p>
-                    <p class="text-3xl font-bold text-yellow-600 mt-1">{{ $pendingAdmin }}</p>
+                    <p class="text-3xl font-bold text-yellow-600 mt-1">{{ $review }}</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                    <p class="text-sm text-gray-500 font-medium">Menunggu Approval</p>
+                    <p class="text-3xl font-bold text-purple-600 mt-1">{{ $pendingAdmin }}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
                     <p class="text-sm text-gray-500 font-medium">Selesai</p>
