@@ -18,7 +18,7 @@ class PmPerformance extends Component
 
     public function exportPdf()
     {
-        return redirect()->route('export.pm-performance');
+        $this->js("window.location.href = '" . route('export.pm-performance') . "'");
     }
 
     public function render()

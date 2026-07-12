@@ -54,7 +54,7 @@ class ExportController extends Controller
                 $member->overdue_tasks = $tasks->filter(fn($t) =>
                     $t->deadline && $t->deadline < now() && $t->status !== TaskStatus::DONE
                 )->count();
-                $member->on_time_rate = $member->total_tasks > 0
+                $member->completion_rate = $member->total_tasks > 0
                     ? round(($member->done_tasks / $member->total_tasks) * 100, 2)
                     : 0;
                 return $member;
