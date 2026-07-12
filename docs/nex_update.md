@@ -169,7 +169,7 @@ BRD dan PRD menyebut WhatsApp sebagai salah satu kanal notifikasi.
 - Simpan status pengiriman.
 
 **Status**
-Planned setelah email notification.
+Done.
 
 ---
 
@@ -208,7 +208,26 @@ BRD menyebut notifikasi deadline dan pemantauan tugas terlambat.
 - Notifikasi ke Member dan PM.
 
 **Status**
-Planned setelah notification system stabil.
+Done.
+
+---
+
+### NU-09 — Deadline Reminder dan Overdue Indicator
+
+**Deskripsi**
+Sistem memberi tanda task mendekati deadline atau sudah terlambat.
+
+**Alasan**
+BRD menyebut notifikasi deadline dan pemantauan tugas terlambat.
+
+**Perubahan yang Dibutuhkan**
+- Hitung deadline mendekat.
+- Badge overdue di dashboard.
+- Scheduled reminder.
+- Notifikasi ke Member dan PM.
+
+**Status**
+Done.
 
 ---
 
@@ -260,6 +279,8 @@ Fitur berikut tetap di luar MVP dan tidak dikerjakan sampai backlog next update 
 | 2026-07-12 | NU-04 | Eskalasi Otomatis Review PM | Done | Command tasks:check-pm-escalation, 48h window, SA filter |
 | 2026-07-12 | NU-05 | Deputy Project Manager | Done | SA workspace edit: pilih Deputy PM + notifikasi + policy akses |
 | 2026-07-12 | NU-06 | Notifikasi Email SMTP | Done | TaskMailNotification + mail fallback di TaskStatusHistoryService |
+| 2026-07-12 | NU-07 | Notifikasi WhatsApp Fonnte API | Done | FonnteChannel + FonnteService + 3 notif classes + HubungiTeam |
+| 2026-07-12 | NU-09 | Deadline Reminder & Overdue | Done | SendDeadlineReminders command + overdue badge + filter all pages |
 
 ---
 
@@ -269,8 +290,8 @@ Fitur berikut tetap di luar MVP dan tidak dikerjakan sampai backlog next update 
 NU-01 -> NU-02 -> NU-03 -> NU-04 -> NU-05
 ✅ Done    ✅ Done    ✅ Done    ✅ Done    ✅ Done
 
-NU-06 -> NU-07 -> NU-08 -> NU-09 -> NU-10
-✅ Done    Planned   Planned   Planned   Planned
+NU-06 -> NU-07 -> NU-09 -> NU-08 -> NU-10
+✅ Done    ✅ Done    ✅ Done    Planned   Planned
 ```
 
 ---
