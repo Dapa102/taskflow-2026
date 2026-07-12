@@ -3,6 +3,9 @@
 namespace App\Livewire\Member;
 
 use Livewire\Component;
+use App\Models\Team;
+use App\Models\TeamMember;
+use App\Models\Workspace;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.member')]
@@ -13,9 +16,12 @@ class MemberTeams extends Component
     public $detailMembers = [];
     public $detailPm = null;
 
+    public $wsDetailModal = false;
+    public $wsDetail = null;
+
     public function showDetail($teamId)
     {
-        $team = \App\Models\Team::with(['owner', 'members.user'])->findOrFail($teamId);
+        $team = Team::with(['owner', 'members.user'])->findOrFail($teamId);
 
         $this->detailTeamName = $team->name;
         $this->detailPm = $team->owner;
@@ -28,9 +34,15 @@ class MemberTeams extends Component
         $this->detailModal = true;
     }
 
+    public function showWorkspaceDetail($workspaceId)
+    {
+        $this->wsDetail = Workspace::with('pm', 'members')->findOrFail($workspaceId);
+        $this->wsDetailModal = true;
+    }
+
     public function render()
     {
-        $myTeams = \App\Models\TeamMember::where('user_id', auth()->id())
+        $myTeams = TeamMember::where('user_id', auth()->id())
             ->with('team.owner')
             ->get();
 
