@@ -101,11 +101,11 @@ class MemberDashboard extends Component
         $reviewCount = $tasks->where('status', TaskStatus::REVIEW)->count();
 
         $chartData = [
-            ['label' => 'To Do', 'count' => $tasks->where('status', TaskStatus::TODO)->count(), 'bg' => '#9ca3af'],
-            ['label' => 'In Progress', 'count' => $tasks->where('status', TaskStatus::IN_PROGRESS)->count(), 'bg' => '#6366f1'],
-            ['label' => 'Review', 'count' => $reviewCount, 'bg' => '#eab308'],
-            ['label' => 'Done', 'count' => $done, 'bg' => '#22c55e'],
-            ['label' => 'Cancelled', 'count' => $tasks->where('status', TaskStatus::CANCELLED)->count(), 'bg' => '#ef4444'],
+            ['label' => 'To Do', 'count' => $tasks->where('status', TaskStatus::TODO)->count(), 'bg' => '#cbd5e1'],
+            ['label' => 'In Progress', 'count' => $tasks->where('status', TaskStatus::IN_PROGRESS)->count(), 'bg' => '#94a3b8'],
+            ['label' => 'Review', 'count' => $reviewCount, 'bg' => '#64748b'],
+            ['label' => 'Done', 'count' => $done, 'bg' => '#1e293b'],
+            ['label' => 'Cancelled', 'count' => $tasks->where('status', TaskStatus::CANCELLED)->count(), 'bg' => '#334155'],
         ];
 
         $doneTasks = Task::where('assigned_member_id', auth()->id())
@@ -123,7 +123,7 @@ class MemberDashboard extends Component
             $dailyChartData[] = [
                 'label' => $dayNames[$date->dayOfWeek],
                 'count' => $count,
-                'bg' => $date->isToday() ? '#6366f1' : '#a5b4fc',
+                'bg' => $date->isToday() ? '#1e293b' : '#94a3b8',
             ];
         }
 

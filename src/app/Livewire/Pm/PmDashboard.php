@@ -197,14 +197,14 @@ class PmDashboard extends Component
         $lainnya = $total - ($incomingCount + $reviewCount + $inProgressCount + $done);
 
         $chartData = [
-            ['label' => 'To Do', 'count' => $incomingCount, 'bg' => '#9ca3af'],
-            ['label' => 'In Progress', 'count' => $inProgressCount, 'bg' => '#3b82f6'],
-            ['label' => 'Review', 'count' => $reviewCount, 'bg' => '#eab308'],
-            ['label' => 'Done', 'count' => $done, 'bg' => '#22c55e'],
+            ['label' => 'To Do', 'count' => $incomingCount, 'bg' => '#cbd5e1'],
+            ['label' => 'In Progress', 'count' => $inProgressCount, 'bg' => '#94a3b8'],
+            ['label' => 'Review', 'count' => $reviewCount, 'bg' => '#64748b'],
+            ['label' => 'Done', 'count' => $done, 'bg' => '#1e293b'],
         ];
 
         if ($lainnya > 0) {
-            $chartData[] = ['label' => 'Cancelled', 'count' => $lainnya, 'bg' => '#ef4444'];
+            $chartData[] = ['label' => 'Cancelled', 'count' => $lainnya, 'bg' => '#334155'];
         }
 
         $projects = $workspace ? $workspace->projects()->withCount('tasks')->get() : collect();
@@ -234,7 +234,7 @@ class PmDashboard extends Component
             $dailyChartData[] = [
                 'label' => $dayNames[$date->dayOfWeek],
                 'count' => $count,
-                'bg' => $date->isToday() ? '#6366f1' : '#a5b4fc',
+                'bg' => $date->isToday() ? '#1e293b' : '#94a3b8',
             ];
         }
 

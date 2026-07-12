@@ -43,15 +43,16 @@ function initDonutCharts() {
         el.__chartInstance = new Chart(el, {
             type: 'doughnut',
             data: {
-                labels: data.map(d => d.label),
+                labels: hasData ? data.map(d => d.label) : ['Belum Ada Tugas'],
                 datasets: [{
-                    data: data.map(d => d.count),
-                    backgroundColor: data.map(d => hexToRgba(d.bg, 0.85)),
+                    data: hasData ? data.map(d => d.count) : [1],
+                    backgroundColor: hasData ? data.map(d => hexToRgba(d.bg, 0.85)) : ['#f1f5f9'],
                     borderColor: '#fff',
                     borderWidth: 3,
-                    hoverBorderColor: (ctx) => hexToRgba(data[ctx.dataIndex].bg, 1),
-                    hoverBorderWidth: 4,
-                    hoverOffset: 12,
+                    hoverBorderColor: (ctx) => hasData ? hexToRgba(data[ctx.dataIndex].bg, 1) : '#f1f5f9',
+                    hoverBackgroundColor: hasData ? data.map(d => hexToRgba(d.bg, 1)) : ['#f1f5f9'],
+                    hoverBorderWidth: hasData ? 4 : 0,
+                    hoverOffset: hasData ? 12 : 0,
                 }],
             },
             options: {
@@ -80,6 +81,7 @@ function initDonutCharts() {
                         boxPadding: 4,
                         callbacks: {
                             label: (ctx) => {
+                                if (!hasData) return ' Belum ada tugas';
                                 const val = ctx.parsed;
                                 const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
                                 return ` ${ctx.label}: ${val} tugas (${pct}%)`;
@@ -136,7 +138,8 @@ function initBarCharts() {
                     label: 'Selesai',
                     data: data.map(d => d.count),
                     backgroundColor: data.map(d => hexToRgba(d.bg, 0.85)),
-                    borderRadius: 8,
+                    borderRadius: 2,
+                    barThickness: 8,
                     borderSkipped: false,
                     hoverBackgroundColor: data.map(d => hexToRgba(d.bg, 0.85)),
                 }],

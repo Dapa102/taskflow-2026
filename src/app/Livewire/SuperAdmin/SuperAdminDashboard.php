@@ -36,12 +36,12 @@ class SuperAdminDashboard extends Component
             ->count();
 
         $chartData = [
-            ['label' => 'To Do', 'count' => $draft, 'bg' => '#9ca3af'],
-            ['label' => 'In Progress', 'count' => $inProgress, 'bg' => '#6366f1'],
-            ['label' => 'Review', 'count' => $review, 'bg' => '#eab308'],
-            ['label' => 'Menunggu Approval', 'count' => $pendingAdmin, 'bg' => '#a855f7'],
-            ['label' => 'Cancelled', 'count' => $cancelled, 'bg' => '#ef4444'],
-            ['label' => 'Done', 'count' => $done, 'bg' => '#22c55e'],
+            ['label' => 'To Do', 'count' => $draft, 'bg' => '#cbd5e1'],
+            ['label' => 'In Progress', 'count' => $inProgress, 'bg' => '#94a3b8'],
+            ['label' => 'Review', 'count' => $review, 'bg' => '#64748b'],
+            ['label' => 'Menunggu Approval', 'count' => $pendingAdmin, 'bg' => '#475569'],
+            ['label' => 'Cancelled', 'count' => $cancelled, 'bg' => '#334155'],
+            ['label' => 'Done', 'count' => $done, 'bg' => '#1e293b'],
         ];
 
         $pms = User::where('role', 'pm')
@@ -86,7 +86,7 @@ class SuperAdminDashboard extends Component
             $dailyChartData[] = [
                 'label' => $dayNames[$date->dayOfWeek],
                 'count' => $count,
-                'bg' => $date->isToday() ? '#6366f1' : '#a5b4fc',
+                'bg' => $date->isToday() ? '#1e293b' : '#94a3b8',
             ];
         }
 
