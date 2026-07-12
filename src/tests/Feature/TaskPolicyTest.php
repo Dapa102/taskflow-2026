@@ -45,12 +45,12 @@ describe('TaskPolicy', function () {
         expect($member->can('view', $task))->toBeFalse();
     });
 
-    it('allows super admin and pm to create task', function () {
+    it('allows only pm to create task', function () {
         $admin = User::factory()->create(['role' => 'super_admin']);
         $pm = User::factory()->create(['role' => 'pm']);
         $member = User::factory()->create(['role' => 'member']);
 
-        expect($admin->can('create', Task::class))->toBeTrue();
+        expect($admin->can('create', Task::class))->toBeFalse();
         expect($pm->can('create', Task::class))->toBeTrue();
         expect($member->can('create', Task::class))->toBeFalse();
     });

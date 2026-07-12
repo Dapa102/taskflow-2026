@@ -24,7 +24,7 @@ class TaskPolicy
 
     public function create(User $user): bool
     {
-        return $user->role === 'super_admin' || $user->role === 'pm';
+        return $user->role === 'pm';
     }
 
     public function update(User $user, Task $task): bool
