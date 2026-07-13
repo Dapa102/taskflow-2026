@@ -25,6 +25,14 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $validated['email'])->firstOrFail();
+
+        if (app()->environment('production') && $user->role !== 'super_admin') {
+            Auth::logout();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akun hanya dapat digunakan oleh administrator di lingkungan production.',
+            ], 403);
+        }
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

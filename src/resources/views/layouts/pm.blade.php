@@ -14,13 +14,19 @@
 </head>
 <body class="font-sans antialiased">
     @php $routePrefix = 'pm'; @endphp
-    <div class="flex min-h-screen">
-        <aside class="taskflow-sidebar">
-            <div class="h-14 flex items-center px-5 border-b border-border shrink-0">
+    <div class="flex min-h-screen" x-data="{ sidebarOpen: false }">
+        <aside class="taskflow-sidebar"
+               :class="{ 'open': sidebarOpen }">
+            <div class="h-14 flex items-center justify-between px-5 border-b border-border shrink-0">
                 <a href="{{ route("{$routePrefix}.dashboard") }}" class="flex items-center gap-2.5">
                     <img src="{{ asset('images/TaskflowLogo.svg') }}" alt="TaskFlow" class="h-7 w-7">
                     <span class="font-bold text-base text-text-primary">TaskFlow</span>
                 </a>
+                <button onclick="history.back()" class="p-1.5 text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors" title="Kembali">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+                    </svg>
+                </button>
             </div>
 
             <nav class="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
@@ -87,6 +93,11 @@
             </div>
         </aside>
 
+        {{-- Mobile overlay backdrop --}}
+        <div x-show="sidebarOpen" x-cloak
+             @click="sidebarOpen = false"
+             class="sidebar-overlay lg:hidden"></div>
+
         <div id="logout-modal" class="modal-overlay hidden" onclick="if(event.target===this) this.classList.add('hidden')">
             <div class="modal-panel max-w-sm">
                 <div class="modal-body text-center py-8">
@@ -108,6 +119,13 @@
 
         <div class="flex-1 flex flex-col min-w-0 ml-sidebar">
             <header class="taskflow-topbar flex items-center gap-4">
+                <button @click="sidebarOpen = !sidebarOpen"
+                        class="lg:hidden p-2.5 text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-xl focus:outline-none transition-colors shrink-0"
+                        title="Menu">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                    </svg>
+                </button>
                 <div class="flex items-center gap-2 flex-1">
                     <div class="relative max-w-md w-full">
                         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>

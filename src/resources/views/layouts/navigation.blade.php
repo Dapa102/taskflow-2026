@@ -5,6 +5,11 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
+                    <button onclick="history.back()" class="mr-1 p-1.5 text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors" title="Kembali">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+                        </svg>
+                    </button>
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5">
                         <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
                             <span class="text-white font-bold text-sm">T</span>
@@ -15,20 +20,10 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard') || request()->routeIs('pm.dashboard') || request()->routeIs('member.dashboard') || request()->routeIs('admin.dashboard')">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard') || request()->routeIs('pm.dashboard') || request()->routeIs('member.dashboard') || request()->routeIs('super-admin.dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    @if(in_array(Auth::user()->role, ['pm', 'member']))
-                    <x-nav-link :href="route('tasks.all')" :active="request()->routeIs('tasks.all')">
-                        {{ __('Daftar Tugas') }}
-                    </x-nav-link>
-                    @endif
                 </div>
-            </div>
-
-            <!-- Notification Bell -->
-            <div class="hidden sm:flex sm:items-center">
-                @livewire('notification-bell')
             </div>
 
             <!-- Settings Dropdown -->

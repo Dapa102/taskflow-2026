@@ -47,6 +47,14 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if (app()->environment('production') && Auth::user()?->role !== 'super_admin') {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'email' => 'Akun hanya dapat digunakan oleh administrator di lingkungan production.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
